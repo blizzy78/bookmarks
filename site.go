@@ -12,7 +12,9 @@ import (
 )
 
 type site struct {
-	rs *rest
+	login    string
+	password string
+	rs       *rest
 }
 
 type rest struct {
@@ -46,12 +48,6 @@ type saveBookmarkRequest struct {
 	Tags        []string `json:"tags"`
 }
 
-type autoFillResponse struct {
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Tags        []string `json:"tags"`
-}
-
 type deleteBookmarkRequest struct {
 	ID string `json:"id"`
 }
@@ -66,9 +62,11 @@ type restRouter struct {
 	*mux.Router
 }
 
-func newSite(i *index) *site {
+func newSite(login string, password string, i *index) *site {
 	return &site{
-		rs: newREST(i),
+		login:    login,
+		password: password,
+		rs:       newREST(i),
 	}
 }
 
@@ -80,9 +78,15 @@ func newREST(i *index) *rest {
 
 func (s *site) newRouter() *mux.Router {
 	r := mux.NewRouter()
+	r.Use(s.handleAuth)
+
 	s.rs.addRoutes(r, "/rest")
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("templates"))).Methods(http.MethodGet, http.MethodHead)
 	return r
+}
+
+func (s *site) handleAuth(next http.Handler) http.Handler {
+	return handleAuth(s.login, s.password, next)
 }
 
 func (rs *rest) addRoutes(r *mux.Router, prefix string) {
@@ -161,6 +165,25 @@ func (f restHandlerFunc) serveREST(ctx context.Context, r interface{}, hr *http.
 	return f(ctx, r, hr)
 }
 
+func handleAuth(login string, password string, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		l, p, ok := r.BasicAuth()
+		if !ok {
+			w.Header().Add("WWW-Authenticate", "Basic realm=\"bookmarks\"")
+			unauthorized(w)
+			return
+		}
+
+		if l != login || p != password {
+			w.Header().Add("WWW-Authenticate", "Basic realm=\"bookmarks\"")
+			unauthorized(w)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func handleREST(rt reflect.Type, next restHandler) http.Handler {
 	if rt != nil && rt.Kind() != reflect.Ptr {
 		panic("type must be pointer")
@@ -227,4 +250,8 @@ func internalServerError(w http.ResponseWriter) {
 
 func noContent(w http.ResponseWriter) {
 	http.Error(w, "No Content", http.StatusNoContent)
+}
+
+func unauthorized(w http.ResponseWriter) {
+	http.Error(w, "Unauthorized", http.StatusUnauthorized)
 }

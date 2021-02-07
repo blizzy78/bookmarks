@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"os"
 
@@ -8,17 +9,29 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var errLoginCredentialsMissing = errors.New("login credentials missing")
+
 func main() {
 	log.Info("bookmarks starting")
 
 	err := func() error {
+		l, ok := os.LookupEnv("WWW_LOGIN")
+		if !ok {
+			return errLoginCredentialsMissing
+		}
+
+		p, ok := os.LookupEnv("WWW_PASSWORD")
+		if !ok {
+			return errLoginCredentialsMissing
+		}
+
 		i, err := newIndex()
 		if err != nil {
 			return err
 		}
 		defer i.close()
 
-		s := newSite(i)
+		s := newSite(l, p, i)
 		r := s.newRouter()
 
 		r.Use(handlers.RecoveryHandler(), handlers.CompressHandler)

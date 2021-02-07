@@ -12,7 +12,8 @@
             "program": "${workspaceFolder}",
             "cwd": "${workspaceFolder}",
             "env": {
-                "ELASTICSEARCH_URL": "http://elasticsearch:9200"
+                "WWW_LOGIN": "user",
+                "WWW_PASSWORD": "pass"
             },
             "args": []
         }
