@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/signal"
 
 	"github.com/gorilla/handlers"
 	log "github.com/sirupsen/logrus"
@@ -49,9 +51,23 @@ func runWebServer() error {
 
 	r.Use(handlers.RecoveryHandler(), handlers.CompressHandler)
 
+	srv := http.Server{
+		Addr:    ":8080",
+		Handler: handlers.LoggingHandler(os.Stdout, r),
+	}
+
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, termSignals...)
+
+	go func() {
+		<-ch
+		log.Info("shutting down web server")
+		_ = srv.Shutdown(context.Background())
+	}()
+
 	log.Info("starting server on port 8080")
-	err = http.ListenAndServe(":8080", handlers.LoggingHandler(os.Stdout, r))
-	if err != nil {
+	err = srv.ListenAndServe()
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
 
