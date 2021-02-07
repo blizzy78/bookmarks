@@ -130,7 +130,7 @@ func (i *index) search(ctx context.Context, query string) (*searchResponse, erro
 		return nil, err
 	}
 
-	hits := make([]*hit, int(res.Total))
+	hits := make([]*hit, len(res.Hits))
 	for i, h := range res.Hits {
 		hits[i] = &hit{
 			ID:          h.ID,
