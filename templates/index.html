@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+    <title>Bookmarks</title>
+
+    <link rel="stylesheet" href="/css/bootstrap-5.0.0-beta1.min.css" type="text/css"/>
+    <link rel="stylesheet" href="/fontawesome-free-5.15.1-web/css/all.min.css" type="text/css"/>
+    <link rel="stylesheet" href="/css/bookmarks.css" type="text/css"/>
+    <link rel="stylesheet" href="/css/tag-basic-style.css" type="text/css"/>
+  </head>
+
+  <body>
+    <section class="my-4">
+      <div class="container">
+        <div class="row g-2">
+          <div class="col-12 col-md">
+            <form id="search-form" class="inline-form" onsubmit="return false">
+              <input name="q" type="search" class="form-control" placeholder="Enter search terms" autofocus/>
+            </form>
+          </div>
+          <div class="col-auto">
+            <button id="add-bookmark-button" class="btn btn-outline-primary">
+              <i class="fas fa-plus"></i>
+              New
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <div id="results" class="container"></div>
+    </section>
+
+    <div class="toast-container position-absolute bottom-0 start-0 p-3"></div>
+
+    <div id="add-bookmark-dialog" class="modal" tabindex="-1" aria-labelledby="add-bookmark-dialog-title" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 id="add-bookmark-dialog-title" class="modal-title">New Bookmark</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="add-bookmark-dialog-add-form" onsubmit="return false;">
+              <input type="hidden" name="id"/>
+
+              <div class="mb-3">
+                <label for="url" class="form-label">URL</label>
+                <input name="url" id="url" type="text" class="form-control"/>
+              </div>
+
+              <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input name="title" id="title" type="text" class="form-control"/>
+              </div>
+
+              <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea id="description" name="description" class="form-control" rows="6"></textarea>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Tags</label>
+                <div id="tags" data-tags-input-name="tag" class="form-control"></div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button id="add-bookmark-dialog-add-button" type="button" class="btn btn-primary">Save</button>
+            <button id="add-bookmark-dialog-delete-button" type="button" class="btn btn-outline-danger">Delete</button>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="/js/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript" src="/js/tagging-1.3.3.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-5.0.0-beta1.bundle.min.js"></script>
+    <script type="text/javascript" src="/js/d3-6.3.1.min.js"></script>
+    <script type="text/javascript" src="/js/require-2.3.6.min.js"></script>
+    <script type="text/javascript" src="/js/bookmarks/require-util.js"></script>
+
+    <script type="text/javascript">
+      require.config({
+        'baseUrl': '/js/bookmarks'
+      });
+
+      requirePromise('bookmarks').then(bookmarks => {
+        bookmarks.init();
+      });
+    </script>
+  </body>
+</html>

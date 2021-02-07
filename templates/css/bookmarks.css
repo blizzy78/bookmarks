@@ -1,0 +1,45 @@
+input::placeholder {
+	font-style: italic;
+}
+
+.entry .entry-title {
+	font-size: 1.25rem;
+}
+
+.entry a.entry-link,
+.entry a.edit-link,
+.entry a.badge,
+.form-control.tagging .tag a.tag-i {
+	text-decoration: none;
+}
+
+.entry a.edit-link {
+	color: transparent;
+	cursor: pointer;
+}
+
+.entry:hover a.edit-link {
+	color: #ddd;
+}
+
+.entry a.edit-link:hover {
+	color: #212529;
+}
+
+.entry .entry-url {
+	font-size: 0.9rem;
+}
+
+.entry .entry-url a.entry-link {
+	color: #5cad4c;
+}
+
+.entry .entry-tags .badge {
+	font-weight: normal;
+	cursor: pointer;
+}
+
+.entry .entry-tags .badge,
+.entry .entry-tags .badge:hover {
+	color: white;
+}
