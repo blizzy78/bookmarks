@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"reflect"
-	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -32,12 +31,11 @@ type searchResponse struct {
 }
 
 type hit struct {
-	ID           string    `json:"id"`
-	URL          string    `json:"url"`
-	Title        string    `json:"title"`
-	Description  string    `json:"description"`
-	Tags         []string  `json:"tags"`
-	CreationDate time.Time `json:"creationDate"`
+	ID          string   `json:"id"`
+	URL         string   `json:"url"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Tags        []string `json:"tags"`
 }
 
 type saveBookmarkRequest struct {
@@ -115,15 +113,14 @@ func (rs *rest) saveBookmark(ctx context.Context, r interface{}, hr *http.Reques
 	req := r.(*saveBookmarkRequest)
 
 	b := bookmark{
-		ID:           req.ID,
-		URL:          req.URL,
-		Title:        req.Title,
-		Description:  req.Description,
-		Tags:         req.Tags,
-		CreationDate: time.Now(),
+		ID:          req.ID,
+		URL:         req.URL,
+		Title:       req.Title,
+		Description: req.Description,
+		Tags:        req.Tags,
 	}
 
-	err := rs.i.saveBookmark(b)
+	_, err := rs.i.saveBookmark(b)
 	if err != nil {
 		return nil, err
 	}
