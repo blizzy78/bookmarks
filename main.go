@@ -2,159 +2,118 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
-	"os/signal"
 
 	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
+	"go.uber.org/fx"
 )
 
 var errLoginCredentialsMissing = errors.New("login credentials missing")
 
+type config struct {
+	login    string
+	password string
+}
+
 func main() {
-	if len(os.Args) == 2 && os.Args[1] == "import" {
-		err := importBookmarks()
-		if err != nil {
-			panic(err)
-		}
-		return
-	}
+	fxlogger := log.New()
+	fxlogger.Level = log.WarnLevel
 
-	err := runWebServer()
-	if err != nil {
-		log.Errorf("error in startup: %+v", err)
-		os.Exit(1)
-	}
+	fx.New(
+		fx.Logger(fxlogger),
+
+		fx.Provide(
+			log.New,
+			newConfig,
+			newMux,
+			newServer,
+			newIndex,
+			newSite,
+			newREST,
+		),
+
+		fx.Invoke(func(_ *rest) {}),
+		fx.Invoke(func(_ *site) {}),
+		fx.Invoke(func(_ *http.Server) {}),
+	).Run()
 }
 
-func runWebServer() error {
-	log.Info("starting bookmarks web server")
-
-	l, p, err := loginAndPasswordFromEnv()
-	if err != nil {
-		return err
-	}
-
-	i, err := newIndex()
-	if err != nil {
-		return err
-	}
-	defer i.close()
-
-	s := newSite(l, p, i)
-	r := s.newRouter()
-
-	r.Use(handlers.RecoveryHandler(), handlers.CompressHandler)
-
-	srv := http.Server{
-		Addr:    ":8080",
-		Handler: handlers.LoggingHandler(os.Stdout, r),
-	}
-
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, termSignals...)
-
-	go func() {
-		<-ch
-		log.Info("shutting down web server")
-		_ = srv.Shutdown(context.Background())
-	}()
-
-	log.Info("starting server on port 8080")
-	err = srv.ListenAndServe()
-	if err != nil && !errors.Is(err, http.ErrServerClosed) {
-		return err
-	}
-
-	return nil
-}
-
-func loginAndPasswordFromEnv() (string, string, error) {
+func newConfig() (*config, error) {
 	l, ok := os.LookupEnv("WWW_LOGIN")
 	if !ok {
-		return "", "", errLoginCredentialsMissing
+		return nil, errLoginCredentialsMissing
 	}
 
 	p, ok := os.LookupEnv("WWW_PASSWORD")
 	if !ok {
-		return "", "", errLoginCredentialsMissing
+		return nil, errLoginCredentialsMissing
 	}
 
-	return l, p, nil
+	return &config{
+		login:    l,
+		password: p,
+	}, nil
 }
 
-func importBookmarks() error {
-	log.Info("importing bookmarks")
-
-	i, err := newIndex()
-	if err != nil {
-		return err
-	}
-	defer i.close()
-
-	fileInfos, err := ioutil.ReadDir("bookmarks-data")
-	if err != nil {
-		return err
-	}
-
-	bat := i.i.NewBatch()
-
-	for _, fi := range fileInfos {
-		b, err := ioutil.ReadFile(fmt.Sprintf("bookmarks-data/%s", fi.Name()))
-		if err != nil {
-			return err
-		}
-
-		d := struct {
-			URL         string   `json:"url"`
-			Title       string   `json:"title"`
-			Description string   `json:"description"`
-			Tags        []string `json:"tags"`
-		}{}
-
-		err = json.Unmarshal(b, &d)
-		if err != nil {
-			return err
-		}
-
-		bm := bookmark{
-			URL:         d.URL,
-			Title:       d.Title,
-			Description: d.Description,
-			Tags:        d.Tags,
-		}
-
-		_, err = saveBookmarkBatch(bm, bat)
-		if err != nil {
-			return err
-		}
-	}
-
-	err = i.i.Batch(bat)
-	if err != nil {
-		return err
-	}
-
-	log.Infof("imported %d bookmarks", len(fileInfos))
-
-	return nil
+func newMux(c *config) *mux.Router {
+	r := mux.NewRouter()
+	r.Use(
+		handlers.RecoveryHandler(),
+		handlers.CompressHandler,
+		authHandler(c),
+	)
+	return r
 }
 
-func equalStrings(s1 []string, s2 []string) bool {
-	if len(s1) != len(s2) {
-		return false
+func authHandler(c *config) mux.MiddlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return handleAuth(c, next)
 	}
+}
 
-	for i := range s1 {
-		if s1[i] != s2[i] {
-			return false
+func handleAuth(c *config, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		l, p, ok := r.BasicAuth()
+		if !ok {
+			w.Header().Add("WWW-Authenticate", "Basic realm=\"bookmarks\"")
+			unauthorized(w)
+			return
 		}
+
+		if l != c.login || p != c.password {
+			w.Header().Add("WWW-Authenticate", "Basic realm=\"bookmarks\"")
+			unauthorized(w)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func newServer(lc fx.Lifecycle, r *mux.Router, logger *log.Logger) *http.Server {
+	s := http.Server{
+		Addr:    ":8080",
+		Handler: handlers.LoggingHandler(logger.Writer(), r),
 	}
 
-	return true
+	lc.Append(fx.Hook{
+		OnStart: func(_ context.Context) error {
+			logger.Info("starting web server")
+			go func() {
+				_ = s.ListenAndServe()
+			}()
+			return nil
+		},
+
+		OnStop: func(ctx context.Context) error {
+			logger.Info("shutting down web server")
+			return s.Shutdown(ctx)
+		},
+	})
+
+	return &s
 }

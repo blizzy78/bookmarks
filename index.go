@@ -10,10 +10,12 @@ import (
 	"github.com/blevesearch/bleve/v2/analysis/analyzer/standard"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
+	"go.uber.org/fx"
 )
 
 type index struct {
-	i bleve.Index
+	i      bleve.Index
+	logger *log.Logger
 }
 
 type bookmark struct {
@@ -29,7 +31,7 @@ var (
 	errStringSliceConversion = errors.New("convert to string slice")
 )
 
-func newIndex() (*index, error) {
+func newIndex(lc fx.Lifecycle, logger *log.Logger) (*index, error) {
 	bookmarkMapping := bleve.NewDocumentStaticMapping()
 	bookmarkMapping.DefaultAnalyzer = standard.Name
 	bookmarkMapping.AddFieldMappingsAt("url", bleve.NewTextFieldMapping())
@@ -46,20 +48,28 @@ func newIndex() (*index, error) {
 	}
 
 	if err != nil {
-		log.Info("creating new index")
+		logger.Info("creating new index")
 		i, err = bleve.New("bookmarks.bleve", indexMapping)
 	}
 	if err != nil {
 		return nil, err
 	}
 
-	return &index{
-		i: i,
-	}, nil
+	idx := index{
+		i:      i,
+		logger: logger,
+	}
+
+	lc.Append(fx.Hook{
+		OnStop: idx.close,
+	})
+
+	return &idx, nil
 }
 
-func (i *index) close() {
-	_ = i.i.Close()
+func (i *index) close(_ context.Context) error {
+	i.logger.Debug("closing index")
+	return i.i.Close()
 }
 
 func (i *index) saveBookmark(b bookmark) (string, error) {
@@ -69,20 +79,6 @@ func (i *index) saveBookmark(b bookmark) (string, error) {
 	}
 
 	err := i.i.Index(id, b)
-	if err != nil {
-		return "", err
-	}
-
-	return id, nil
-}
-
-func saveBookmarkBatch(b bookmark, bat *bleve.Batch) (string, error) {
-	id := b.ID
-	if id == "" {
-		id = randomID()
-	}
-
-	err := bat.Index(id, b)
 	if err != nil {
 		return "", err
 	}

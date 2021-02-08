@@ -8,16 +8,17 @@ import (
 	"reflect"
 
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
+	"go.uber.org/fx"
 )
 
 type site struct {
-	login    string
-	password string
-	rs       *rest
+	logger *log.Logger
 }
 
 type rest struct {
-	i *index
+	i      *index
+	logger *log.Logger
 }
 
 type searchRequest struct {
@@ -60,36 +61,46 @@ type restRouter struct {
 	*mux.Router
 }
 
-func newSite(login string, password string, i *index) *site {
-	return &site{
-		login:    login,
-		password: password,
-		rs:       newREST(i),
+func newSite(lc fx.Lifecycle, r *mux.Router, logger *log.Logger) *site {
+	s := site{
+		logger: logger,
 	}
+
+	lc.Append(fx.Hook{
+		OnStart: func(_ context.Context) error {
+			s.registerRoutes(r)
+			return nil
+		},
+	})
+
+	return &s
 }
 
-func newREST(i *index) *rest {
-	return &rest{
-		i: i,
+func newREST(lc fx.Lifecycle, i *index, r *mux.Router, logger *log.Logger) *rest {
+	rs := rest{
+		i:      i,
+		logger: logger,
 	}
+
+	lc.Append(fx.Hook{
+		OnStart: func(_ context.Context) error {
+			rs.registerRoutes(r)
+			return nil
+		},
+	})
+
+	return &rs
 }
 
-func (s *site) newRouter() *mux.Router {
-	r := mux.NewRouter()
-	r.Use(s.handleAuth)
-
-	s.rs.addRoutes(r, "/rest")
+func (s *site) registerRoutes(r *mux.Router) {
+	s.logger.Debug("registering site routes")
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("templates"))).Methods(http.MethodGet, http.MethodHead)
-	return r
 }
 
-func (s *site) handleAuth(next http.Handler) http.Handler {
-	return handleAuth(s.login, s.password, next)
-}
-
-func (rs *rest) addRoutes(r *mux.Router, prefix string) {
+func (rs *rest) registerRoutes(r *mux.Router) {
+	rs.logger.Debug("registering REST routes")
 	rr := restRouter{
-		Router: r.PathPrefix(prefix).Subrouter(),
+		Router: r.PathPrefix("/rest").Subrouter(),
 	}
 	rr.handleRESTFunc(http.MethodGet, "/bookmark/{id:[0-9a-f]{128}}", nil, rs.getBookmark)
 	rr.handleRESTFunc(http.MethodPost, "/search", reflect.TypeOf((*searchRequest)(nil)), rs.search)
@@ -160,25 +171,6 @@ func (r restRouter) handleRESTFunc(m string, path string, rt reflect.Type, f res
 
 func (f restHandlerFunc) serveREST(ctx context.Context, r interface{}, hr *http.Request) (interface{}, error) {
 	return f(ctx, r, hr)
-}
-
-func handleAuth(login string, password string, next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		l, p, ok := r.BasicAuth()
-		if !ok {
-			w.Header().Add("WWW-Authenticate", "Basic realm=\"bookmarks\"")
-			unauthorized(w)
-			return
-		}
-
-		if l != login || p != password {
-			w.Header().Add("WWW-Authenticate", "Basic realm=\"bookmarks\"")
-			unauthorized(w)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
 }
 
 func handleREST(rt reflect.Type, next restHandler) http.Handler {
