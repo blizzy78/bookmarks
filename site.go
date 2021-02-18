@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"embed"
 	"encoding/json"
+	"io/fs"
 	"io/ioutil"
 	"net/http"
 	"reflect"
@@ -61,6 +63,9 @@ type restRouter struct {
 	*mux.Router
 }
 
+//go:embed templates
+var templates embed.FS
+
 func newSite(lc fx.Lifecycle, r *mux.Router, logger *log.Logger) *site {
 	s := site{
 		logger: logger,
@@ -68,8 +73,7 @@ func newSite(lc fx.Lifecycle, r *mux.Router, logger *log.Logger) *site {
 
 	lc.Append(fx.Hook{
 		OnStart: func(_ context.Context) error {
-			s.registerRoutes(r)
-			return nil
+			return s.registerRoutes(r)
 		},
 	})
 
@@ -92,9 +96,16 @@ func newREST(lc fx.Lifecycle, i *index, r *mux.Router, logger *log.Logger) *rest
 	return &rs
 }
 
-func (s *site) registerRoutes(r *mux.Router) {
+func (s *site) registerRoutes(r *mux.Router) error {
 	s.logger.Debug("registering site routes")
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir("templates"))).Methods(http.MethodGet, http.MethodHead)
+
+	t, err := fs.Sub(templates, "templates")
+	if err != nil {
+		return err
+	}
+
+	r.PathPrefix("/").Handler(http.FileServer(http.FS(t))).Methods(http.MethodGet, http.MethodHead)
+	return nil
 }
 
 func (rs *rest) registerRoutes(r *mux.Router) {
