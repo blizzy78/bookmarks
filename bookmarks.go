@@ -43,6 +43,10 @@ type hit struct {
 	Tags            []string `json:"tags"`
 }
 
+type searchError struct {
+	err error
+}
+
 var (
 	errNotFound              = errors.New("not found")
 	errStringSliceConversion = errors.New("convert to string slice")
@@ -145,7 +149,9 @@ func (bm *bookmarks) search(ctx context.Context, query string) (*searchResponse,
 
 	res, err := bm.i.SearchInContext(ctx, req)
 	if err != nil {
-		return nil, err
+		return nil, &searchError{
+			err: err,
+		}
 	}
 
 	hits := make([]*hit, len(res.Hits))
@@ -213,4 +219,8 @@ func stringsToSlice(v interface{}) []string {
 	default:
 		panic(errStringSliceConversion)
 	}
+}
+
+func (s searchError) Error() string {
+	return fmt.Sprintf("search: %v", s.err)
 }

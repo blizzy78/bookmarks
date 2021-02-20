@@ -87,7 +87,7 @@ func (rs *rest) search(ctx context.Context, r interface{}, hr *http.Request) (in
 
 	res, err := rs.bm.search(ctx, query)
 	if err != nil {
-		rs.logger.Errorf("error while searching: %v", err)
+		rs.logger.Errorf("%v", err)
 		return &searchResponse{
 			RequestID: reqID,
 			Error:     true,
