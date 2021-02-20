@@ -13,10 +13,10 @@
 		}
 
 		responseID = res.requestID;
-		updateHits(res.hits);
+		updateHits(res.hits, res.totalHits);
 	}
 
-	function updateHits(hits) {
+	function updateHits(hits, totalHits) {
 		let results = d3.select('#results');
 
 		let entry = results.selectAll('div.entry')
@@ -65,17 +65,6 @@
 			.classed('entry-description', true)
 			.text(h => h.description);
 
-		// prepare tags data
-		let hitsTags = hits
-			.filter(h => typeof(h.tags) !== 'undefined' && h.tags !== null && h.tags.length > 0)
-			.map(h => {
-				return {
-					'id': h.id,
-					'tags': h.tags,
-					'isTags': true
-				};
-			});
-
 		// tags
 		entry.append('div')
 			.classed('entry-tags', true)
@@ -91,6 +80,20 @@
 						queryEl.val(queryEl.val() + ' tags:"' + t + '"');
 						search();
 					})
+			);
+
+		d3.select('#search-form .input-group')
+			.selectAll('#num-results')
+			.data([totalHits])
+			.join(
+				enter => enter.insert('span', ':first-child')
+					.attr('id', 'num-results')
+					.classed('input-group-text', true)
+					.text(n => d3.format('d')(n)),
+				update => {
+					update.text(n => d3.format('d')(n));
+					return update;
+				}
 			);
 	}
 

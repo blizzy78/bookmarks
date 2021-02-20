@@ -80,7 +80,7 @@ func (rs *rest) search(ctx context.Context, r interface{}, hr *http.Request) (in
 	query := q.Get("q")
 	reqIDStr := q.Get("requestID")
 
-	reqID, err := strconv.Atoi(reqIDStr)
+	reqID, err := strconv.ParseUint(reqIDStr, 10, 64)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (rs *rest) updateBookmark(_ context.Context, r interface{}, hr *http.Reques
 	id := mux.Vars(hr)["id"]
 	b := r.(*bookmark)
 	b.ID = id
-	_, err := rs.bm.saveBookmark(*b)
+	err := rs.bm.saveBookmark(*b)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func (rs *rest) updateBookmark(_ context.Context, r interface{}, hr *http.Reques
 
 func (rs *rest) createBookmark(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
 	b := r.(*bookmark)
-	_, err := rs.bm.saveBookmark(*b)
+	err := rs.bm.saveBookmark(*b)
 	if err != nil {
 		return nil, err
 	}

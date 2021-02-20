@@ -28,7 +28,8 @@ type bookmark struct {
 }
 
 type searchResponse struct {
-	RequestID int    `json:"requestID"`
+	RequestID uint64 `json:"requestID"`
+	TotalHits uint64 `json:"totalHits"`
 	Hits      []*hit `json:"hits"`
 }
 
@@ -96,18 +97,12 @@ func (bm *bookmarks) closeIndex(_ context.Context) error {
 	return bm.i.Close()
 }
 
-func (bm *bookmarks) saveBookmark(b bookmark) (string, error) {
+func (bm *bookmarks) saveBookmark(b bookmark) error {
 	id := b.ID
 	if id == "" {
 		id = randomID()
 	}
-
-	err := bm.i.Index(id, b)
-	if err != nil {
-		return "", err
-	}
-
-	return id, nil
+	return bm.i.Index(id, b)
 }
 
 func (bm *bookmarks) getBookmark(ctx context.Context, id string) (bookmark, error) {
@@ -162,7 +157,8 @@ func (bm *bookmarks) search(ctx context.Context, query string) (*searchResponse,
 	}
 
 	return &searchResponse{
-		Hits: hits,
+		TotalHits: res.Total,
+		Hits:      hits,
 	}, nil
 }
 
