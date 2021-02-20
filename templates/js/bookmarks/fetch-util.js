@@ -4,8 +4,16 @@ define(() => {
 			return this.fetchJSON(url, 'POST', data);
 		},
 
+		'putJSON': function(url, data) {
+			return this.fetchJSON(url, 'PUT', data);
+		},
+
 		'getJSON': function(url) {
 			return this.fetchJSON(url, 'GET', null);
+		},
+
+		'deleteJSON': function(url) {
+			return this.fetchJSON(url, 'DELETE', null);
 		},
 
 		'fetchJSON': (url, method, data) => {

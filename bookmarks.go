@@ -8,12 +8,13 @@ import (
 
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/analysis/analyzer/standard"
+	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"go.uber.org/fx"
 )
 
-type index struct {
+type bookmarks struct {
 	i      bleve.Index
 	logger *log.Logger
 }
@@ -26,12 +27,38 @@ type bookmark struct {
 	Tags        []string `json:"tags"`
 }
 
+type searchResponse struct {
+	RequestID int    `json:"requestID"`
+	Hits      []*hit `json:"hits"`
+}
+
+type hit struct {
+	ID          string   `json:"id"`
+	URL         string   `json:"url"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Tags        []string `json:"tags"`
+}
+
 var (
 	errNotFound              = errors.New("not found")
 	errStringSliceConversion = errors.New("convert to string slice")
 )
 
-func newIndex(lc fx.Lifecycle, logger *log.Logger) (*index, error) {
+func newBookmarks(lc fx.Lifecycle, logger *log.Logger) (*bookmarks, error) {
+	bm := bookmarks{
+		logger: logger,
+	}
+
+	lc.Append(fx.Hook{
+		OnStart: bm.openIndex,
+		OnStop:  bm.closeIndex,
+	})
+
+	return &bm, nil
+}
+
+func newIndexMapping() mapping.IndexMapping {
 	bookmarkMapping := bleve.NewDocumentStaticMapping()
 	bookmarkMapping.DefaultAnalyzer = standard.Name
 	bookmarkMapping.AddFieldMappingsAt("url", bleve.NewTextFieldMapping())
@@ -39,46 +66,43 @@ func newIndex(lc fx.Lifecycle, logger *log.Logger) (*index, error) {
 	bookmarkMapping.AddFieldMappingsAt("description", bleve.NewTextFieldMapping())
 	bookmarkMapping.AddFieldMappingsAt("tags", bleve.NewTextFieldMapping())
 
-	indexMapping := bleve.NewIndexMapping()
-	indexMapping.AddDocumentMapping("bookmark", bookmarkMapping)
+	im := bleve.NewIndexMapping()
+	im.AddDocumentMapping("bookmark", bookmarkMapping)
 
-	i, err := bleve.Open("bookmarks.bleve")
-	if err != nil && !errors.Is(err, bleve.ErrorIndexPathDoesNotExist) {
-		return nil, err
+	return im
+}
+
+func (bm *bookmarks) openIndex(_ context.Context) error {
+	var err error
+
+	bm.logger.Debug("opening index")
+	bm.i, err = bleve.Open("bookmarks.bleve")
+
+	if err != nil && errors.Is(err, bleve.ErrorIndexPathDoesNotExist) {
+		bm.logger.Debug("creating new index")
+		m := newIndexMapping()
+		bm.i, err = bleve.New("bookmarks.bleve", m)
 	}
 
 	if err != nil {
-		logger.Info("creating new index")
-		i, err = bleve.New("bookmarks.bleve", indexMapping)
-	}
-	if err != nil {
-		return nil, err
+		return err
 	}
 
-	idx := index{
-		i:      i,
-		logger: logger,
-	}
-
-	lc.Append(fx.Hook{
-		OnStop: idx.close,
-	})
-
-	return &idx, nil
+	return nil
 }
 
-func (i *index) close(_ context.Context) error {
-	i.logger.Debug("closing index")
-	return i.i.Close()
+func (bm *bookmarks) closeIndex(_ context.Context) error {
+	bm.logger.Debug("closing index")
+	return bm.i.Close()
 }
 
-func (i *index) saveBookmark(b bookmark) (string, error) {
+func (bm *bookmarks) saveBookmark(b bookmark) (string, error) {
 	id := b.ID
 	if id == "" {
 		id = randomID()
 	}
 
-	err := i.i.Index(id, b)
+	err := bm.i.Index(id, b)
 	if err != nil {
 		return "", err
 	}
@@ -86,13 +110,13 @@ func (i *index) saveBookmark(b bookmark) (string, error) {
 	return id, nil
 }
 
-func (i *index) getBookmark(ctx context.Context, id string) (bookmark, error) {
+func (bm *bookmarks) getBookmark(ctx context.Context, id string) (bookmark, error) {
 	q := bleve.NewDocIDQuery([]string{id})
 
 	req := bleve.NewSearchRequest(q)
 	req.Fields = []string{"url", "title", "description", "tags"}
 
-	res, err := i.i.SearchInContext(ctx, req)
+	res, err := bm.i.SearchInContext(ctx, req)
 	if err != nil {
 		return bookmark{}, err
 	}
@@ -111,17 +135,17 @@ func (i *index) getBookmark(ctx context.Context, id string) (bookmark, error) {
 	}, nil
 }
 
-func (i *index) deleteBookmark(id string) error {
-	return i.i.Delete(id)
+func (bm *bookmarks) deleteBookmark(id string) error {
+	return bm.i.Delete(id)
 }
 
-func (i *index) search(ctx context.Context, query string) (*searchResponse, error) {
+func (bm *bookmarks) search(ctx context.Context, query string) (*searchResponse, error) {
 	q := bleve.NewQueryStringQuery(query)
 
 	req := bleve.NewSearchRequestOptions(q, 100, 0, false)
 	req.Fields = []string{"url", "title", "description", "tags"}
 
-	res, err := i.i.SearchInContext(ctx, req)
+	res, err := bm.i.SearchInContext(ctx, req)
 	if err != nil {
 		return nil, err
 	}

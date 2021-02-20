@@ -32,7 +32,7 @@ func main() {
 			newConfig,
 			newMux,
 			newServer,
-			newIndex,
+			newBookmarks,
 			newSite,
 			newREST,
 		),
@@ -93,6 +93,10 @@ func handleAuth(c *config, next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func unauthorized(w http.ResponseWriter) {
+	http.Error(w, "Unauthorized", http.StatusUnauthorized)
 }
 
 func newServer(lc fx.Lifecycle, r *mux.Router, logger *log.Logger) *http.Server {

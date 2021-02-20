@@ -1,18 +1,19 @@
 (() => {
 	async function search() {
 		let query = $('#search-form :input[name="q"]').val();
-		let req = {
-			'requestId': ++requestId,
-			'q': query
-		};
-
-		let fetchUtil = await requirePromise('fetch-util');
-		let res = await fetchUtil.postJSON('/rest/search', req);
-
-		if (res.requestId > responseId) {
-			responseId = res.requestId;
-			updateHits(res.hits);
+		if (query === '') {
+			return;
 		}
+
+		let rID = ++requestID;
+		let fetchUtil = await requirePromise('fetch-util');
+		let res = await fetchUtil.getJSON('/rest/bookmark/search?q=' + encodeURIComponent(query) + '&requestID=' + rID);
+		if (res.requestID <= responseID) {
+			return;
+		}
+
+		responseID = res.requestID;
+		updateHits(res.hits);
 	}
 
 	function updateHits(hits) {
@@ -102,7 +103,6 @@
 		let tags = formEl.find('#tags').tagging('getTags');
 
 		let req = {
-			'id': id,
 			'url': url,
 			'title': title,
 			'description': description,
@@ -110,7 +110,11 @@
 		};
 
 		let [fetchUtil, notify] = await requirePromise(['fetch-util', 'notify']);
-		await fetchUtil.postJSON('/rest/saveBookmark', req);
+		if (id !== '') {
+			await fetchUtil.putJSON('/rest/bookmark/' + id, req);
+		} else {
+			await fetchUtil.postJSON('/rest/bookmark', req);
+		}
 
 		let dialog = $('#add-bookmark-dialog');
 
@@ -182,25 +186,16 @@
 		if (window.confirm('Delete this bookmark?')) {
 			let formEl = $('#add-bookmark-dialog-add-form');
 			let id = formEl.find(':input[name="id"]').val();
-
 			$('#add-bookmark-dialog').modal('hide');
-
-			let req = {
-				'id': id
-			};
-
 			let [fetchUtil, notify] = await requirePromise(['fetch-util', 'notify']);
-
-			await fetchUtil.postJSON('/rest/deleteBookmark', req)
-
+			await fetchUtil.deleteJSON('/rest/bookmark/' + id)
 			notify.message('Bookmark deleted.');
-
 			search();
 		}
 	}
 
-	let requestId = 0;
-	let responseId = 0;
+	let requestID = 0;
+	let responseID = 0;
 
 	define(['fetch-util', 'notify'], () => {
 		return {
