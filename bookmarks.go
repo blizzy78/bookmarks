@@ -5,9 +5,9 @@ import (
 	"crypto/sha512"
 	"errors"
 	"fmt"
+	"html"
 
 	"github.com/blevesearch/bleve/v2"
-	"github.com/blevesearch/bleve/v2/analysis/analyzer/standard"
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
@@ -30,15 +30,17 @@ type bookmark struct {
 type searchResponse struct {
 	RequestID uint64 `json:"requestID"`
 	TotalHits uint64 `json:"totalHits"`
+	Error     bool   `json:"error"`
 	Hits      []*hit `json:"hits"`
 }
 
 type hit struct {
-	ID          string   `json:"id"`
-	URL         string   `json:"url"`
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Tags        []string `json:"tags"`
+	ID              string   `json:"id"`
+	URL             string   `json:"url"`
+	URLHTML         string   `json:"urlHTML"`
+	TitleHTML       string   `json:"titleHTML"`
+	DescriptionHTML string   `json:"descriptionHTML"`
+	Tags            []string `json:"tags"`
 }
 
 var (
@@ -61,7 +63,7 @@ func newBookmarks(lc fx.Lifecycle, logger *log.Logger) (*bookmarks, error) {
 
 func newIndexMapping() mapping.IndexMapping {
 	bookmarkMapping := bleve.NewDocumentStaticMapping()
-	bookmarkMapping.DefaultAnalyzer = standard.Name
+	bookmarkMapping.DefaultAnalyzer = "standard"
 	bookmarkMapping.AddFieldMappingsAt("url", bleve.NewTextFieldMapping())
 	bookmarkMapping.AddFieldMappingsAt("title", bleve.NewTextFieldMapping())
 	bookmarkMapping.AddFieldMappingsAt("description", bleve.NewTextFieldMapping())
@@ -139,6 +141,7 @@ func (bm *bookmarks) search(ctx context.Context, query string) (*searchResponse,
 
 	req := bleve.NewSearchRequestOptions(q, 100, 0, false)
 	req.Fields = []string{"url", "title", "description", "tags"}
+	req.Highlight = bleve.NewHighlightWithStyle("html")
 
 	res, err := bm.i.SearchInContext(ctx, req)
 	if err != nil {
@@ -147,12 +150,29 @@ func (bm *bookmarks) search(ctx context.Context, query string) (*searchResponse,
 
 	hits := make([]*hit, len(res.Hits))
 	for i, h := range res.Hits {
+		url := h.Fields["url"].(string)
+		urlHTML := html.EscapeString(url)
+		if u, ok := h.Fragments["url"]; ok {
+			urlHTML = u[0]
+		}
+
+		titleHTML := html.EscapeString(h.Fields["title"].(string))
+		if t, ok := h.Fragments["title"]; ok {
+			titleHTML = t[0]
+		}
+
+		descriptionHTML := html.EscapeString(h.Fields["description"].(string))
+		if d, ok := h.Fragments["description"]; ok {
+			descriptionHTML = d[0]
+		}
+
 		hits[i] = &hit{
-			ID:          h.ID,
-			URL:         h.Fields["url"].(string),
-			Title:       h.Fields["title"].(string),
-			Description: h.Fields["description"].(string),
-			Tags:        stringsToSlice(h.Fields["tags"]),
+			ID:              h.ID,
+			URL:             url,
+			URLHTML:         urlHTML,
+			TitleHTML:       titleHTML,
+			DescriptionHTML: descriptionHTML,
+			Tags:            stringsToSlice(h.Fields["tags"]),
 		}
 	}
 

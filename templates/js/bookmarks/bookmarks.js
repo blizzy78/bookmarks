@@ -1,7 +1,9 @@
 (() => {
 	async function search() {
-		let query = $('#search-form :input[name="q"]').val();
+		let queryField = $('#search-form :input[name="q"]');
+		let query = queryField.val();
 		if (query === '') {
+			queryField.removeClass('is-invalid');
 			return;
 		}
 
@@ -13,10 +15,17 @@
 		}
 
 		responseID = res.requestID;
-		updateHits(res.hits, res.totalHits);
+
+		if (res.error) {
+			queryField.addClass('is-invalid');
+		} else {
+			queryField.removeClass('is-invalid');
+		}
+
+		updateHits(res.hits, res.totalHits, res.error);
 	}
 
-	function updateHits(hits, totalHits) {
+	function updateHits(hits, totalHits, error) {
 		let results = d3.select('#results');
 
 		let entry = results.selectAll('div.entry')
@@ -39,7 +48,7 @@
 		title.append('a')
 			.classed('entry-link', true)
 			.attr('href', h => h.url)
-			.text(h => h.title);
+			.html(h => h.titleHTML);
 
 		// title edit link
 		let titleEditLink = title.append('a')
@@ -58,12 +67,12 @@
 			.append('a')
 				.classed('entry-link', true)
 				.attr('href', h => h.url)
-				.text(h => h.url);
+				.html(h => h.urlHTML);
 
 		// description
 		entry.append('div')
 			.classed('entry-description', true)
-			.text(h => h.description);
+			.html(h => h.descriptionHTML);
 
 		// tags
 		entry.append('div')
@@ -82,19 +91,23 @@
 					})
 			);
 
-		d3.select('#search-form .input-group')
-			.selectAll('#num-results')
-			.data([totalHits])
-			.join(
-				enter => enter.insert('span', ':first-child')
-					.attr('id', 'num-results')
-					.classed('input-group-text', true)
-					.text(n => d3.format('d')(n)),
-				update => {
-					update.text(n => d3.format('d')(n));
-					return update;
-				}
-			);
+		if (!error) {
+			d3.select('#search-form .input-group')
+				.selectAll('#num-results')
+				.data([totalHits])
+				.join(
+					enter => enter.insert('span', ':first-child')
+						.attr('id', 'num-results')
+						.classed('input-group-text', true)
+						.text(n => d3.format('d')(n)),
+					update => {
+						update.text(n => d3.format('d')(n));
+						return update;
+					}
+				);
+		} else {
+			$('#num-results').remove();
+		}
 	}
 
 	async function saveBookmark() {
