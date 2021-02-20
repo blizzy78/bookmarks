@@ -7,7 +7,7 @@
 
 		let rID = ++requestID;
 		let fetchUtil = await requirePromise('fetch-util');
-		let res = await fetchUtil.getJSON('/rest/bookmark/search?q=' + encodeURIComponent(query) + '&requestID=' + rID);
+		let res = await fetchUtil.getJSON('/rest/bookmarks?q=' + encodeURIComponent(query) + '&requestID=' + rID);
 		if (res.requestID <= responseID) {
 			return;
 		}
@@ -111,9 +111,9 @@
 
 		let [fetchUtil, notify] = await requirePromise(['fetch-util', 'notify']);
 		if (id !== '') {
-			await fetchUtil.putJSON('/rest/bookmark/' + id, req);
+			await fetchUtil.putJSON('/rest/bookmarks/' + id, req);
 		} else {
-			await fetchUtil.postJSON('/rest/bookmark', req);
+			await fetchUtil.postJSON('/rest/bookmarks', req);
 		}
 
 		let dialog = $('#add-bookmark-dialog');
@@ -179,7 +179,7 @@
 
 	function getBookmark(id) {
 		return requirePromise('fetch-util')
-			.then(fetchUtil => fetchUtil.getJSON('/rest/bookmark/' + id));
+			.then(fetchUtil => fetchUtil.getJSON('/rest/bookmarks/' + id));
 	}
 
 	async function deleteBookmark() {
@@ -188,7 +188,7 @@
 			let id = formEl.find(':input[name="id"]').val();
 			$('#add-bookmark-dialog').modal('hide');
 			let [fetchUtil, notify] = await requirePromise(['fetch-util', 'notify']);
-			await fetchUtil.deleteJSON('/rest/bookmark/' + id)
+			await fetchUtil.deleteJSON('/rest/bookmarks/' + id)
 			notify.message('Bookmark deleted.');
 			search();
 		}

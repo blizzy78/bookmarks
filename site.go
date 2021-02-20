@@ -57,27 +57,22 @@ func newREST(lc fx.Lifecycle, bm *bookmarks, r *mux.Router, logger *log.Logger) 
 
 func (s *site) registerRoutes(r *mux.Router) error {
 	s.logger.Debug("registering site routes")
-
 	t, err := fs.Sub(templates, "templates")
 	if err != nil {
 		return err
 	}
-
 	r.PathPrefix("/").Handler(http.FileServer(http.FS(t))).Methods(http.MethodGet, http.MethodHead)
 	return nil
 }
 
 func (rs *rest) registerRoutes(r *mux.Router) {
 	rs.logger.Debug("registering REST routes")
-
-	r = r.PathPrefix("/rest").Subrouter()
-
-	br := r.PathPrefix("/bookmark").Subrouter()
-	br.Handle("/search", handleRESTFunc(nil, rs.search, rs.logger)).Methods(http.MethodGet).Queries("q", "", "requestID", "{requestID:[0-9]+}")
-	br.Handle("/{id:[0-9a-f]{128}}", handleRESTFunc(nil, rs.getBookmark, rs.logger)).Methods(http.MethodGet)
-	br.Handle("/{id:[0-9a-f]{128}}", handleRESTFunc(nil, rs.deleteBookmark, rs.logger)).Methods(http.MethodDelete)
-	br.Handle("/{id:[0-9a-f]{128}}", handleRESTFunc(reflect.TypeOf((*bookmark)(nil)), rs.updateBookmark, rs.logger)).Methods(http.MethodPut)
-	br.Handle("", handleRESTFunc(reflect.TypeOf((*bookmark)(nil)), rs.createBookmark, rs.logger)).Methods(http.MethodPost)
+	r = r.PathPrefix("/rest/bookmarks").Subrouter()
+	r.Handle("/{id:[0-9a-f]{128}}", handleRESTFunc(nil, rs.getBookmark, rs.logger)).Methods(http.MethodGet)
+	r.Handle("/{id:[0-9a-f]{128}}", handleRESTFunc(nil, rs.deleteBookmark, rs.logger)).Methods(http.MethodDelete)
+	r.Handle("/{id:[0-9a-f]{128}}", handleRESTFunc(reflect.TypeOf((*bookmark)(nil)), rs.updateBookmark, rs.logger)).Methods(http.MethodPut)
+	r.Handle("", handleRESTFunc(nil, rs.search, rs.logger)).Methods(http.MethodGet).Queries("q", "", "requestID", "{requestID:[0-9]+}")
+	r.Handle("", handleRESTFunc(reflect.TypeOf((*bookmark)(nil)), rs.createBookmark, rs.logger)).Methods(http.MethodPost)
 }
 
 func (rs *rest) search(ctx context.Context, r interface{}, hr *http.Request) (interface{}, error) {
