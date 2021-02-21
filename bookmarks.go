@@ -9,6 +9,7 @@ import (
 
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/mapping"
+	"github.com/blevesearch/bleve/v2/search"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"go.uber.org/fx"
@@ -31,7 +32,7 @@ type searchResponse struct {
 	RequestID uint64 `json:"requestID"`
 	TotalHits uint64 `json:"totalHits"`
 	Error     bool   `json:"error"`
-	Hits      []*hit `json:"hits"`
+	Hits      []hit  `json:"hits"`
 }
 
 type hit struct {
@@ -140,7 +141,7 @@ func (bm *bookmarks) deleteBookmark(id string) error {
 	return bm.i.Delete(id)
 }
 
-func (bm *bookmarks) search(ctx context.Context, query string) (*searchResponse, error) {
+func (bm *bookmarks) search(ctx context.Context, query string) (searchResponse, error) {
 	q := bleve.NewQueryStringQuery(query)
 
 	req := bleve.NewSearchRequestOptions(q, 100, 0, false)
@@ -149,40 +150,17 @@ func (bm *bookmarks) search(ctx context.Context, query string) (*searchResponse,
 
 	res, err := bm.i.SearchInContext(ctx, req)
 	if err != nil {
-		return nil, &searchError{
+		return searchResponse{}, &searchError{
 			err: err,
 		}
 	}
 
-	hits := make([]*hit, len(res.Hits))
-	for i, h := range res.Hits {
-		url := h.Fields["url"].(string)
-		urlHTML := html.EscapeString(url)
-		if u, ok := h.Fragments["url"]; ok {
-			urlHTML = u[0]
-		}
-
-		titleHTML := html.EscapeString(h.Fields["title"].(string))
-		if t, ok := h.Fragments["title"]; ok {
-			titleHTML = t[0]
-		}
-
-		descriptionHTML := html.EscapeString(h.Fields["description"].(string))
-		if d, ok := h.Fragments["description"]; ok {
-			descriptionHTML = d[0]
-		}
-
-		hits[i] = &hit{
-			ID:              h.ID,
-			URL:             url,
-			URLHTML:         urlHTML,
-			TitleHTML:       titleHTML,
-			DescriptionHTML: descriptionHTML,
-			Tags:            stringsToSlice(h.Fields["tags"]),
-		}
+	hits := make([]hit, len(res.Hits))
+	for i, m := range res.Hits {
+		hits[i] = matchToHit(m)
 	}
 
-	return &searchResponse{
+	return searchResponse{
 		TotalHits: res.Total,
 		Hits:      hits,
 	}, nil
@@ -190,6 +168,33 @@ func (bm *bookmarks) search(ctx context.Context, query string) (*searchResponse,
 
 func (b bookmark) Type() string {
 	return "bookmark"
+}
+
+func matchToHit(m *search.DocumentMatch) hit {
+	url := m.Fields["url"].(string)
+	urlHTML := html.EscapeString(url)
+	if u, ok := m.Fragments["url"]; ok {
+		urlHTML = u[0]
+	}
+
+	titleHTML := html.EscapeString(m.Fields["title"].(string))
+	if t, ok := m.Fragments["title"]; ok {
+		titleHTML = t[0]
+	}
+
+	descriptionHTML := html.EscapeString(m.Fields["description"].(string))
+	if d, ok := m.Fragments["description"]; ok {
+		descriptionHTML = d[0]
+	}
+
+	return hit{
+		ID:              m.ID,
+		URL:             url,
+		URLHTML:         urlHTML,
+		TitleHTML:       titleHTML,
+		DescriptionHTML: descriptionHTML,
+		Tags:            stringsToSlice(m.Fields["tags"]),
+	}
 }
 
 func randomID() string {

@@ -24,11 +24,15 @@ func main() {
 	fxlogger := log.New()
 	fxlogger.Level = log.WarnLevel
 
+	logger := log.New()
+	logger.Level = log.InfoLevel
+
 	fx.New(
 		fx.Logger(fxlogger),
 
+		fx.Supply(logger),
+
 		fx.Provide(
-			log.New,
 			newConfig,
 			newMux,
 			newServer,
@@ -37,9 +41,7 @@ func main() {
 			newREST,
 		),
 
-		fx.Invoke(func(_ *rest) {}),
-		fx.Invoke(func(_ *site) {}),
-		fx.Invoke(func(_ *http.Server) {}),
+		fx.Invoke(func(_ *rest, _ *site, _ *http.Server) {}),
 	).Run()
 }
 
@@ -65,18 +67,18 @@ func newMux(c *config) *mux.Router {
 	r.Use(
 		handlers.RecoveryHandler(),
 		handlers.CompressHandler,
-		authHandler(c),
+		basicAuthHandler(c.login, c.password),
 	)
 	return r
 }
 
-func authHandler(c *config) mux.MiddlewareFunc {
+func basicAuthHandler(login string, password string) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
-		return handleAuth(c, next)
+		return handleBasicAuth(login, password, next)
 	}
 }
 
-func handleAuth(c *config, next http.Handler) http.Handler {
+func handleBasicAuth(login string, password string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		l, p, ok := r.BasicAuth()
 		if !ok {
@@ -85,7 +87,7 @@ func handleAuth(c *config, next http.Handler) http.Handler {
 			return
 		}
 
-		if l != c.login || p != c.password {
+		if l != login || p != password {
 			w.Header().Add("WWW-Authenticate", "Basic realm=\"bookmarks\"")
 			unauthorized(w)
 			return

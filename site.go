@@ -91,7 +91,7 @@ func (rs *rest) search(ctx context.Context, r interface{}, hr *http.Request) (in
 		return &searchResponse{
 			RequestID: reqID,
 			Error:     true,
-			Hits:      []*hit{},
+			Hits:      []hit{},
 		}, nil
 	}
 
