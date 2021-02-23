@@ -67,18 +67,18 @@ func newMux(c config) *mux.Router {
 	r.Use(
 		handlers.RecoveryHandler(),
 		handlers.CompressHandler,
-		basicAuthHandler(c.login, c.password),
+		basicAuthMiddleware(c.login, c.password),
 	)
 	return r
 }
 
-func basicAuthHandler(login string, password string) mux.MiddlewareFunc {
+func basicAuthMiddleware(login string, password string) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
-		return handleBasicAuth(login, password, next)
+		return basicAuthHandler(login, password, next)
 	}
 }
 
-func handleBasicAuth(login string, password string, next http.Handler) http.Handler {
+func basicAuthHandler(login string, password string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		l, p, ok := r.BasicAuth()
 		if !ok {
