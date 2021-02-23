@@ -3,7 +3,7 @@ input::placeholder {
 }
 
 .entry .entry-title {
-	font-size: 1.25rem;
+	font-size: 125%;
 }
 
 .entry a.entry-link,
@@ -27,7 +27,7 @@ input::placeholder {
 }
 
 .entry .entry-url {
-	font-size: 0.9rem;
+	font-size: 90%;
 }
 
 .entry .entry-url a.entry-link {
