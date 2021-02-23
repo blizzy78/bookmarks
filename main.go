@@ -41,28 +41,28 @@ func main() {
 			newREST,
 		),
 
-		fx.Invoke(func(_ *rest, _ *site, _ *http.Server) {}),
+		fx.Invoke(func(rest, site, *http.Server) {}),
 	).Run()
 }
 
-func newConfig() (*config, error) {
+func newConfig() (config, error) {
 	l, ok := os.LookupEnv("WWW_LOGIN")
 	if !ok {
-		return nil, errLoginCredentialsMissing
+		return config{}, errLoginCredentialsMissing
 	}
 
 	p, ok := os.LookupEnv("WWW_PASSWORD")
 	if !ok {
-		return nil, errLoginCredentialsMissing
+		return config{}, errLoginCredentialsMissing
 	}
 
-	return &config{
+	return config{
 		login:    l,
 		password: p,
 	}, nil
 }
 
-func newMux(c *config) *mux.Router {
+func newMux(c config) *mux.Router {
 	r := mux.NewRouter()
 	r.Use(
 		handlers.RecoveryHandler(),

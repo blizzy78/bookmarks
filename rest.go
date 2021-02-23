@@ -25,7 +25,7 @@ func handleREST(reqType reflect.Type, next restHandler, logger *log.Logger) http
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var req interface{}
+		req := interface{}(nil)
 		if reqType != nil {
 			req = reflect.New(reqType.Elem()).Interface()
 			defer r.Body.Close()
@@ -54,8 +54,7 @@ func handleREST(reqType reflect.Type, next restHandler, logger *log.Logger) http
 		}
 
 		w.Header().Add("Content-Type", "application/json")
-		err = json.NewEncoder(w).Encode(res)
-		if err != nil {
+		if err := json.NewEncoder(w).Encode(res); err != nil {
 			logger.Errorf("error sending REST response: %v", err)
 			internalServerError(w)
 		}

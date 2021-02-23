@@ -25,7 +25,7 @@ type rest struct {
 //go:embed templates
 var templates embed.FS
 
-func newSite(lc fx.Lifecycle, r *mux.Router, logger *log.Logger) *site {
+func newSite(lc fx.Lifecycle, r *mux.Router, logger *log.Logger) site {
 	s := site{
 		logger: logger,
 	}
@@ -36,10 +36,10 @@ func newSite(lc fx.Lifecycle, r *mux.Router, logger *log.Logger) *site {
 		},
 	})
 
-	return &s
+	return s
 }
 
-func newREST(lc fx.Lifecycle, bm *bookmarks, r *mux.Router, logger *log.Logger) *rest {
+func newREST(lc fx.Lifecycle, bm *bookmarks, r *mux.Router, logger *log.Logger) rest {
 	rs := rest{
 		bm:     bm,
 		logger: logger,
@@ -52,10 +52,10 @@ func newREST(lc fx.Lifecycle, bm *bookmarks, r *mux.Router, logger *log.Logger) 
 		},
 	})
 
-	return &rs
+	return rs
 }
 
-func (s *site) registerRoutes(r *mux.Router) error {
+func (s site) registerRoutes(r *mux.Router) error {
 	s.logger.Debug("registering site routes")
 	t, err := fs.Sub(templates, "templates")
 	if err != nil {
@@ -65,7 +65,7 @@ func (s *site) registerRoutes(r *mux.Router) error {
 	return nil
 }
 
-func (rs *rest) registerRoutes(r *mux.Router) {
+func (rs rest) registerRoutes(r *mux.Router) {
 	rs.logger.Debug("registering REST routes")
 	r = r.PathPrefix("/rest/bookmarks").Subrouter()
 	r.Handle("/{id:[0-9a-f]{128}}", handleRESTFunc(nil, rs.getBookmark, rs.logger)).Methods(http.MethodGet)
@@ -75,7 +75,7 @@ func (rs *rest) registerRoutes(r *mux.Router) {
 	r.Handle("", handleRESTFunc(reflect.TypeOf((*bookmark)(nil)), rs.createBookmark, rs.logger)).Methods(http.MethodPost)
 }
 
-func (rs *rest) search(ctx context.Context, r interface{}, hr *http.Request) (interface{}, error) {
+func (rs rest) search(ctx context.Context, r interface{}, hr *http.Request) (interface{}, error) {
 	q := hr.URL.Query()
 	query := q.Get("q")
 	reqIDStr := q.Get("requestID")
@@ -99,36 +99,33 @@ func (rs *rest) search(ctx context.Context, r interface{}, hr *http.Request) (in
 	return res, nil
 }
 
-func (rs *rest) updateBookmark(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
+func (rs rest) updateBookmark(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
 	id := mux.Vars(hr)["id"]
 	b := r.(*bookmark)
 	b.ID = id
-	err := rs.bm.saveBookmark(*b)
-	if err != nil {
+	if err := rs.bm.saveBookmark(*b); err != nil {
 		return nil, err
 	}
 	return nil, nil
 }
 
-func (rs *rest) createBookmark(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
+func (rs rest) createBookmark(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
 	b := r.(*bookmark)
-	err := rs.bm.saveBookmark(*b)
-	if err != nil {
+	if err := rs.bm.saveBookmark(*b); err != nil {
 		return nil, err
 	}
 	return nil, nil
 }
 
-func (rs *rest) deleteBookmark(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
+func (rs rest) deleteBookmark(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
 	id := mux.Vars(hr)["id"]
-	err := rs.bm.deleteBookmark(id)
-	if err != nil {
+	if err := rs.bm.deleteBookmark(id); err != nil {
 		return nil, err
 	}
 	return nil, nil
 }
 
-func (rs *rest) getBookmark(ctx context.Context, r interface{}, hr *http.Request) (interface{}, error) {
+func (rs rest) getBookmark(ctx context.Context, r interface{}, hr *http.Request) (interface{}, error) {
 	id := mux.Vars(hr)["id"]
 	b, err := rs.bm.getBookmark(ctx, id)
 	if err != nil {
