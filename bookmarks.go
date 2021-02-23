@@ -80,7 +80,7 @@ func newIndexMapping() mapping.IndexMapping {
 	return im
 }
 
-func (bm *bookmarks) openIndex(_ context.Context) error {
+func (bm *bookmarks) openIndex(context.Context) error {
 	var err error
 
 	bm.logger.Debug("opening index")
@@ -99,7 +99,7 @@ func (bm *bookmarks) openIndex(_ context.Context) error {
 	return nil
 }
 
-func (bm *bookmarks) closeIndex(_ context.Context) error {
+func (bm *bookmarks) closeIndex(context.Context) error {
 	bm.logger.Debug("closing index")
 	return bm.i.Close()
 }

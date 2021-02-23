@@ -108,7 +108,7 @@ func newServer(lc fx.Lifecycle, r *mux.Router, logger *log.Logger) *http.Server 
 	}
 
 	lc.Append(fx.Hook{
-		OnStart: func(_ context.Context) error {
+		OnStart: func(context.Context) error {
 			logger.Info("starting web server")
 
 			l, err := net.Listen("tcp", s.Addr)

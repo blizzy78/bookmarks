@@ -31,7 +31,7 @@ func newSite(lc fx.Lifecycle, r *mux.Router, logger *log.Logger) site {
 	}
 
 	lc.Append(fx.Hook{
-		OnStart: func(_ context.Context) error {
+		OnStart: func(context.Context) error {
 			return s.registerRoutes(r)
 		},
 	})
@@ -46,7 +46,7 @@ func newREST(lc fx.Lifecycle, bm *bookmarks, r *mux.Router, logger *log.Logger) 
 	}
 
 	lc.Append(fx.Hook{
-		OnStart: func(_ context.Context) error {
+		OnStart: func(context.Context) error {
 			rs.registerRoutes(r)
 			return nil
 		},
