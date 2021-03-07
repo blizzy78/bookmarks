@@ -13,7 +13,6 @@
 		if (res.requestID <= responseID) {
 			return;
 		}
-
 		responseID = res.requestID;
 
 		if (res.error) {

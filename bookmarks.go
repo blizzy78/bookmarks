@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"html"
+	"sort"
+	"strings"
 
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/mapping"
@@ -29,10 +31,12 @@ type bookmark struct {
 }
 
 type searchResponse struct {
-	RequestID uint64 `json:"requestID"`
-	TotalHits uint64 `json:"totalHits"`
-	Error     bool   `json:"error"`
-	Hits      []hit  `json:"hits"`
+	RequestID   uint64   `json:"requestID"`
+	TotalHits   uint64   `json:"totalHits"`
+	Error       bool     `json:"error"`
+	Hits        []hit    `json:"hits"`
+	TopTerms    []string `json:"topTerms"`
+	TagTopTerms []string `json:"tagTopTerms"`
 }
 
 type hit struct {
@@ -160,10 +164,39 @@ func (bm *bookmarks) search(ctx context.Context, query string) (searchResponse, 
 		hits[i] = matchToHit(m)
 	}
 
+	last := query
+	i := strings.LastIndex(query, " ")
+	if i >= 0 {
+		last = query[i:]
+	}
+
+	dictEntries, tagDictEntries, err := bm.topTerms(last)
+	if err != nil {
+		return searchResponse{}, &searchError{
+			err: err,
+		}
+	}
+
 	return searchResponse{
-		TotalHits: res.Total,
-		Hits:      hits,
+		TotalHits:   res.Total,
+		Hits:        hits,
+		TopTerms:    dictEntries,
+		TagTopTerms: tagDictEntries,
 	}, nil
+}
+
+func (bm *bookmarks) topTerms(prefix string) ([]string, []string, error) {
+	entries, err := topTerms(bm.i, []string{"title", "description"}, prefix, 5)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	tagEntries, err := topTerms(bm.i, []string{"tags"}, prefix, 5)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return entries, tagEntries, nil
 }
 
 func (b bookmark) Type() string {
@@ -228,4 +261,62 @@ func stringsToSlice(v interface{}) []string {
 
 func (s searchError) Error() string {
 	return fmt.Sprintf("search: %v", s.err)
+}
+
+func topTerms(i bleve.Index, fields []string, prefix string, count int) ([]string, error) {
+	entries, err := dictEntries(i, fields, prefix)
+	if err != nil {
+		return nil, err
+	}
+
+	terms := make([]string, len(entries))
+	idx := 0
+	for t := range entries {
+		terms[idx] = t
+		idx++
+	}
+
+	sort.SliceStable(terms, func(a, b int) bool {
+		t1 := terms[a]
+		t2 := terms[b]
+		c1 := entries[t1]
+		c2 := entries[t2]
+		// reversed
+		return c2 < c1
+	})
+
+	m := len(terms)
+	if m > count {
+		m = count
+	}
+	return terms[:m], nil
+}
+
+func dictEntries(i bleve.Index, fields []string, prefix string) (map[string]uint64, error) {
+	entries := map[string]uint64{}
+	for _, f := range fields {
+		d, err := i.FieldDictPrefix(f, []byte(prefix))
+		if err != nil {
+			return nil, err
+		}
+		defer d.Close()
+
+		for {
+			de, err := d.Next()
+			if err != nil {
+				return nil, err
+			}
+			if de == nil {
+				break
+			}
+
+			if c, ok := entries[de.Term]; ok {
+				entries[de.Term] = c + de.Count
+				continue
+			}
+
+			entries[de.Term] = de.Count
+		}
+	}
+	return entries, nil
 }

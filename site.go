@@ -8,6 +8,7 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -88,7 +89,7 @@ func (rs rest) registerRoutes(r *mux.Router) {
 
 func (rs rest) search(ctx context.Context, r interface{}, hr *http.Request) (interface{}, error) {
 	q := hr.URL.Query()
-	query := q.Get("q")
+	query := strings.TrimSpace(q.Get("q"))
 	reqIDStr := q.Get("requestID")
 
 	reqID, err := strconv.ParseUint(reqIDStr, 10, 64)
@@ -100,9 +101,11 @@ func (rs rest) search(ctx context.Context, r interface{}, hr *http.Request) (int
 	if err != nil {
 		rs.logger.Errorf("%v", err)
 		return &searchResponse{
-			RequestID: reqID,
-			Error:     true,
-			Hits:      []hit{},
+			RequestID:   reqID,
+			Error:       true,
+			Hits:        []hit{},
+			TopTerms:    []string{},
+			TagTopTerms: []string{},
 		}, nil
 	}
 
@@ -114,33 +117,20 @@ func (rs rest) updateBookmark(_ context.Context, r interface{}, hr *http.Request
 	id := mux.Vars(hr)["id"]
 	b := r.(*bookmark)
 	b.ID = id
-	if err := rs.bm.saveBookmark(*b); err != nil {
-		return nil, err
-	}
-	return nil, nil
+	return nil, rs.bm.saveBookmark(*b)
 }
 
 func (rs rest) createBookmark(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
 	b := r.(*bookmark)
-	if err := rs.bm.saveBookmark(*b); err != nil {
-		return nil, err
-	}
-	return nil, nil
+	return nil, rs.bm.saveBookmark(*b)
 }
 
 func (rs rest) deleteBookmark(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
 	id := mux.Vars(hr)["id"]
-	if err := rs.bm.deleteBookmark(id); err != nil {
-		return nil, err
-	}
-	return nil, nil
+	return nil, rs.bm.deleteBookmark(id)
 }
 
 func (rs rest) getBookmark(ctx context.Context, r interface{}, hr *http.Request) (interface{}, error) {
 	id := mux.Vars(hr)["id"]
-	b, err := rs.bm.getBookmark(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	return b, nil
+	return rs.bm.getBookmark(ctx, id)
 }
