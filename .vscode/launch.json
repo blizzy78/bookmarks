@@ -14,8 +14,7 @@
             "env": {
                 "WWW_LOGIN": "user",
                 "WWW_PASSWORD": "pass"
-            },
-            "args": []
+            }
         }
     ]
 }

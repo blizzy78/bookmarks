@@ -1,44 +1,40 @@
-// If you want to run as a non-root user in the container, see .devcontainer/docker-compose.yml.
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.163.0/containers/go
 {
-	"name": "Existing Docker Compose (Extend)",
-
-	// Update the 'dockerComposeFile' list if you have more compose files or use different names.
-	// The .devcontainer/docker-compose.yml file contains any overrides you need/want to make.
-	"dockerComposeFile": [
-		"..\\docker-compose.yml",
-		"docker-compose.yml"
-	],
-
-	// The 'service' property is the name of the service for the container that VS Code should
-	// use. Update this value and .devcontainer/docker-compose.yml to the real service name.
-	"service": "app",
-
-	// The optional 'workspaceFolder' property is the path VS Code should open by default when
-	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
-	"workspaceFolder": "/workspace",
+	"name": "Go",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": {
+			// Update the VARIANT arg to pick a version of Go: 1, 1.16, 1.15
+			"VARIANT": "1.16",
+			// Options
+			"INSTALL_NODE": "true",
+			"NODE_VERSION": "lts/*"
+		}
+	},
+	"runArgs": [ "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined" ],
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
-		"terminal.integrated.shell.linux": null
+		"terminal.integrated.shell.linux": "/bin/bash",
+		"go.toolsManagement.checkForUpdates": "off",
+		"go.useLanguageServer": true,
+		"go.gopath": "/go",
+		"go.goroot": "/usr/local/go"
 	},
 
 	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": ["golang.go"],
+	"extensions": [
+		"golang.Go",
+		"editorconfig.editorconfig"
+	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [8080],
 
-	"postCreateCommand": "GOPATH=/go go install github.com/uudashr/gopkgs/v2/cmd/gopkgs github.com/ramya-rao-a/go-outline github.com/cweill/gotests/... github.com/fatih/gomodifytags github.com/josharian/impl github.com/haya14busa/goplay/cmd/goplay github.com/go-delve/delve/cmd/dlv github.com/golangci/golangci-lint/cmd/golangci-lint golang.org/x/tools/gopls"
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "bash /workspaces/bookmarks/.devcontainer/post-commands.sh",
 
-	// Uncomment the next line if you want start specific services in your Docker Compose config.
-	// "runServices": [],
-
-	// Uncomment the next line if you want to keep your containers running after VS Code shuts down.
-	// "shutdownAction": "none",
-
-	// Uncomment the next line to run commands after the container is created - for example installing curl.
-	// "postCreateCommand": "apt-get update && apt-get install -y curl",
-
-	// Uncomment to connect as a non-root user if you've added one. See https://aka.ms/vscode-remote/containers/non-root.
-	// "remoteUser": "vscode"
+	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "vscode"
 }
