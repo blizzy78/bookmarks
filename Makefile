@@ -1,4 +1,7 @@
-.PHONY: clean
+.PHONY: css css-prod
 
-templates/css/bookmarks.css: scss/*
+css:
 	postcss scss/bookmarks.scss -o templates/css/bookmarks.css
+
+css-prod:
+	NODE_ENV=production postcss scss/bookmarks.scss -o templates/css/bookmarks.css
