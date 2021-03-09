@@ -69,7 +69,10 @@ func (s site) registerRoutes(r *mux.Router, c config) error {
 			return err
 		}
 	}
-	r.PathPrefix("/").Handler(http.FileServer(http.FS(t))).Methods(http.MethodGet, http.MethodHead)
+
+	sr := r.PathPrefix("").Subrouter()
+	sr.Use(cacheControlMiddleware("public, max-age=3600"))
+	sr.PathPrefix("").Handler(http.StripPrefix("/", http.FileServer(http.FS(t)))).Methods(http.MethodGet, http.MethodHead)
 	return nil
 }
 
