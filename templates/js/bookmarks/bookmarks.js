@@ -145,9 +145,9 @@
 	function setDeleteButtonVisible(visible) {
 		let buttonEl = $('#add-bookmark-dialog-delete-button');
 		if (visible) {
-			buttonEl.removeClass('d-none');
+			buttonEl.removeClass('hidden');
 		} else {
-			buttonEl.addClass('d-none');
+			buttonEl.addClass('hidden');
 		}
 	}
 
@@ -170,7 +170,7 @@
 		dialog.data('search-again-on-save', true);
 
 		setDeleteButtonVisible(true);
-		$('#add-bookmark-dialog .modal-title').text('Edit Bookmark');
+		$('#add-bookmark-dialog-title').text('Edit Bookmark');
 		$('#add-bookmark-dialog').modal('show');
 	}
 
@@ -204,7 +204,7 @@
 
 					$('#add-bookmark-button').click(() => {
 						clearAddBookmarkDialog();
-						$('#add-bookmark-dialog .modal-title').text('New Bookmark');
+						$('#add-bookmark-dialog-title').text('New Bookmark');
 						$('#add-bookmark-dialog').modal('show');
 					});
 
