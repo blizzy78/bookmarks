@@ -2,16 +2,13 @@ define(() => {
 	return {
 		'message': textHtml => {
 			let id = 'toast-' + Date.now();
-			let html = '<div id="' + id + '" class="toast bg-success text-light" role="alert" aria-live="assertive" aria-atomic="true">' +
-				'<div class="toast-body"></div>' +
-				'</div>';
-			$('.toast-container').append($.parseHTML(html));
+			let html = '<div id="' + id + '" class="w-96 max-w-full text-sm pointer-events-auto bg-clip-padding shadow rounded bg-green-500 text-white p-3" role="alert" aria-live="assertive" aria-atomic="true"></div>';
+			$('#toast-container').append($.parseHTML(html));
 			let el = $('#' + id);
-			el
+			el.html(textHtml)
 				.on('hidden.bs.toast', () => {
 					el.remove();
-				})
-				.find('.toast-body').html(textHtml);
+				});
 			new bootstrap.Toast(el[0]).show();
 		}
 	};

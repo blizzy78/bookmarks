@@ -6,75 +6,61 @@
 
     <title>Bookmarks</title>
 
-    <link rel="stylesheet" href="/css/bootstrap-5.0.0-beta2.min.css" type="text/css"/>
     <link rel="stylesheet" href="/fontawesome-free-5.15.2-web/css/all.min.css" type="text/css"/>
     <link rel="stylesheet" href="/css/bookmarks.css" type="text/css"/>
-    <link rel="stylesheet" href="/css/tag-basic-style.css" type="text/css"/>
   </head>
 
-  <body>
-    <section class="my-4">
-      <div class="container">
-        <div class="row g-2">
-          <div class="col-12 col-md">
-            <form id="search-form" class="inline-form" onsubmit="return false">
-              <div class="input-group">
-                <input name="q" type="search" class="form-control" placeholder="Enter search terms" autofocus/>
-              </div>
-            </form>
-          </div>
-          <div class="col-auto">
-            <button id="add-bookmark-button" class="btn btn-outline-primary">
-              <i class="fas fa-plus"></i>
-              New
-            </button>
-          </div>
-        </div>
-      </div>
+  <body class="p-5">
+    <section class="container mx-auto mb-5">
+      <form id="search-form" class="flex" onsubmit="return false">
+        <input name="q" type="text" class="flex-auto mr-3 rounded border border-gray-300 focus:outline-none focus:border-blue-400 focus:ring focus:ring-blue-300" placeholder="Enter search terms" autofocus/>
+        <button id="add-bookmark-button" class="flex-none rounded border border-blue-500 px-3 py-1.5 text-blue-500 hover:bg-blue-500 hover:text-white focus:outline-none focus:ring focus:ring-blue-300">
+          <i class="fas fa-plus"></i>
+          New
+        </button>
+      </form>
     </section>
 
-    <section class="mb-5">
-      <div id="results" class="container"></div>
-    </section>
+    <section id="results" class="container mx-auto mb-5"></section>
 
-    <div class="toast-container position-absolute bottom-0 start-0 p-3"></div>
+    <div id="toast-container" class="w-max max-w-full pointer-events-none absolute bottom-0 left-0 p-3"></div>
 
-    <div id="add-bookmark-dialog" class="modal" tabindex="-1" aria-labelledby="add-bookmark-dialog-title" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 id="add-bookmark-dialog-title" class="modal-title">New Bookmark</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div id="add-bookmark-dialog" class="modal hidden fixed top-0 left-0 z-40 w-full h-full overflow-hidden">
+      <div class="modal-dialog relative w-auto max-w-full md:max-w-screen-sm xl:max-w-screen-lg mx-5 md:mx-auto my-8 pointer-events-none">
+        <div class="relative flex flex-col w-full pointer-events-auto rounded border border-gray-500 bg-white">
+          <div class="flex flex-shrink-0 items-center justify-between p-4 border-b">
+            <h5 id="add-bookmark-dialog-title">New Bookmark</h5>
+            <button type="button" class="btn-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            <form id="add-bookmark-dialog-add-form" onsubmit="return false;">
+          <div class="relative flex-auto p-4">
+            <form id="add-bookmark-dialog-add-form" onsubmit="return false">
               <input type="hidden" name="id"/>
 
               <div class="mb-3">
-                <label for="url" class="form-label">URL</label>
-                <input name="url" id="url" type="text" class="form-control"/>
+                <label for="url" class="inline-block mb-1">URL</label>
+                <input name="url" id="url" type="text" class="block w-full rounded border border-gray-300 focus:outline-none focus:border-blue-400 focus:ring focus:ring-blue-300"/>
               </div>
 
               <div class="mb-3">
-                <label for="title" class="form-label">Title</label>
-                <input name="title" id="title" type="text" class="form-control"/>
+                <label for="title" class="inline-block mb-1">Title</label>
+                <input name="title" id="title" type="text" class="block w-full rounded border border-gray-300 focus:outline-none focus:border-blue-400 focus:ring focus:ring-blue-300"/>
               </div>
 
               <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <textarea id="description" name="description" class="form-control" rows="6"></textarea>
+                <label for="description" class="inline-block mb-1">Description</label>
+                <textarea id="description" name="description" rows="6" class="block w-full rounded border border-gray-300 focus:outline-none focus:border-blue-400 focus:ring focus:ring-blue-300"></textarea>
               </div>
 
-              <div class="mb-3">
-                <label class="form-label">Tags</label>
-                <div id="tags" data-tags-input-name="tag" class="form-control"></div>
+              <div>
+                <label class="inline-block mb-1">Tags</label>
+                <div id="tags" data-tags-input-name="tag" class="block w-full rounded border border-gray-300 focus:outline-none focus:border-blue-400 focus:ring focus:ring-blue-300"></div>
               </div>
             </form>
           </div>
-          <div class="modal-footer">
-            <button id="add-bookmark-dialog-add-button" type="button" class="btn btn-primary">Save</button>
-            <button id="add-bookmark-dialog-delete-button" type="button" class="btn btn-outline-danger">Delete</button>
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <div class="flex flex-wrap flex-shrink-0 items-center justify-end p-3 border-t">
+            <button id="add-bookmark-dialog-add-button" type="button"    class="flex-none rounded m-1 px-3 py-1.5 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300">Save</button>
+            <button id="add-bookmark-dialog-delete-button" type="button" class="flex-none rounded m-1 px-3 py-1.5 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white focus:outline-none focus:ring focus:ring-red-300">Delete</button>
+            <button type="button" class="flex-none rounded m-1 px-3 py-1.5 border border-gray-500 text-gray-500 hover:bg-gray-500 hover:text-white focus:outline-none focus:ring focus:ring-gray-300" data-bs-dismiss="modal">Cancel</button>
           </div>
         </div>
       </div>

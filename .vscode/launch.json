@@ -13,7 +13,8 @@
             "cwd": "${workspaceFolder}",
             "env": {
                 "WWW_LOGIN": "user",
-                "WWW_PASSWORD": "pass"
+                "WWW_PASSWORD": "pass",
+				"TEMPLATES_FROM_DISK": "true"
             }
         }
     ]

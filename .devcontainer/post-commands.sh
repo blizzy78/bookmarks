@@ -10,3 +10,5 @@ GOPATH=/go go get \
 	github.com/go-delve/delve/cmd/dlv \
 	github.com/golangci/golangci-lint/cmd/golangci-lint \
 	golang.org/x/tools/gopls
+
+npm install -g postcss@latest postcss-cli@latest

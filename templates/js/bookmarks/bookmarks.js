@@ -42,17 +42,17 @@
 
 		// title
 		let title = entry.append('div')
-			.classed('entry-title', true);
+			.classed('text-xl', true);
 
 		// title link
 		title.append('a')
-			.classed('entry-link', true)
+			.classed('text-blue-600', true)
 			.attr('href', h => h.url)
 			.html(h => h.titleHTML);
 
 		// title edit link
 		let titleEditLink = title.append('a')
-			.classed('edit-link px-2 ms-2', true)
+			.classed('edit-link text-transparent ml-2', true)
 			.attr('role', 'button')
 			.attr('title', 'Edit')
 			.on('click', (e, h) => {
@@ -63,25 +63,24 @@
 
 		// URL
 		entry.append('div')
-			.classed('entry-url', true)
+			.classed('text-sm', true)
 			.append('a')
-				.classed('entry-link', true)
+				.classed('text-green-600', true)
 				.attr('href', h => h.url)
 				.html(h => h.urlHTML);
 
 		// description
 		entry.append('div')
-			.classed('entry-description', true)
 			.html(h => h.descriptionHTML);
 
 		// tags
 		entry.append('div')
-			.classed('entry-tags', true)
+			.classed('text-xs leading-8', true)
 			.selectAll('a')
 			.data(h => h.tags)
 			.join(
 				enter => enter.append('a')
-					.classed('badge bg-info me-1', true)
+					.classed('mr-2 py-1 px-2 rounded bg-green-500 text-white', true)
 					.attr('role', 'button')
 					.text(t => t)
 					.on('click', (e, t) => {
@@ -90,24 +89,6 @@
 						search();
 					})
 			);
-
-		if (!error) {
-			d3.select('#search-form .input-group')
-				.selectAll('#num-results')
-				.data([totalHits])
-				.join(
-					enter => enter.insert('span', ':first-child')
-						.attr('id', 'num-results')
-						.classed('input-group-text', true)
-						.text(n => d3.format('d')(n)),
-					update => {
-						update.text(n => d3.format('d')(n));
-						return update;
-					}
-				);
-		} else {
-			$('#num-results').remove();
-		}
 	}
 
 	async function saveBookmark() {

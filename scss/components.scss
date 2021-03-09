@@ -1,0 +1,14 @@
+@import "tags.scss";
+@import "modal.scss";
+
+@layer base {
+	input::placeholder {
+		@apply italic;
+	}
+}
+
+@layer components {
+	.is-invalid {
+		@apply border-red-500 focus:border-red-500 focus:ring-red-300;
+	}
+}

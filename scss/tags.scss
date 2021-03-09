@@ -1,0 +1,13 @@
+@import "tag-basic-style.css";
+
+@layer components {
+	.tagging {
+		.tag {
+			a {
+				&.tag-i {
+					@apply no-underline;
+				}
+			}
+		}
+	}
+}

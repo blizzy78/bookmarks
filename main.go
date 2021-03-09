@@ -16,8 +16,9 @@ import (
 var errLoginCredentialsMissing = errors.New("login credentials missing")
 
 type config struct {
-	login    string
-	password string
+	login             string
+	password          string
+	templatesFromDisk bool
 }
 
 func main() {
@@ -56,9 +57,12 @@ func newConfig() (config, error) {
 		return config{}, errLoginCredentialsMissing
 	}
 
+	_, d := os.LookupEnv("TEMPLATES_FROM_DISK")
+
 	return config{
-		login:    l,
-		password: p,
+		login:             l,
+		password:          p,
+		templatesFromDisk: d,
 	}, nil
 }
 

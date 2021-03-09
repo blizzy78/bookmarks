@@ -1,0 +1,9 @@
+@layer base {
+	h5 {
+		@apply text-xl font-medium;
+	}
+
+	mark {
+		@apply bg-yellow-100 px-1;
+	}
+}

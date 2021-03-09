@@ -5,6 +5,7 @@ import (
 	"embed"
 	"io/fs"
 	"net/http"
+	"os"
 	"reflect"
 	"strconv"
 
@@ -25,14 +26,14 @@ type rest struct {
 //go:embed templates
 var templates embed.FS
 
-func newSite(lc fx.Lifecycle, r *mux.Router, logger *log.Logger) site {
+func newSite(lc fx.Lifecycle, r *mux.Router, c config, logger *log.Logger) site {
 	s := site{
 		logger: logger,
 	}
 
 	lc.Append(fx.Hook{
 		OnStart: func(context.Context) error {
-			return s.registerRoutes(r)
+			return s.registerRoutes(r, c)
 		},
 	})
 
@@ -55,11 +56,18 @@ func newREST(lc fx.Lifecycle, bm *bookmarks, r *mux.Router, logger *log.Logger) 
 	return rs
 }
 
-func (s site) registerRoutes(r *mux.Router) error {
+func (s site) registerRoutes(r *mux.Router, c config) error {
 	s.logger.Debug("registering site routes")
-	t, err := fs.Sub(templates, "templates")
-	if err != nil {
-		return err
+
+	var t fs.FS
+	if c.templatesFromDisk {
+		t = os.DirFS("templates")
+	} else {
+		var err error
+		t, err = fs.Sub(templates, "templates")
+		if err != nil {
+			return err
+		}
 	}
 	r.PathPrefix("/").Handler(http.FileServer(http.FS(t))).Methods(http.MethodGet, http.MethodHead)
 	return nil
