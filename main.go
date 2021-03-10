@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -84,7 +85,7 @@ func newServer(lc fx.Lifecycle, r *mux.Router, logger *log.Logger) *http.Server 
 
 	lc.Append(fx.Hook{
 		OnStart: func(context.Context) error {
-			logger.Info("starting web server")
+			logger.Infof("starting web server at %s", s.Addr)
 
 			l, err := net.Listen("tcp", s.Addr)
 			if err != nil {
@@ -92,7 +93,6 @@ func newServer(lc fx.Lifecycle, r *mux.Router, logger *log.Logger) *http.Server 
 			}
 
 			go func() {
-				defer l.Close()
 				_ = s.Serve(l)
 			}()
 
@@ -101,6 +101,8 @@ func newServer(lc fx.Lifecycle, r *mux.Router, logger *log.Logger) *http.Server 
 
 		OnStop: func(ctx context.Context) error {
 			logger.Info("shutting down web server")
+			ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+			defer cancel()
 			return s.Shutdown(ctx)
 		},
 	})
