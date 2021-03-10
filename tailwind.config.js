@@ -1,7 +1,7 @@
 module.exports = {
 	purge: [
 		'./templates/index.html',
-		'./templates/js/bookmarks/bookmarks.js',
+		'./templates/js/bookmarks/*.mjs',
 		'./templates/js/tagging-*.js'
 	],
 	darkMode: false,
