@@ -18,16 +18,17 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
 
-    <title>Bookmarks</title>
-
     <link rel="stylesheet" href="/fontawesome-free-5.15.2-web/css/all.min.css" type="text/css" crossorigin="use-credentials"/>
     <link rel="stylesheet" href="/css/bookmarks.css" type="text/css" crossorigin="use-credentials"/>
+
+    <title>Bookmarks</title>
   </head>
 
   <body class="p-5">
     <section class="container mx-auto mb-5">
       <form id="search-form" class="flex" onsubmit="return false">
         <input name="q" type="text" class="flex-auto mr-3 rounded border border-gray-300 focus:outline-none focus:border-blue-400 focus:ring focus:ring-blue-300" placeholder="Enter search terms" autofocus/>
+
         <button id="add-bookmark-button" class="flex-none rounded border border-blue-500 px-3 py-1.5 text-blue-500 hover:bg-blue-500 hover:text-white focus:outline-none focus:ring focus:ring-blue-300">
           <i class="fas fa-plus"></i>
           New
@@ -46,6 +47,7 @@
             <h5 id="add-bookmark-dialog-title">New Bookmark</h5>
             <button type="button" class="btn-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
+
           <div class="relative flex-auto p-4">
             <form id="add-bookmark-dialog-add-form" onsubmit="return false">
               <input type="hidden" name="id"/>
@@ -71,8 +73,9 @@
               </div>
             </form>
           </div>
+
           <div class="flex flex-wrap flex-shrink-0 items-center justify-end p-3 border-t">
-            <button id="add-bookmark-dialog-add-button" type="button"    class="flex-none rounded m-1 px-3 py-1.5 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300">Save</button>
+            <button id="add-bookmark-dialog-add-button" type="button" class="flex-none rounded m-1 px-3 py-1.5 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300">Save</button>
             <button id="add-bookmark-dialog-delete-button" type="button" class="flex-none rounded m-1 px-3 py-1.5 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white focus:outline-none focus:ring focus:ring-red-300">Delete</button>
             <button type="button" class="flex-none rounded m-1 px-3 py-1.5 border border-gray-500 text-gray-500 hover:bg-gray-500 hover:text-white focus:outline-none focus:ring focus:ring-gray-300" data-bs-dismiss="modal">Cancel</button>
           </div>
