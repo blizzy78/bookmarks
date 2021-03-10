@@ -49,7 +49,7 @@ A web server will be spun up at :8080. Bookmarks data will be saved to folder `.
 Development Environment
 -----------------------
 
-The project is set up such that a dev container in Visual Studio Code should be used. Simply reopen the
+The project is set up such that a [dev container in Visual Studio Code] should be used. Simply reopen the
 project in a container.
 
 After initial creation of the dev container, run inside the container:
@@ -93,3 +93,4 @@ This application is licensed under the MIT license.
 
 
 [Tailwind CSS]: https://tailwindcss.com/
+[dev container in Visual Studio Code]: https://code.visualstudio.com/docs/remote/containers
