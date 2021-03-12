@@ -1,0 +1,365 @@
+/*
+adapted from https://github.com/tailwindlabs/tailwindcss-typography
+https://unpkg.com/@tailwindcss/typography@0.4.0/dist/typography.css
+*/
+
+body {
+	color: #374151;
+}
+
+[class~="lead"] {
+	color: #4b5563;
+	font-size: 1.25em;
+	line-height: 1.6;
+	margin-top: 1.2em;
+	margin-bottom: 1.2em;
+}
+
+a {
+	color: #111827;
+	font-weight: 500;
+}
+
+strong {
+	color: #111827;
+	font-weight: 600;
+}
+
+ol[type="A"] {
+	--list-counter-style: upper-alpha;
+}
+
+ol[type="a"] {
+	--list-counter-style: lower-alpha;
+}
+
+ol[type="A s"] {
+	--list-counter-style: upper-alpha;
+}
+
+ol[type="a s"] {
+	--list-counter-style: lower-alpha;
+}
+
+ol[type="I"] {
+	--list-counter-style: upper-roman;
+}
+
+ol[type="i"] {
+	--list-counter-style: lower-roman;
+}
+
+ol[type="I s"] {
+	--list-counter-style: upper-roman;
+}
+
+ol[type="i s"] {
+	--list-counter-style: lower-roman;
+}
+
+ol[type="1"] {
+	--list-counter-style: decimal;
+}
+
+ol>li {
+	position: relative;
+	padding-left: 1.75em;
+}
+
+ol>li::before {
+	content: counter(list-item, var(--list-counter-style, decimal)) ".";
+	position: absolute;
+	font-weight: 400;
+	color: #6b7280;
+	left: 0;
+}
+
+ul>li {
+	position: relative;
+	padding-left: 1.75em;
+}
+
+ul>li::before {
+	content: "";
+	position: absolute;
+	background-color: #d1d5db;
+	border-radius: 50%;
+	width: 0.375em;
+	height: 0.375em;
+	top: calc(0.875em - 0.1875em);
+	left: 0.25em;
+}
+
+hr {
+	border-color: #e5e7eb;
+	border-top-width: 1px;
+	margin-top: 3em;
+	margin-bottom: 3em;
+}
+
+blockquote {
+	font-weight: 500;
+	font-style: italic;
+	color: #111827;
+	border-left-width: 0.25rem;
+	border-left-color: #e5e7eb;
+	quotes: "\201C""\201D""\2018""\2019";
+	margin-top: 1.6em;
+	margin-bottom: 1.6em;
+	padding-left: 1em;
+}
+
+blockquote p:first-of-type::before {
+	content: open-quote;
+}
+
+blockquote p:last-of-type::after {
+	content: close-quote;
+}
+
+h1 {
+	color: #111827;
+	font-weight: 800;
+	font-size: 2.25em;
+	margin-top: 0;
+	margin-bottom: 0.8888889em;
+	line-height: 1.1111111;
+}
+
+h2 {
+	color: #111827;
+	font-weight: 700;
+	font-size: 1.5em;
+	margin-top: 2em;
+	margin-bottom: 1em;
+	line-height: 1.3333333;
+}
+
+h3 {
+	color: #111827;
+	font-weight: 600;
+	font-size: 1.25em;
+	margin-top: 1.6em;
+	margin-bottom: 0.6em;
+	line-height: 1.6;
+}
+
+h4 {
+	color: #111827;
+	font-weight: 600;
+	margin-top: 1.5em;
+	margin-bottom: 0.5em;
+	line-height: 1.5;
+}
+
+figure figcaption {
+	color: #6b7280;
+	font-size: 0.875em;
+	line-height: 1.4285714;
+	margin-top: 0.8571429em;
+}
+
+code {
+	color: #111827;
+	font-weight: 600;
+	font-size: 0.875em;
+}
+
+code::before {
+	content: "`";
+}
+
+code::after {
+	content: "`";
+}
+
+a code {
+	color: #111827;
+}
+
+pre {
+	color: #e5e7eb;
+	background-color: #1f2937;
+	overflow-x: auto;
+	font-size: 0.875em;
+	line-height: 1.7142857;
+	margin-top: 1.7142857em;
+	margin-bottom: 1.7142857em;
+	border-radius: 0.375rem;
+	padding-top: 0.8571429em;
+	padding-right: 1.1428571em;
+	padding-bottom: 0.8571429em;
+	padding-left: 1.1428571em;
+}
+
+pre code {
+	background-color: transparent;
+	border-width: 0;
+	border-radius: 0;
+	padding: 0;
+	font-weight: 400;
+	color: inherit;
+	font-size: inherit;
+	font-family: inherit;
+	line-height: inherit;
+}
+
+pre code::before {
+	content: none;
+}
+
+pre code::after {
+	content: none;
+}
+
+table {
+	width: 100%;
+	table-layout: auto;
+	text-align: left;
+	margin-top: 2em;
+	margin-bottom: 2em;
+	font-size: 0.875em;
+	line-height: 1.7142857;
+}
+
+thead {
+	color: #111827;
+	font-weight: 600;
+	border-bottom-width: 1px;
+	border-bottom-color: #d1d5db;
+}
+
+thead th {
+	vertical-align: bottom;
+	padding-right: 0.5714286em;
+	padding-bottom: 0.5714286em;
+	padding-left: 0.5714286em;
+}
+
+tbody tr {
+	border-bottom-width: 1px;
+	border-bottom-color: #e5e7eb;
+}
+
+tbody tr:last-child {
+	border-bottom-width: 0;
+}
+
+tbody td {
+	vertical-align: top;
+	padding-top: 0.5714286em;
+	padding-right: 0.5714286em;
+	padding-bottom: 0.5714286em;
+	padding-left: 0.5714286em;
+}
+
+body {
+	font-size: 1rem;
+	line-height: 1.75;
+}
+
+p {
+	margin-top: 1.25em;
+	margin-bottom: 1.25em;
+}
+
+img {
+	margin-top: 2em;
+	margin-bottom: 2em;
+}
+
+video {
+	margin-top: 2em;
+	margin-bottom: 2em;
+}
+
+figure {
+	margin-top: 2em;
+	margin-bottom: 2em;
+}
+
+figure>* {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+h2 code {
+	font-size: 0.875em;
+}
+
+h3 code {
+	font-size: 0.9em;
+}
+
+ol {
+	margin-top: 1.25em;
+	margin-bottom: 1.25em;
+}
+
+ul {
+	margin-top: 1.25em;
+	margin-bottom: 1.25em;
+}
+
+li {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+ul>li p {
+	margin-top: 0.75em;
+	margin-bottom: 0.75em;
+}
+
+ul>li>*:first-child {
+	margin-top: 1.25em;
+}
+
+ul>li>*:last-child {
+	margin-bottom: 1.25em;
+}
+
+ol>li>*:first-child {
+	margin-top: 1.25em;
+}
+
+ol>li>*:last-child {
+	margin-bottom: 1.25em;
+}
+
+ul ul, ul ol, ol ul, ol ol {
+	margin-top: 0.75em;
+	margin-bottom: 0.75em;
+}
+
+hr+* {
+	margin-top: 0;
+}
+
+h2+* {
+	margin-top: 0;
+}
+
+h3+* {
+	margin-top: 0;
+}
+
+h4+* {
+	margin-top: 0;
+}
+
+thead th:first-child {
+	padding-left: 0;
+}
+
+thead th:last-child {
+	padding-right: 0;
+}
+
+tbody td:first-child {
+	padding-left: 0;
+}
+
+tbody td:last-child {
+	padding-right: 0;
+}

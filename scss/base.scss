@@ -1,7 +1,5 @@
 @layer base {
-	h5 {
-		@apply text-xl font-medium;
-	}
+	@import "typography-0.4.0.css";
 
 	mark {
 		@apply bg-yellow-100 px-1;

@@ -41,8 +41,8 @@ function updateHits(hits, totalHits, error) {
 	entry.classed('entry mb-4', true);
 
 	// title
-	let title = entry.append('div')
-		.classed('text-xl', true);
+	let title = entry.append('h3')
+		.classed('my-0', true);
 
 	// title link
 	title.append('a')
@@ -62,15 +62,14 @@ function updateHits(hits, totalHits, error) {
 		.classed('fas fa-edit', true);
 
 	// URL
-	entry.append('div')
-		.classed('text-sm', true)
-		.append('a')
-			.classed('text-green-600', true)
-			.attr('href', h => h.url)
-			.html(h => h.urlHTML);
+	entry.append('a')
+		.classed('block text-sm text-green-600 font-normal', true)
+		.attr('href', h => h.url)
+		.html(h => h.urlHTML);
 
 	// description
-	entry.append('div')
+	entry.append('p')
+		.classed('my-0', true)
 		.html(h => h.descriptionHTML);
 
 	// tags
@@ -80,7 +79,7 @@ function updateHits(hits, totalHits, error) {
 		.data(h => h.tags)
 		.join(
 			enter => enter.append('a')
-				.classed('mr-2 py-1 px-2 rounded bg-green-500 text-white', true)
+				.classed('mr-2 py-1 px-2 rounded bg-green-500 text-white font-normal', true)
 				.attr('role', 'button')
 				.text(t => t)
 				.on('click', (e, t) => {
