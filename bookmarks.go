@@ -205,10 +205,13 @@ func (b bookmark) Type() string {
 
 func matchToHit(m *search.DocumentMatch) hit {
 	url := m.Fields["url"].(string)
+
 	urlHTML := html.EscapeString(url)
 	if u, ok := m.Fragments["url"]; ok {
 		urlHTML = u[0]
 	}
+	urlHTML = strings.TrimPrefix(urlHTML, "http://")
+	urlHTML = strings.TrimPrefix(urlHTML, "https://")
 
 	titleHTML := html.EscapeString(m.Fields["title"].(string))
 	if t, ok := m.Fragments["title"]; ok {
