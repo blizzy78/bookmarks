@@ -49,10 +49,9 @@ A web server will be spun up at :8080. Bookmarks data will be saved to folder `.
 Development Environment
 -----------------------
 
-The project is set up such that a [dev container in Visual Studio Code] should be used. Simply reopen the
-project in a container.
+I'm using my all-in-one [dev container] for Visual Studio Code.
 
-After initial creation of the dev container, run inside the container:
+After initial checkout of the project inside the dev container, run inside the container:
 
 ```shell
 npm install
@@ -93,4 +92,4 @@ This application is licensed under the MIT license.
 
 
 [Tailwind CSS]: https://tailwindcss.com/
-[dev container in Visual Studio Code]: https://code.visualstudio.com/docs/remote/containers
+[dev container]: https://github.com/blizzy78/dev-container
