@@ -72,7 +72,7 @@ The application uses [Tailwind CSS] for all CSS, except for editing tags.
 To regenerate the embedded CSS file `templates/css/bookmarks.css`, run inside the container:
 
 ```shell
-make css-prod
+mage cssProd
 ```
 
 This will generate the file and strip it down to the bare minimum required for production.
@@ -80,7 +80,7 @@ This will generate the file and strip it down to the bare minimum required for p
 To generate a full-blown CSS file for development instead, run:
 
 ```shell
-make css
+mage css
 ```
 
 

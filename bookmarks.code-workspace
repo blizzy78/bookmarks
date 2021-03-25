@@ -3,5 +3,18 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"extensions": {
+		"recommendations": [
+			"golang.go",
+			"EditorConfig.EditorConfig"
+		]
+	},
+	"settings": {
+		"gopls": {
+			"build.buildFlags": [
+				"-tags=mage"
+			]
+		}
+	}
 }
