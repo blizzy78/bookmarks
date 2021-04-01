@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"crypto/sha512"
 	"embed"
+	"fmt"
 	"io/fs"
 	"net/http"
 	"os"
@@ -11,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/blizzy78/conditional-http/handler"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"go.uber.org/fx"
@@ -73,17 +76,38 @@ func (s site) registerRoutes(r *mux.Router, c config) error {
 	}
 
 	h := staticFilesHandler(t)
+	h = cacheControlHandler("public, max-age=3600", h)
+
 	if !c.templatesFromDisk {
 		var err error
-		h, err = constantLastModifiedHandler(time.Now(), h)
+		h, err = handler.LastModifiedHandlerConstant(time.Now(), h)
 		if err != nil {
 			return err
 		}
 	}
-	h = cacheControlHandler("public, max-age=3600", h)
-	h = etagHandler(h)
-	h = ifNoneMatchHandler(h)
-	h = ifModifiedSinceHandler(h)
+
+	h, err := handler.LastModifiedHandler(
+		func(w http.ResponseWriter, r *http.Request) (time.Time, bool) {
+			return time.Now(), true
+		},
+		handler.BeforeHeaders, h)
+	if err != nil {
+		return err
+	}
+
+	h = handler.ETagHandler(
+		func(w http.ResponseWriter, r *http.Request) (handler.ETag, bool) {
+			u := r.RequestURI
+			l := w.Header().Get("Last-Modified")
+			t := u + "\n" + l
+			return handler.ETag{
+				Tag:  fmt.Sprintf("%x", sha512.Sum512([]byte(t))),
+				Weak: true,
+			}, true
+		},
+		handler.AfterHeaders, h)
+
+	h = handler.IfNoneMatchIfModifiedSinceHandler(true, h)
 
 	r.PathPrefix("").Handler(http.StripPrefix("/", h)).Methods(http.MethodGet, http.MethodHead)
 

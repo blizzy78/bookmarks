@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/RoaringBitmap/roaring v0.5.5 // indirect
 	github.com/blevesearch/bleve/v2 v2.0.3
+	github.com/blizzy78/conditional-http v0.1.0
 	github.com/glycerine/go-unsnap-stream v0.0.0-20210130063903-47dfef350d96 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.3 // indirect

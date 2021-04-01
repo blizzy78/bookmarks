@@ -31,6 +31,8 @@ github.com/blevesearch/zapx/v14 v14.2.0 h1:UsfRqvM9RJxKNKrkR1U7aYc1cv9MWx719fsAj
 github.com/blevesearch/zapx/v14 v14.2.0/go.mod h1:GNgZusc1p4ot040cBQMRGEZobvwjCquiEKYh1xLFK9g=
 github.com/blevesearch/zapx/v15 v15.2.0 h1:ZpibwcrrOaeslkOw3sJ7npP7KDgRHI/DkACjKTqFwyM=
 github.com/blevesearch/zapx/v15 v15.2.0/go.mod h1:MmQceLpWfME4n1WrBFIwplhWmaQbQqLQARpaKUEOs/A=
+github.com/blizzy78/conditional-http v0.1.0 h1:w94pQuHE7yoVVfM/0nwujA57oIq0waYkitw9IrjYJvc=
+github.com/blizzy78/conditional-http v0.1.0/go.mod h1:7JwrGUsnHR2Gh5vkGARlFOASAiqkc+vNz+ndDTx9bOc=
 github.com/coreos/etcd v3.3.10+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/go-etcd v2.0.0+incompatible/go.mod h1:Jez6KQU2B/sWsbdaef3ED8NzMklzPG4d5KIOhIy30Tk=
 github.com/coreos/go-semver v0.2.0/go.mod h1:nnelYz7RCh+5ahJtPPxZlU+153eP4D4r3EedlOD2RNk=
@@ -81,6 +83,8 @@ github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/magefile/mage v1.11.0 h1:C/55Ywp9BpgVVclD3lRnSYCwXTYxmSppIgLeDYlNuls=
 github.com/magefile/mage v1.11.0/go.mod h1:z5UZb/iS3GoOSn0JgWuiw7dxlurVYTu+/jHXqQg881A=
 github.com/magiconair/properties v1.8.0/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
+github.com/matryer/is v1.4.0 h1:sosSmIWwkYITGrxZ25ULNDeKiMNzFSr4V/eqBQP0PeE=
+github.com/matryer/is v1.4.0/go.mod h1:8I/i5uYgLzgsgEloJE1U6xx5HkBQpAZvepWuujKwMRU=
 github.com/mitchellh/go-homedir v1.1.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/mschoch/smat v0.0.0-20160514031455-90eadee771ae/go.mod h1:qAyveg+e4CE+eKJXWVjKXM4ck2QobLqTDytGJbLLhJg=
