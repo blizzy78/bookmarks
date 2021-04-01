@@ -86,15 +86,6 @@ func (s site) registerRoutes(r *mux.Router, c config) error {
 		}
 	}
 
-	h, err := handler.LastModifiedHandler(
-		func(w http.ResponseWriter, r *http.Request) (time.Time, bool) {
-			return time.Now(), true
-		},
-		handler.BeforeHeaders, h)
-	if err != nil {
-		return err
-	}
-
 	h = handler.ETagHandler(
 		func(w http.ResponseWriter, r *http.Request) (handler.ETag, bool) {
 			u := r.RequestURI
