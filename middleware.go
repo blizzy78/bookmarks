@@ -30,21 +30,3 @@ func basicAuthHandler(login string, password string, next http.Handler) http.Han
 		next.ServeHTTP(w, r)
 	})
 }
-
-func cacheControlMiddleware(cc string) mux.MiddlewareFunc {
-	return func(next http.Handler) http.Handler {
-		return cacheControlHandler(cc, next)
-	}
-}
-
-func cacheControlHandler(cc string, next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		w.Header().Add("Cache-Control", cc)
-		next.ServeHTTP(w, r)
-	})
-}

@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -71,9 +72,21 @@ func (s site) registerRoutes(r *mux.Router, c config) error {
 		}
 	}
 
-	sr := r.PathPrefix("").Subrouter()
-	sr.Use(cacheControlMiddleware("public, max-age=3600"))
-	sr.PathPrefix("").Handler(http.StripPrefix("/", http.FileServer(http.FS(t)))).Methods(http.MethodGet, http.MethodHead)
+	h := staticFilesHandler(t)
+	if !c.templatesFromDisk {
+		var err error
+		h, err = constantLastModifiedHandler(time.Now(), h)
+		if err != nil {
+			return err
+		}
+	}
+	h = cacheControlHandler("public, max-age=3600", h)
+	h = etagHandler(h)
+	h = ifNoneMatchHandler(h)
+	h = ifModifiedSinceHandler(h)
+
+	r.PathPrefix("").Handler(http.StripPrefix("/", h)).Methods(http.MethodGet, http.MethodHead)
+
 	return nil
 }
 
