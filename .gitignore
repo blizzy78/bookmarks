@@ -1,4 +1,5 @@
-/bin/
 /bookmarks.bleve/
 /__debug_bin
+/bookmarks
 /node_modules
+/templates/css/bookmarks.css

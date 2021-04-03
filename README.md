@@ -3,8 +3,8 @@ My Personal Bookmarks Application
 
 ![Screenshot](bookmarks.png)
 
-This is the web application I use to manage my personal bookmarks. It's rather simplistic, but searchable,
-and has tags.
+This is the web application I use to manage my personal bookmarks. It's rather simplistic, but fast,
+searchable, and has tags.
 
 *I don't plan on supporting it for anyone else to use, but if you want to try it out, be my guest.
 I will infrequently change things around, add, remove, and break things, so consider this a warning.
@@ -29,35 +29,35 @@ a bookmark's title, then click on the little edit button next to it.
 Running
 -------
 
-To start the application, simply build it using go:
+To start the application, simply build it using Mage:
 
 ```shell
-go build -o bookmarks .
+mage
 ```
 
-then run the executable:
+Then run the executable:
 
 ```shell
-WWW_LOGIN=<login> WWW_PASSWORD=<password> ./bookmarks
+WWW_LOGIN=user WWW_PASSWORD=pass ./bookmarks
 ```
 
 There are no other requirements to run it, the executable is self-contained.
 
-A web server will be spun up at :8080. Bookmarks data will be saved to folder `./bookmarks.bleve/`
+A web server will be started at :8080. Bookmarks data will be saved to folder `./bookmarks.bleve/`
 
 
 Development Environment
 -----------------------
 
-I'm using my all-in-one [dev container] for Visual Studio Code.
+I'm using my all-in-one [development container] for Visual Studio Code.
 
-After initial checkout of the project inside the dev container, run inside the container:
+After initial checkout of the project inside the development container, run inside the container:
 
 ```shell
-npm install
+mage initDev
 ```
 
-to install dev dependencies.
+to install development dependencies and generate development CSS.
 
 Then simply press F5 in Visual Studio Code to launch. The launch configuration has `user`/`pass` set up
 as login credentials. It is also set up to always load templates from disk so that the application does not
@@ -69,10 +69,10 @@ CSS
 
 The application uses [Tailwind CSS] for all CSS, except for editing tags.
 
-To regenerate the embedded CSS file `templates/css/bookmarks.css`, run inside the container:
+To regenerate the CSS file `templates/css/bookmarks.css`, run inside the container:
 
 ```shell
-mage cssProd
+mage css true
 ```
 
 This will generate the file and strip it down to the bare minimum required for production.
@@ -80,7 +80,7 @@ This will generate the file and strip it down to the bare minimum required for p
 To generate a full-blown CSS file for development instead, run:
 
 ```shell
-mage css
+mage css false
 ```
 
 
@@ -91,5 +91,5 @@ This application is licensed under the MIT license.
 
 
 
+[development container]: https://github.com/blizzy78/dev-container
 [Tailwind CSS]: https://tailwindcss.com/
-[dev container]: https://github.com/blizzy78/dev-container
