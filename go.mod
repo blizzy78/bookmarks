@@ -20,6 +20,6 @@ require (
 	go.uber.org/fx v1.13.1
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/lint v0.0.0-20201208152925-83fdc39ff7b5 // indirect
-	golang.org/x/sys v0.0.0-20210331175145-43e1dd70ce54 // indirect
+	golang.org/x/sys v0.0.0-20210403161142-5e06dd20ab57 // indirect
 	golang.org/x/tools v0.1.1-0.20210222172741-77e031214674 // indirect
 )
