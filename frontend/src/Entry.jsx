@@ -10,7 +10,7 @@ export default class Entry extends React.Component {
       <div className="entry mb-4">
         <h3 className="my-0">
           <a className="text-blue-600" href={this.props.result.url} dangerouslySetInnerHTML={{ __html: this.props.result.titleHTML }}></a>
-          <button className="edit-button text-transparent outline-none focus:outline-none ml-2" type="button" title="Edit"
+          <button className="edit-button outline-none focus:outline-none ml-2" type="button" title="Edit"
             onClick={this.props.onEditClick}>
             <Icon name="fa-edit"/>
           </button>

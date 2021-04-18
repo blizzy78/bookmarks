@@ -1,13 +1,33 @@
 @layer utilities {
 	.entry {
-		&:hover {
+		button {
+			&.edit-button {
+				@apply text-transparent;
+			}
+		}
+	}
+
+	@media (hover: hover) {
+		.entry {
+			&:hover {
+				button {
+					&.edit-button {
+						@apply text-gray-300;
+
+						&:hover {
+							@apply text-black;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@media (hover: none) {
+		.entry {
 			button {
 				&.edit-button {
 					@apply text-gray-300;
-
-					&:hover {
-						@apply text-black;
-					}
 				}
 			}
 		}
