@@ -30,5 +30,5 @@ FormInputGroup.propTypes = {
   className: PropTypes.string,
   labelForRef: PropTypes.object,
   label: PropTypes.string.isRequired,
-  children: PropTypes.element
+  children: PropTypes.any
 }

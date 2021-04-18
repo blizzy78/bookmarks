@@ -57,6 +57,6 @@ Button.propTypes = {
   buttonStyle: PropTypes.oneOf(['primary', 'secondary', 'danger']),
   outline: PropTypes.bool,
   icon: PropTypes.string,
-  children: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
+  children: PropTypes.any,
   onClick: PropTypes.func
 }

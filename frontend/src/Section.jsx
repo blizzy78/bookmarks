@@ -11,5 +11,5 @@ export default class Section extends React.Component {
 
 Section.propTypes = {
   className: PropTypes.string,
-  children: PropTypes.element
+  children: PropTypes.any
 }

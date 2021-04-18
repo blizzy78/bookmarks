@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import Section from './Section'
 import SearchForm from './SearchForm'
 import SearchResults from './SearchResults'
 import * as FetchUtil from './FetchUtil'
 import BookmarkDialog from './BookmarkDialog'
+import suspenseWrapPromise from './SuspenseWrapPromise'
 
 export default class App extends React.Component {
   constructor(props) {
@@ -27,6 +28,7 @@ export default class App extends React.Component {
     this.state = {
       query: '',
       results: null,
+      oldResults: null,
       error: false,
 
       bookmarkDialogOpen: false,
@@ -37,30 +39,23 @@ export default class App extends React.Component {
       bookmarkDialogTags: []
     }
     this.requestID = 0
-    this.responseID = 0
   }
 
   async handleQueryChange(query) {
     this.setState({query: query})
 
     if (query === '') {
-      this.setState({results: null, error: true})
+      this.setState({results: null, error: false})
       return
     }
 
     let reqID = ++this.requestID
-    let res = await FetchUtil.getJSON('/rest/bookmarks?q=' + encodeURIComponent(query) + '&requestID=' + reqID)
-    if (res.requestID <= this.responseID) {
-      return
-    }
-    this.responseID = res.requestID
-
-    if (res.error) {
-      this.setState({results: null, error: true})
-      return
-    }
-
-    this.setState({results: res.hits, error: false})
+    let res = FetchUtil.getJSON('/rest/bookmarks?q=' + encodeURIComponent(query) + '&requestID=' + reqID)
+    let results = suspenseWrapPromise(res)
+    res.then(r => {
+      this.setState({error: r.error,  oldResults: results})
+    })
+    this.setState({results: results})
   }
 
   handleTagClick(tag) {
@@ -153,31 +148,38 @@ export default class App extends React.Component {
   }
 
   render() {
-    return (
-      <>
-        <Section className="mb-5">
-          <SearchForm query={this.state.query} onQueryChange={this.handleQueryChange} onNewBookmark={this.handleNewBookmark} error={this.state.error}/>
-        </Section>
+    return <>
+      <Section className="mb-5">
+        <SearchForm query={this.state.query} onQueryChange={this.handleQueryChange} onNewBookmark={this.handleNewBookmark} error={this.state.error}/>
+      </Section>
 
-        {
-          this.state.results &&
+      {
+        this.state.results !== null && !this.state.error &&
+        <Suspense fallback={
+          this.state.oldResults !== null &&
           <Section>
-            <SearchResults results={this.state.results} onTagClick={this.handleTagClick}
+            <SearchResults requestID={this.state.oldResults().requestID} results={this.state.oldResults} onTagClick={this.handleTagClick}
               onEntryEditClick={this.handleEntryEditClick}/>
           </Section>
-        }
+        }>
 
-        {
-          this.state.bookmarkDialogOpen &&
-          <BookmarkDialog ref={this.bookmarkDialogRef} dialogTitle={this.state.bookmarkDialogID !== null ? 'Edit Bookmark' : 'Add Bookmark'}
-            mode={this.state.bookmarkDialogID !== null ? 'edit' : 'add'}
-            url={this.state.bookmarkDialogURL} title={this.state.bookmarkDialogTitle} description={this.state.bookmarkDialogDescription}
-            tags={this.state.bookmarkDialogTags}
-            onURLChange={this.handleBookmarkDialogURLChange} onTitleChange={this.handleBookmarkDialogTitleChange}
-            onDescriptionChange={this.handleBookmarkDialogDescriptionChange} onTagsChange={this.handleBookmarkDialogTagsChange}
-            onCancel={this.hideBookmarkDialog} onSave={this.handleBookmarkDialogSave} onDelete={this.handleBookmarkDialogDelete}/>
-        }
-      </>
-    )
+          <Section>
+            <SearchResults requestID={this.requestID} results={this.state.results} onTagClick={this.handleTagClick}
+              onEntryEditClick={this.handleEntryEditClick}/>
+          </Section>
+        </Suspense>
+      }
+
+      {
+        this.state.bookmarkDialogOpen &&
+        <BookmarkDialog ref={this.bookmarkDialogRef} dialogTitle={this.state.bookmarkDialogID !== null ? 'Edit Bookmark' : 'Add Bookmark'}
+          mode={this.state.bookmarkDialogID !== null ? 'edit' : 'add'}
+          url={this.state.bookmarkDialogURL} title={this.state.bookmarkDialogTitle} description={this.state.bookmarkDialogDescription}
+          tags={this.state.bookmarkDialogTags}
+          onURLChange={this.handleBookmarkDialogURLChange} onTitleChange={this.handleBookmarkDialogTitleChange}
+          onDescriptionChange={this.handleBookmarkDialogDescriptionChange} onTagsChange={this.handleBookmarkDialogTagsChange}
+          onCancel={this.hideBookmarkDialog} onSave={this.handleBookmarkDialogSave} onDelete={this.handleBookmarkDialogDelete}/>
+      }
+    </>
   }
 }

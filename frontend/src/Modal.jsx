@@ -52,7 +52,7 @@ export default class Modal extends React.Component {
 
 Modal.propTypes = {
   title: PropTypes.string.isRequired,
-  children: PropTypes.element,
-  buttons: PropTypes.element,
+  children: PropTypes.any,
+  buttons: PropTypes.any,
   onCancel: PropTypes.func
 }

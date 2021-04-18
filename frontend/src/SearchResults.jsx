@@ -14,14 +14,23 @@ export default class SearchResults extends React.Component {
   }
 
   render() {
-    return this.props.results.map(r => (
-      <Entry key={r.id} result={r} onTagClick={this.props.onTagClick} onEditClick={() => this.handleEntryEditClick(r.id)}/>
-    ))
+    if (this.props.results().requestID != this.props.requestID) {
+      return null
+    }
+
+    return <>
+      {
+        this.props.results().hits.map(r => (
+          <Entry key={r.id} result={r} onTagClick={this.props.onTagClick} onEditClick={() => this.handleEntryEditClick(r.id)}/>
+        ))
+      }
+    </>
   }
 }
 
 SearchResults.propTypes = {
-  results: PropTypes.arrayOf(PropTypes.object).isRequired,
+  requestID: PropTypes.number.isRequired,
+  results: PropTypes.func.isRequired,
   onTagClick: PropTypes.func,
   onEntryEditClick: PropTypes.func
 }

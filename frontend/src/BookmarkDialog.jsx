@@ -55,13 +55,11 @@ export default class BookmarkDialog extends React.Component {
   }
 
   buttons() {
-    return (
-      <>
-        <Button className="flex-none m-1" onClick={this.props.onSave}>Save</Button>
-        {this.props.mode === 'edit' && <Button buttonStyle="danger" outline={true} className="flex-none m-1" onClick={this.props.onDelete}>Delete</Button>}
-        <Button buttonStyle="secondary" outline={true} className="flex-none m-1" onClick={this.props.onCancel}>Cancel</Button>
-      </>
-    )
+    return <>
+      <Button className="flex-none m-1" onClick={this.props.onSave}>Save</Button>
+      {this.props.mode === 'edit' && <Button buttonStyle="danger" outline={true} className="flex-none m-1" onClick={this.props.onDelete}>Delete</Button>}
+      <Button buttonStyle="secondary" outline={true} className="flex-none m-1" onClick={this.props.onCancel}>Cancel</Button>
+    </>
   }
 
   resetFocus() {
