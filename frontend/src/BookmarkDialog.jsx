@@ -6,6 +6,10 @@ import TextArea from './TextArea'
 import TagsInput from './TagsInput'
 import Button from './Button'
 import PropTypes from 'prop-types'
+import withAutoID from './WithAutoID'
+
+const TextInputWithAutoID = withAutoID(TextInput)
+const TextAreaWithAutoID = withAutoID(TextArea)
 
 export default class BookmarkDialog extends React.Component {
   constructor(props) {
@@ -19,7 +23,7 @@ export default class BookmarkDialog extends React.Component {
 
   componentDidMount() {
     this.modalRef.current.show()
-    this.urlRef.current.focus()
+    this.resetFocus()
   }
 
   hide() {
@@ -31,15 +35,15 @@ export default class BookmarkDialog extends React.Component {
       <Modal ref={this.modalRef} title={this.props.dialogTitle} buttons={this.buttons()} onCancel={this.props.onCancel}>
         <form onSubmit={() => false}>
           <FormInputGroup label="URL" labelForRef={this.urlRef} className="mb-3">
-            <TextInput ref={this.urlRef} className="block w-full" value={this.props.url} onChange={this.props.onURLChange}/>
+            <TextInputWithAutoID ref={this.urlRef} className="block w-full" value={this.props.url} onChange={this.props.onURLChange}/>
           </FormInputGroup>
 
           <FormInputGroup label="Title" labelForRef={this.titleRef} className="mb-3">
-            <TextInput ref={this.titleRef} className="block w-full" value={this.props.title} onChange={this.props.onTitleChange}/>
+            <TextInputWithAutoID ref={this.titleRef} className="block w-full" value={this.props.title} onChange={this.props.onTitleChange}/>
           </FormInputGroup>
 
           <FormInputGroup label="Description" labelForRef={this.descriptionRef} className="mb-3">
-            <TextArea ref={this.descriptionRef} className="block w-full" value={this.props.description} onChange={this.props.onDescriptionChange}/>
+            <TextAreaWithAutoID ref={this.descriptionRef} className="block w-full" value={this.props.description} onChange={this.props.onDescriptionChange}/>
           </FormInputGroup>
 
           <FormInputGroup label="Tags">

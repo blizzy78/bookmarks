@@ -27,7 +27,6 @@ export default class App extends React.Component {
     this.state = {
       query: '',
       results: null,
-      totalHits: 0,
       error: false,
 
       bookmarkDialogOpen: false,
@@ -42,8 +41,10 @@ export default class App extends React.Component {
   }
 
   async handleQueryChange(query) {
+    this.setState({query: query})
+
     if (query === '') {
-      this.setState({ query: query, results: null, error: true })
+      this.setState({results: null, error: true})
       return
     }
 
@@ -55,11 +56,11 @@ export default class App extends React.Component {
     this.responseID = res.requestID
 
     if (res.error) {
-      this.setState({ query: query, results: null, error: true })
+      this.setState({results: null, error: true})
       return
     }
 
-    this.setState({ query: query, results: res.hits, totalHits: res.totalHits, error: false })
+    this.setState({results: res.hits, error: false})
   }
 
   handleTagClick(tag) {
@@ -161,7 +162,7 @@ export default class App extends React.Component {
         {
           this.state.results &&
           <Section>
-            <SearchResults results={this.state.results} totalHits={this.state.totalHits} onTagClick={this.handleTagClick}
+            <SearchResults results={this.state.results} onTagClick={this.handleTagClick}
               onEntryEditClick={this.handleEntryEditClick}/>
           </Section>
         }

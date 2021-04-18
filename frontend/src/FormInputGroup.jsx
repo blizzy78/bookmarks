@@ -14,8 +14,12 @@ export default class FormInputGroup extends React.Component {
   render() {
     return (
       <div className={this.props.className}>
-        <label htmlFor={this.props.labelForRef && this.props.labelForRef.current && this.props.labelForRef.current.getID()}
-          className="inline-block mb-1">{this.props.label}</label>
+        <label htmlFor={this.props.labelForRef && this.props.labelForRef.current && this.props.labelForRef.current.id}
+          className="inline-block mb-1">
+
+          {this.props.label}
+        </label>
+
         {this.props.children}
       </div>
     )
