@@ -25,33 +25,32 @@ func handleREST(reqType reflect.Type, next restHandler, logger *log.Logger) http
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		req := interface{}(nil)
-		if r.Method != http.MethodOptions && reqType != nil {
-			req = reflect.New(reqType.Elem()).Interface()
-			defer r.Body.Close()
-			err := json.NewDecoder(r.Body).Decode(req)
-			if err != nil {
-				logger.Errorf("error unmarshaling request of type: %s: %v", reqType.Name(), err)
-				internalServerError(w)
-				return
-			}
-		}
-
 		h := w.Header()
 		h.Add("Cache-Control", "no-cache, no-store, must-revalidate")
 		h.Add("Pragma", "no-cache")
 		h.Add("Access-Control-Allow-Origin", "*")
 		h.Add("Access-Control-Allow-Credentials", "true")
-		h.Add("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,DELETE,PUT")
+		h.Add("Access-Control-Allow-Methods", "OPTIONS, HEAD, GET, POST, PUT, DELETE")
 		h.Add("Access-Control-Allow-Headers", "Content-Type")
 
 		if r.Method == http.MethodOptions {
 			return
 		}
 
+		req := interface{}(nil)
+		if reqType != nil {
+			req = reflect.New(reqType.Elem()).Interface()
+			defer r.Body.Close()
+			if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+				logger.Errorf("unmarshal request of type: %s: %v", reqType.Name(), err)
+				internalServerError(w)
+				return
+			}
+		}
+
 		res, err := next.serveREST(r.Context(), req, r)
 		if err != nil {
-			logger.Errorf("error serving REST request: %v", err)
+			logger.Errorf("serve REST request: %v", err)
 			internalServerError(w)
 			return
 		}
@@ -63,7 +62,7 @@ func handleREST(reqType reflect.Type, next restHandler, logger *log.Logger) http
 
 		w.Header().Add("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(res); err != nil {
-			logger.Errorf("error sending REST response: %v", err)
+			logger.Errorf("send REST response: %v", err)
 			internalServerError(w)
 		}
 	})
