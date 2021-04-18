@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	@import "typography-0.4.0.css";
+
+	mark {
+		@apply bg-yellow-100 px-1;
+	}
+}

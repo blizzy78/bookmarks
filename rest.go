@@ -26,7 +26,7 @@ func handleREST(reqType reflect.Type, next restHandler, logger *log.Logger) http
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		req := interface{}(nil)
-		if reqType != nil {
+		if r.Method != http.MethodOptions && reqType != nil {
 			req = reflect.New(reqType.Elem()).Interface()
 			defer r.Body.Close()
 			err := json.NewDecoder(r.Body).Decode(req)
@@ -40,6 +40,14 @@ func handleREST(reqType reflect.Type, next restHandler, logger *log.Logger) http
 		h := w.Header()
 		h.Add("Cache-Control", "no-cache, no-store, must-revalidate")
 		h.Add("Pragma", "no-cache")
+		h.Add("Access-Control-Allow-Origin", "*")
+		h.Add("Access-Control-Allow-Credentials", "true")
+		h.Add("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,DELETE,PUT")
+		h.Add("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == http.MethodOptions {
+			return
+		}
 
 		res, err := next.serveREST(r.Context(), req, r)
 		if err != nil {

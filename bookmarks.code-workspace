@@ -6,14 +6,16 @@
 	],
 	"extensions": {
 		"recommendations": [
+			"EditorConfig.EditorConfig",
 			"golang.go",
-			"EditorConfig.EditorConfig"
+			"dbaeumer.vscode-eslint",
+			"eg2.vscode-npm-script"
 		]
 	},
 	"settings": {
 		"gopls": {
 			"build.buildFlags": [
-				"-tags=mage"
+				"-tags=mage,prod,!prod"
 			]
 		}
 	}

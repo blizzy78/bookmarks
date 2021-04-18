@@ -38,7 +38,7 @@ mage
 Then run the executable:
 
 ```shell
-WWW_LOGIN=user WWW_PASSWORD=pass ./bookmarks
+./bookmarks
 ```
 
 There are no other requirements to run it, the executable is self-contained.
@@ -57,31 +57,9 @@ After initial checkout of the project inside the development container, run insi
 mage initDev
 ```
 
-to install development dependencies and generate development CSS.
+to install development dependencies.
 
-Then simply press F5 in Visual Studio Code to launch. The launch configuration has `user`/`pass` set up
-as login credentials. It is also set up to always load templates from disk so that the application does not
-need to be restarted.
-
-
-CSS
----
-
-The application uses [Tailwind CSS] for all CSS, except for editing tags.
-
-To regenerate the CSS file `templates/css/bookmarks.css`, run inside the container:
-
-```shell
-mage css true
-```
-
-This will generate the file and strip it down to the bare minimum required for production.
-
-To generate a full-blown CSS file for development instead, run:
-
-```shell
-mage css false
-```
+Then simply press F5 in Visual Studio Code to launch both frontend and backend applications.
 
 
 License
@@ -92,4 +70,3 @@ This application is licensed under the MIT license.
 
 
 [development container]: https://github.com/blizzy78/dev-container
-[Tailwind CSS]: https://tailwindcss.com/

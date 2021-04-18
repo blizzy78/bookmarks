@@ -5,7 +5,6 @@ import (
 	"errors"
 	"net"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gorilla/handlers"
@@ -15,12 +14,6 @@ import (
 )
 
 var errLoginCredentialsMissing = errors.New("login credentials missing")
-
-type config struct {
-	login             string
-	password          string
-	templatesFromDisk bool
-}
 
 func main() {
 	fxlogger := log.New()
@@ -35,7 +28,6 @@ func main() {
 		fx.Supply(logger),
 
 		fx.Provide(
-			newConfig,
 			newMux,
 			newServer,
 			newBookmarks,
@@ -47,32 +39,11 @@ func main() {
 	).Run()
 }
 
-func newConfig() (config, error) {
-	l, ok := os.LookupEnv("WWW_LOGIN")
-	if !ok {
-		return config{}, errLoginCredentialsMissing
-	}
-
-	p, ok := os.LookupEnv("WWW_PASSWORD")
-	if !ok {
-		return config{}, errLoginCredentialsMissing
-	}
-
-	_, d := os.LookupEnv("TEMPLATES_FROM_DISK")
-
-	return config{
-		login:             l,
-		password:          p,
-		templatesFromDisk: d,
-	}, nil
-}
-
-func newMux(c config) *mux.Router {
+func newMux() *mux.Router {
 	r := mux.NewRouter()
 	r.Use(
 		handlers.RecoveryHandler(),
 		handlers.CompressHandler,
-		basicAuthMiddleware(c.login, c.password),
 	)
 	return r
 }

@@ -1,0 +1,15 @@
+@layer utilities {
+	.entry {
+		&:hover {
+			button {
+				&.edit-button {
+					@apply text-gray-300;
+
+					&:hover {
+						@apply text-black;
+					}
+				}
+			}
+		}
+	}
+}
