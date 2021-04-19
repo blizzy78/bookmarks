@@ -1,22 +1,27 @@
 import React, { Suspense } from 'react'
 import Section from './Section'
 import SearchForm from './SearchForm'
-import SearchResults from './SearchResults'
 import * as FetchUtil from './FetchUtil'
-import BookmarkDialog from './BookmarkDialog'
 import suspenseWrapPromise from './SuspenseWrapPromise'
+import loadable from '@loadable/component'
+
+const SearchResults = loadable(() => import('./SearchResults'))
+const BookmarkDialog = loadable(() => import('./BookmarkDialog'))
 
 export default class App extends React.Component {
   constructor(props) {
     super(props)
 
+    this.queryRef = React.createRef()
     this.bookmarkDialogRef = React.createRef()
 
     this.handleQueryChange = this.handleQueryChange.bind(this)
     this.handleTagClick = this.handleTagClick.bind(this)
     this.handleEntryEditClick = this.handleEntryEditClick.bind(this)
+    this.handleEntryEditMouseOver = this.handleEntryEditMouseOver.bind(this)
 
     this.handleNewBookmark = this.handleNewBookmark.bind(this)
+    this.handleNewBookmarkMouseOver = this.handleNewBookmarkMouseOver.bind(this)
     this.hideBookmarkDialog = this.hideBookmarkDialog.bind(this)
     this.handleBookmarkDialogURLChange = this.handleBookmarkDialogURLChange.bind(this)
     this.handleBookmarkDialogTitleChange = this.handleBookmarkDialogTitleChange.bind(this)
@@ -43,6 +48,7 @@ export default class App extends React.Component {
 
   async handleQueryChange(query) {
     this.setState({query: query})
+    SearchResults.preload()
 
     if (query === '') {
       this.setState({results: null, error: false})
@@ -74,6 +80,10 @@ export default class App extends React.Component {
     })
   }
 
+  handleEntryEditMouseOver() {
+    BookmarkDialog.preload()
+  }
+
   handleNewBookmark() {
     this.setState({
       bookmarkDialogOpen: true,
@@ -85,8 +95,11 @@ export default class App extends React.Component {
     })
   }
 
+  handleNewBookmarkMouseOver() {
+    BookmarkDialog.preload()
+  }
+
   hideBookmarkDialog() {
-    this.bookmarkDialogRef.current.hide()
     this.setState({bookmarkDialogOpen: false})
   }
 
@@ -147,10 +160,16 @@ export default class App extends React.Component {
     this.bookmarkDialogRef.current.resetFocus()
   }
 
+  componentDidMount() {
+    this.queryRef.current.focus()
+  }
+
   render() {
     return <>
       <Section className="mb-5">
-        <SearchForm query={this.state.query} onQueryChange={this.handleQueryChange} onNewBookmark={this.handleNewBookmark} error={this.state.error}/>
+        <SearchForm query={this.state.query} queryRef={this.queryRef} onQueryChange={this.handleQueryChange}
+          onNewBookmark={this.handleNewBookmark} onNewBookmarkMouseOver={this.handleNewBookmarkMouseOver}
+          error={this.state.error}/>
       </Section>
 
       {
@@ -165,7 +184,7 @@ export default class App extends React.Component {
 
           <Section>
             <SearchResults requestID={this.requestID} results={this.state.results} onTagClick={this.handleTagClick}
-              onEntryEditClick={this.handleEntryEditClick}/>
+              onEntryEditClick={this.handleEntryEditClick} onEntryEditMouseOver={this.handleEntryEditMouseOver}/>
           </Section>
         </Suspense>
       }

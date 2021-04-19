@@ -15,24 +15,18 @@ export default class BookmarkDialog extends React.Component {
   constructor(props) {
     super(props)
 
-    this.modalRef = React.createRef()
     this.urlRef = React.createRef()
     this.titleRef = React.createRef()
     this.descriptionRef = React.createRef()
   }
 
   componentDidMount() {
-    this.modalRef.current.show()
     this.resetFocus()
-  }
-
-  hide() {
-    this.modalRef.current.hide()
   }
 
   render() {
     return (
-      <Modal ref={this.modalRef} title={this.props.dialogTitle} buttons={this.buttons()} onCancel={this.props.onCancel}>
+      <Modal title={this.props.dialogTitle} buttons={this.buttons()} onCancel={this.props.onCancel}>
         <form onSubmit={() => false}>
           <FormInputGroup label="URL" labelForRef={this.urlRef} className="mb-3">
             <TextInputWithAutoID ref={this.urlRef} className="block w-full" value={this.props.url} onChange={this.props.onURLChange}/>

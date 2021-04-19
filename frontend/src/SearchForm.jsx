@@ -17,10 +17,14 @@ export default class SearchForm extends React.Component {
   render() {
     return (
       <form id="search-form" className="flex" onSubmit={() => false}>
-        <TextInput value={this.props.query} className="flex-auto mr-3" placeholder="Enter search terms"
-          autoFocus={true} onChange={this.handleQueryChange} invalid={this.props.error}/>
+        <TextInput forwardedRef={this.props.queryRef} value={this.props.query} className="flex-auto mr-3" placeholder="Enter search terms"
+          onChange={this.handleQueryChange} invalid={this.props.error}/>
 
-        <Button className="flex-none" icon="fa-plus" onClick={this.props.onNewBookmark} outline={true}>New</Button>
+        <Button className="flex-none" icon="fa-plus" onClick={this.props.onNewBookmark} onMouseOver={this.props.onNewBookmarkMouseOver}
+          outline={true}>
+
+          New
+        </Button>
       </form>
     )
   }
@@ -28,7 +32,9 @@ export default class SearchForm extends React.Component {
 
 SearchForm.propTypes = {
   query: PropTypes.string.isRequired,
+  queryRef: PropTypes.object,
   error: PropTypes.bool,
   onQueryChange: PropTypes.func.isRequired,
-  onNewBookmark: PropTypes.func
+  onNewBookmark: PropTypes.func,
+  onNewBookmarkMouseOver: PropTypes.func,
 }

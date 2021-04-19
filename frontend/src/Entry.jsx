@@ -11,7 +11,7 @@ export default class Entry extends React.Component {
         <h3 className="my-0">
           <a className="text-blue-600" href={this.props.result.url} dangerouslySetInnerHTML={{__html: this.props.result.titleHTML}}></a>
           <button className="edit-button outline-none focus:outline-none ml-2" type="button" title="Edit"
-            onClick={this.props.onEditClick}>
+            onClick={this.props.onEditClick} onMouseOver={this.props.onEditMouseOver}>
             <Icon name="fa-edit"/>
           </button>
         </h3>
@@ -28,5 +28,6 @@ export default class Entry extends React.Component {
 Entry.propTypes = {
   result: PropTypes.object.isRequired,
   onTagClick: PropTypes.func,
-  onEditClick: PropTypes.func
+  onEditClick: PropTypes.func,
+  onEditMouseOver: PropTypes.func
 }

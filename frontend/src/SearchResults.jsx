@@ -21,7 +21,8 @@ export default class SearchResults extends React.Component {
     return <>
       {
         this.props.results().hits.map(r => (
-          <Entry key={r.id} result={r} onTagClick={this.props.onTagClick} onEditClick={() => this.handleEntryEditClick(r.id)}/>
+          <Entry key={r.id} result={r} onTagClick={this.props.onTagClick}
+            onEditClick={() => this.handleEntryEditClick(r.id)} onEditMouseOver={this.props.onEntryEditMouseOver}/>
         ))
       }
     </>
@@ -32,5 +33,6 @@ SearchResults.propTypes = {
   requestID: PropTypes.number.isRequired,
   results: PropTypes.func.isRequired,
   onTagClick: PropTypes.func,
-  onEntryEditClick: PropTypes.func
+  onEntryEditClick: PropTypes.func,
+  onEntryEditMouseOver: PropTypes.func
 }

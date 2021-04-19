@@ -44,7 +44,7 @@ export default class Button extends React.Component {
 
     let cssClass = classNames(classes, this.props.className)
     return (
-      <button type="button" className={cssClass} onClick={this.props.onClick}>
+      <button type="button" className={cssClass} onClick={this.props.onClick} onMouseOver={this.props.onMouseOver}>
         {this.props.icon && <Icon name={this.props.icon} className="mr-2"/>}
         {this.props.children}
       </button>
@@ -58,5 +58,6 @@ Button.propTypes = {
   outline: PropTypes.bool,
   icon: PropTypes.string,
   children: PropTypes.any,
-  onClick: PropTypes.func
+  onClick: PropTypes.func,
+  onMouseOver: PropTypes.func
 }

@@ -7,8 +7,6 @@ export default class Modal extends React.Component {
   constructor(props) {
     super(props)
 
-    this.hide = this.hide.bind(this)
-
     this.modalRef = React.createRef()
     this.modal = null
   }
@@ -16,17 +14,10 @@ export default class Modal extends React.Component {
   componentDidMount() {
     this.modal = new BModal(this.modalRef.current, {backdrop: 'static', keyboard: false})
     this.modalRef.current.addEventListener('hidePrevented.bs.modal', this.props.onCancel)
-  }
-
-  componentWillUnmount() {
-    this.hide()
-  }
-
-  show() {
     this.modal.show()
   }
 
-  hide() {
+  componentWillUnmount() {
     this.modal.hide()
   }
 
