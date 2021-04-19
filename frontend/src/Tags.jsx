@@ -14,7 +14,7 @@ export default class Tags extends React.Component {
   }
 
   render() {
-    return this.props.tags.map(t => <Tag key={t} tag={t} className="mr-2" onClick={() => this.handleTagClick(t)} />)
+    return this.props.tags.map(t => <Tag key={t} tag={t} className="mr-1" onClick={() => this.handleTagClick(t)} />)
   }
 }
 
