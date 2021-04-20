@@ -1,6 +1,7 @@
 import React from 'react'
 import Icon from './Icon'
 import Switch from './Switch'
+import Form from './Form'
 
 export default class DarkModeSwitch extends React.Component {
   constructor(props) {
@@ -28,11 +29,11 @@ export default class DarkModeSwitch extends React.Component {
 
   render() {
     return (
-      <form>
+      <Form>
         <Icon name="fa-sun" className="mr-3 text-gray-400"/>
         <Switch value={this.state.value} onChange={this.handleChange}/>
         <Icon name="fa-moon" className="ml-3 text-gray-400"/>
-      </form>
+      </Form>
     )
   }
 }

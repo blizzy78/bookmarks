@@ -1,6 +1,7 @@
 import React from 'react'
 import TextInput from './TextInput'
 import Button from './Button'
+import Form from './Form'
 import PropTypes from 'prop-types'
 
 export default class SearchForm extends React.Component {
@@ -16,7 +17,7 @@ export default class SearchForm extends React.Component {
 
   render() {
     return (
-      <form id="search-form" className="flex" onSubmit={() => false}>
+      <Form className="flex">
         <TextInput forwardedRef={this.props.queryRef} value={this.props.query} className="flex-auto mr-3" placeholder="Enter search terms"
           onChange={this.handleQueryChange} invalid={this.props.error}/>
 
@@ -25,7 +26,7 @@ export default class SearchForm extends React.Component {
 
           New
         </Button>
-      </form>
+      </Form>
     )
   }
 }
