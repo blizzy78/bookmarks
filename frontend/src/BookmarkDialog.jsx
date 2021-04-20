@@ -5,6 +5,7 @@ import TextInput from './TextInput'
 import TextArea from './TextArea'
 import TagsInput from './TagsInput'
 import Button from './Button'
+import Form from './Form'
 import PropTypes from 'prop-types'
 import withAutoID from './WithAutoID'
 
@@ -27,7 +28,7 @@ export default class BookmarkDialog extends React.Component {
   render() {
     return (
       <Modal title={this.props.dialogTitle} buttons={this.buttons()} onCancel={this.props.onCancel}>
-        <form onSubmit={() => false}>
+        <Form>
           <FormInputGroup label="URL" labelForRef={this.urlRef} className="mb-3">
             <TextInputWithAutoID ref={this.urlRef} className="block w-full" value={this.props.url} onChange={this.props.onURLChange}/>
           </FormInputGroup>
@@ -43,7 +44,7 @@ export default class BookmarkDialog extends React.Component {
           <FormInputGroup label="Tags">
             <TagsInput tags={this.props.tags} className="block w-full" onChange={this.props.onTagsChange}/>
           </FormInputGroup>
-        </form>
+        </Form>
       </Modal>
     )
   }
