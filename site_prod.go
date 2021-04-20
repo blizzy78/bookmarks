@@ -22,7 +22,7 @@ func (s site) registerRoutes(r *mux.Router) error {
 	}
 
 	h := staticFilesHandler(t)
-	h = cacheControlHandler("public, max-age=3600", h)
+	h = cacheControlHandler("public, max-age=2592000", h)
 
 	h, err = handler.LastModifiedHandlerConstant(time.Now(), h)
 	if err != nil {
