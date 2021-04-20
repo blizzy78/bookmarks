@@ -175,17 +175,20 @@ export default class App extends React.Component {
 
       {
         this.state.results !== null && !this.state.error &&
-        <Suspense fallback={
-          this.state.oldResults !== null &&
-          <Section>
-            <SearchResults requestID={this.state.oldResults().requestID} results={this.state.oldResults} onTagClick={this.handleTagClick}
-              onEntryEditClick={this.handleEntryEditClick}/>
-          </Section>
-        }>
+        <Suspense
+          fallback={
+            this.state.oldResults !== null &&
+            <Section>
+              <SearchResults requestID={this.state.oldResults().requestID} results={this.state.oldResults}
+                onTagClick={this.handleTagClick} onEntryEditClick={this.handleEntryEditClick}
+                onEntryEditMouseOver={this.handleEntryEditMouseOver}/>
+            </Section>
+          }>
 
           <Section>
-            <SearchResults requestID={this.requestID} results={this.state.results} onTagClick={this.handleTagClick}
-              onEntryEditClick={this.handleEntryEditClick} onEntryEditMouseOver={this.handleEntryEditMouseOver}/>
+            <SearchResults requestID={this.requestID} results={this.state.results}
+              onTagClick={this.handleTagClick} onEntryEditClick={this.handleEntryEditClick}
+              onEntryEditMouseOver={this.handleEntryEditMouseOver}/>
           </Section>
         </Suspense>
       }
