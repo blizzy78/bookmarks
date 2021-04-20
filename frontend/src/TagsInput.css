@@ -41,7 +41,7 @@
 .react-tags__selected-tag {
 	display: inline-block;
 	box-sizing: border-box;
-	@apply mr-1 px-2 py-1 rounded bg-green-500 text-white font-normal outline-none focus:outline-none dark:bg-green-700 dark:text-green-100;
+	@apply mr-1 px-2 py-1 rounded bg-green-500 text-white font-normal outline-none hover:bg-green-600 focus:outline-none dark:bg-green-700 dark:text-green-100 dark:hover:bg-green-600 dark:hover:text-green-50;
 }
 
 .react-tags__selected-tag:after {
