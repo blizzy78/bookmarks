@@ -1,4 +1,5 @@
 module.exports = {
+  darkMode: 'class',
   purge: [
     './public/*.html',
     './src/*.js',
@@ -7,5 +8,11 @@ module.exports = {
   ],
   plugins: [
     require('@tailwindcss/forms')
-  ]
+  ],
+  variants: {
+    extend: {
+      filter: ['dark'],
+      brightness: ['dark']
+    }
+  }
 }

@@ -4,7 +4,11 @@ import classNames from 'classnames'
 
 export default class Tag extends React.Component {
   render() {
-    let cssClass = classNames('px-2 py-1 rounded bg-green-500 text-white font-normal outline-none focus:outline-none',
+    let cssClass = classNames(
+      'px-2 py-1 rounded ' +
+      'bg-green-500 text-white ' +
+      'font-normal outline-none focus:outline-none ' +
+      'dark:bg-green-700 dark:text-green-50',
       this.props.className)
     return <button className={cssClass} type="button" onClick={this.props.onClick}>{this.props.tag}</button>
   }

@@ -25,7 +25,7 @@ export default class Modal extends React.Component {
     return (
       <div ref={this.modalRef} className="modal hidden fixed top-0 left-0 z-40 w-full h-full overflow-hidden">
         <div className="modal-dialog relative w-auto max-w-full md:max-w-screen-sm xl:max-w-screen-lg mx-5 md:mx-auto my-8 pointer-events-none">
-          <div className="relative flex flex-col w-full pointer-events-auto rounded border border-gray-500 bg-white">
+          <div className="relative flex flex-col w-full pointer-events-auto rounded border border-gray-500 bg-white dark:bg-gray-900">
             <div className="flex flex-shrink-0 items-center justify-between p-4 border-b">
               <h2 className="my-0">{this.props.title}</h2>
               <button type="button" className="btn-modal-close" onClick={this.props.onCancel} aria-label="Close"></button>

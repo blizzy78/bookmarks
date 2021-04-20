@@ -5,7 +5,7 @@ import './TextInput.css'
 
 export default class TextInput extends React.Component {
   render() {
-    let cssClass = classNames('rounded border border-gray-300 focus:outline-none focus:border-blue-400 focus:ring focus:ring-blue-300',
+    let cssClass = classNames(
       this.props.invalid && 'is-invalid',
       this.props.className)
     return (

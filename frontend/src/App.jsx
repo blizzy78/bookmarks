@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react'
 import Section from './Section'
 import SearchForm from './SearchForm'
+import DarkModeSwitch from './DarkModeSwitch'
 import * as FetchUtil from './FetchUtil'
 import suspenseWrapPromise from './SuspenseWrapPromise'
 import loadable from '@loadable/component'
@@ -188,6 +189,10 @@ export default class App extends React.Component {
           </Section>
         </Suspense>
       }
+
+      <Section className="mt-28 border-t pt-3 flex justify-center">
+        <DarkModeSwitch/>
+      </Section>
 
       {
         this.state.bookmarkDialogOpen &&

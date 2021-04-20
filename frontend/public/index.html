@@ -5,6 +5,12 @@
 
     <link rel="preload" href="/fontawesome-free-5.15.3-web/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="anonymous"/>
 
+    <script>
+      if (localStorage.getItem('theme') == 'dark') {
+        document.documentElement.classList.add('dark')
+      }
+    </script>
+
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
 
     <link rel="stylesheet" href="/fontawesome-free-5.15.3-web/css/all.min.css" type="text/css" crossorigin="anonymous"/>

@@ -5,7 +5,68 @@
 @layer base {
 	@import "typography-0.4.0.css";
 
+	*,
+	::before,
+	::after,
+	[type='text'],
+	[type='email'],
+	[type='url'],
+	[type='password'],
+	[type='number'],
+	[type='date'],
+	[type='datetime-local'],
+	[type='month'],
+	[type='search'],
+	[type='tel'],
+	[type='time'],
+	[type='week'],
+	[multiple],
+	textarea,
+	select {
+		@apply border-gray-300;
+	}
+
+	[type='text'],
+	[type='email'],
+	[type='url'],
+	[type='password'],
+	[type='number'],
+	[type='date'],
+	[type='datetime-local'],
+	[type='month'],
+	[type='search'],
+	[type='tel'],
+	[type='time'],
+	[type='week'],
+	[multiple],
+	textarea,
+	select {
+		@apply rounded border;
+	}
+
+	[type='text'],
+	[type='email'],
+	[type='url'],
+	[type='password'],
+	[type='number'],
+	[type='date'],
+	[type='datetime-local'],
+	[type='month'],
+	[type='search'],
+	[type='tel'],
+	[type='time'],
+	[type='week'],
+	[multiple],
+	textarea,
+	select {
+		&:focus {
+			@apply focus:outline-none focus:border-blue-400 focus:ring focus:ring-blue-300;
+		}
+	}
+
 	mark {
 		@apply bg-yellow-100 px-1;
 	}
 }
+
+@import "dark.css";

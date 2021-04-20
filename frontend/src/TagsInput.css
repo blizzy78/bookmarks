@@ -25,13 +25,13 @@
 
 .react-tags {
 	position: relative;
-	@apply px-3 py-1 rounded border border-gray-300;
+	@apply px-3 py-1 rounded border;
 	/* clicking anywhere will focus the input */
 	cursor: text;
 }
 
 .react-tags.is-focused {
-	@apply outline-none border-blue-400 ring ring-blue-300;
+	@apply outline-none border-blue-400 ring ring-blue-300 dark:border-blue-500 dark:ring-blue-700;
 }
 
 .react-tags__selected {
@@ -41,7 +41,7 @@
 .react-tags__selected-tag {
 	display: inline-block;
 	box-sizing: border-box;
-	@apply mr-1 px-2 py-1 rounded bg-green-500 text-white font-normal outline-none focus:outline-none;
+	@apply mr-1 px-2 py-1 rounded bg-green-500 text-white font-normal outline-none focus:outline-none dark:bg-green-700 dark:text-green-100;
 }
 
 .react-tags__selected-tag:after {
@@ -80,6 +80,7 @@
 	/* match the font styles */
 	font-size: inherit;
 	line-height: inherit;
+	@apply bg-transparent dark:text-gray-300;
 }
 
 .react-tags__search-input::-ms-clear {

@@ -1,0 +1,49 @@
+@layer base {
+	body,
+	[type="text"],
+	[type='email'],
+	[type='url'],
+	[type='password'],
+	[type='number'],
+	[type='date'],
+	[type='datetime-local'],
+	[type='month'],
+	[type='search'],
+	[type='tel'],
+	[type='time'],
+	[type='week'],
+	[multiple],
+	textarea,
+	select {
+		@apply dark:bg-gray-900 dark:focus:border-blue-500 dark:focus:ring-blue-700;
+	}
+
+	input::placeholder {
+		@apply dark:text-gray-500;
+	}
+
+	body,
+	h1,
+	h2,
+	h3,
+	h4,
+	h5 {
+		@apply dark:text-gray-300;
+	}
+
+	*,
+	::before,
+	::after {
+		@apply dark:border-gray-500;
+	}
+
+	mark {
+		@apply dark:bg-gray-700;
+	}
+}
+
+@layer utilities {
+	.is-invalid {
+		@apply dark:focus:border-red-500 dark:focus:ring-red-800 !important;
+	}
+}
