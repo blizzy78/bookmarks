@@ -66,6 +66,7 @@
 
 	mark {
 		@apply bg-yellow-100 px-1;
+		color: inherit;
 	}
 }
 
