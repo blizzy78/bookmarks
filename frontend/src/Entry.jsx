@@ -16,10 +16,16 @@ export default class Entry extends React.Component {
           </button>
         </h3>
         <a className="block text-sm text-green-600 dark:text-green-400 font-normal" href={this.props.result.url} dangerouslySetInnerHTML={{__html: this.props.result.urlHTML}}></a>
-        <p className="my-0" dangerouslySetInnerHTML={{__html: this.props.result.descriptionHTML}}></p>
-        <div className="text-xs mt-1">
-          <Tags tags={this.props.result.tags} onTagClick={this.props.onTagClick}/>
-        </div>
+        {
+          this.props.result.descriptionHTML.length > 0 &&
+          <p className="my-0" dangerouslySetInnerHTML={{__html: this.props.result.descriptionHTML}}></p>
+        }
+        {
+          this.props.result.tags.length > 0 &&
+          <div className="text-xs mt-1">
+            <Tags tags={this.props.result.tags} onTagClick={this.props.onTagClick}/>
+          </div>
+        }
       </div>
     )
   }
