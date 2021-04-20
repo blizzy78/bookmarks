@@ -24,10 +24,7 @@ export default class App extends React.Component {
     this.handleNewBookmark = this.handleNewBookmark.bind(this)
     this.handleNewBookmarkMouseOver = this.handleNewBookmarkMouseOver.bind(this)
     this.hideBookmarkDialog = this.hideBookmarkDialog.bind(this)
-    this.handleBookmarkDialogURLChange = this.handleBookmarkDialogURLChange.bind(this)
-    this.handleBookmarkDialogTitleChange = this.handleBookmarkDialogTitleChange.bind(this)
-    this.handleBookmarkDialogDescriptionChange = this.handleBookmarkDialogDescriptionChange.bind(this)
-    this.handleBookmarkDialogTagsChange = this.handleBookmarkDialogTagsChange.bind(this)
+    this.handleBookmarkDialogBookmarkChange = this.handleBookmarkDialogBookmarkChange.bind(this)
     this.handleBookmarkDialogSave = this.handleBookmarkDialogSave.bind(this)
     this.handleBookmarkDialogDelete = this.handleBookmarkDialogDelete.bind(this)
 
@@ -37,12 +34,7 @@ export default class App extends React.Component {
       oldResults: null,
       error: false,
 
-      bookmarkDialogOpen: false,
-      bookmarkDialogID: null,
-      bookmarkDialogURL: '',
-      bookmarkDialogTitle: '',
-      bookmarkDialogDescription: '',
-      bookmarkDialogTags: []
+      bookmarkDialogBookmark: null
     }
     this.requestID = 0
   }
@@ -72,12 +64,13 @@ export default class App extends React.Component {
   async handleEntryEditClick(id) {
     let bookmark = await FetchUtil.getJSON('/rest/bookmarks/' + id)
     this.setState({
-      bookmarkDialogOpen: true,
-      bookmarkDialogID: id,
-      bookmarkDialogURL: bookmark.url,
-      bookmarkDialogTitle: bookmark.title,
-      bookmarkDialogDescription: bookmark.description,
-      bookmarkDialogTags: bookmark.tags.map(t => {return {name: t}})
+      bookmarkDialogBookmark: {
+        id: id,
+        url: bookmark.url,
+        title: bookmark.title,
+        description: bookmark.description,
+        tags: bookmark.tags.map(t => {return {name: t}})
+      }
     })
   }
 
@@ -87,12 +80,13 @@ export default class App extends React.Component {
 
   handleNewBookmark() {
     this.setState({
-      bookmarkDialogOpen: true,
-      bookmarkDialogID: null,
-      bookmarkDialogURL: '',
-      bookmarkDialogTitle: '',
-      bookmarkDialogDescription: '',
-      bookmarkDialogTags: []
+      bookmarkDialogBookmark: {
+        id: null,
+        url: '',
+        title: '',
+        description: '',
+        tags: []
+      }
     })
   }
 
@@ -101,34 +95,22 @@ export default class App extends React.Component {
   }
 
   hideBookmarkDialog() {
-    this.setState({bookmarkDialogOpen: false})
+    this.setState({bookmarkDialogBookmark: null})
   }
 
-  handleBookmarkDialogURLChange(e) {
-    this.setState({bookmarkDialogURL: e.target.value})
-  }
-
-  handleBookmarkDialogTitleChange(e) {
-    this.setState({bookmarkDialogTitle: e.target.value})
-  }
-
-  handleBookmarkDialogDescriptionChange(e) {
-    this.setState({bookmarkDialogDescription: e.target.value})
-  }
-
-  handleBookmarkDialogTagsChange(tags) {
-    this.setState({bookmarkDialogTags: tags})
+  handleBookmarkDialogBookmarkChange(bookmark) {
+    this.setState({bookmarkDialogBookmark: bookmark})
   }
 
   async handleBookmarkDialogSave() {
     let req = {
-      'url': this.state.bookmarkDialogURL,
-      'title': this.state.bookmarkDialogTitle,
-      'description': this.state.bookmarkDialogDescription,
-      'tags': this.state.bookmarkDialogTags.map(t => t.name)
+      url: this.state.bookmarkDialogBookmark.url,
+      title: this.state.bookmarkDialogBookmark.title,
+      description: this.state.bookmarkDialogBookmark.description,
+      tags: this.state.bookmarkDialogBookmark.tags.map(t => t.name)
     }
 
-    let id = this.state.bookmarkDialogID
+    let id = this.state.bookmarkDialogBookmark.id
     if (id !== null) {
       this.hideBookmarkDialog()
       await FetchUtil.putJSON('/rest/bookmarks/' + id, req)
@@ -144,7 +126,7 @@ export default class App extends React.Component {
       return
     }
 
-    let id = this.state.bookmarkDialogID
+    let id = this.state.bookmarkDialogBookmark.id
     this.hideBookmarkDialog()
     await FetchUtil.deleteJSON('/rest/bookmarks/' + id)
     this.handleQueryChange(this.state.query)
@@ -152,11 +134,13 @@ export default class App extends React.Component {
 
   resetBookmarkDialog() {
     this.setState({
-      bookmarkDialogID: null,
-      bookmarkDialogURL: '',
-      bookmarkDialogTitle: '',
-      bookmarkDialogDescription: '',
-      bookmarkDialogTags: []
+      bookmarkDialogBookmark: {
+        id: null,
+        url: '',
+        title: '',
+        description: '',
+        tags: []
+      }
     })
     this.bookmarkDialogRef.current.resetFocus()
   }
@@ -198,13 +182,8 @@ export default class App extends React.Component {
       </Section>
 
       {
-        this.state.bookmarkDialogOpen &&
-        <BookmarkDialog ref={this.bookmarkDialogRef} dialogTitle={this.state.bookmarkDialogID !== null ? 'Edit Bookmark' : 'Add Bookmark'}
-          mode={this.state.bookmarkDialogID !== null ? 'edit' : 'add'}
-          url={this.state.bookmarkDialogURL} title={this.state.bookmarkDialogTitle} description={this.state.bookmarkDialogDescription}
-          tags={this.state.bookmarkDialogTags}
-          onURLChange={this.handleBookmarkDialogURLChange} onTitleChange={this.handleBookmarkDialogTitleChange}
-          onDescriptionChange={this.handleBookmarkDialogDescriptionChange} onTagsChange={this.handleBookmarkDialogTagsChange}
+        this.state.bookmarkDialogBookmark !== null &&
+        <BookmarkDialog ref={this.bookmarkDialogRef} bookmark={this.state.bookmarkDialogBookmark} onBookmarkChange={this.handleBookmarkDialogBookmarkChange}
           onCancel={this.hideBookmarkDialog} onSave={this.handleBookmarkDialogSave} onDelete={this.handleBookmarkDialogDelete}/>
       }
     </>
