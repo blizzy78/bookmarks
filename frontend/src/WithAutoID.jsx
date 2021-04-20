@@ -15,7 +15,9 @@ export default function withAutoID(WrappedComponent) {
 
   WithAutoID.displayName = 'WithAutoID(' + (WrappedComponent.displayName || WrappedComponent.name || 'Component') + ')'
 
-  const forward = React.forwardRef((props, ref) => <WithAutoID forwardedRef={ref} {...props}/>)
+  const forward = React.forwardRef((props, ref) => (
+    <WithAutoID forwardedRef={ref} {...props}/>
+  ))
   forward.displayName = WithAutoID.displayName
 
   return forward

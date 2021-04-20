@@ -3,17 +3,10 @@ import classNames from 'classnames'
 import PropTypes from 'prop-types'
 import './TextInput.css'
 
-export default class TextInput extends React.Component {
-  render() {
-    let cssClass = classNames(
-      this.props.invalid && 'is-invalid',
-      this.props.className)
-    return (
-      <input ref={this.props.forwardedRef} id={this.props.id} type="text" value={this.props.value} className={cssClass} placeholder={this.props.placeholder}
-        autoFocus={this.props.autoFocus} onChange={this.props.onChange} />
-    )
-  }
-}
+const TextInput = ({forwardedRef, id, className, value, onChange, placeholder, invalid, autoFocus}) => (
+  <input ref={forwardedRef} id={id} type="text" value={value} className={classNames(invalid && 'is-invalid', className)}
+    placeholder={placeholder} autoFocus={autoFocus} onChange={onChange} />
+)
 
 TextInput.propTypes = {
   id: PropTypes.string,
@@ -25,3 +18,5 @@ TextInput.propTypes = {
   autoFocus: PropTypes.bool,
   onChange: PropTypes.func
 }
+
+export default TextInput

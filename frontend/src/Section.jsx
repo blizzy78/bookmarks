@@ -2,14 +2,15 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
-export default class Section extends React.Component {
-  render() {
-    let cssClass = classNames('container mx-auto', this.props.className)
-    return <section className={cssClass}>{this.props.children}</section>
-  }
-}
+const Section = ({className, children}) => (
+  <section className={classNames('container mx-auto', className)}>
+    {children}
+  </section>
+)
 
 Section.propTypes = {
   className: PropTypes.string,
   children: PropTypes.any
 }
+
+export default Section
