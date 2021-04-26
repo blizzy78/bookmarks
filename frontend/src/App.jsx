@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import Section from './Section'
 import SearchForm from './SearchForm'
 import DarkModeSwitch from './DarkModeSwitch'
@@ -9,6 +9,7 @@ const SearchResults = loadable(() => import('./SearchResults'))
 const BookmarkDialog = loadable(() => import('./BookmarkDialog'))
 
 const App = () => {
+  const queryRef = useRef(null)
   const bookmarkDialogRef = useRef(null)
 
   const requestID = useRef(0)
@@ -121,9 +122,14 @@ const App = () => {
     bookmarkDialogRef.current.resetFocus()
   }
 
+  useEffect(() => {
+    console.log('focus query')
+    queryRef.current.focus()
+  }, [false])
+
   return <>
     <Section className="mb-5">
-      <SearchForm query={query} onQueryChange={handleQueryChange}
+      <SearchForm query={query} queryRef={queryRef} onQueryChange={handleQueryChange}
         onNewBookmark={handleNewBookmark} onNewBookmarkMouseOver={handleNewBookmarkMouseOver}
         error={error}/>
     </Section>

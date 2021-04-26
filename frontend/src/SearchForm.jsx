@@ -6,7 +6,7 @@ import PropTypes from 'prop-types'
 
 const SearchForm = ({query, queryRef, error, onQueryChange, onNewBookmark, onNewBookmarkMouseOver}) => (
   <Form className="flex">
-    <TextInput forwardedRef={queryRef} value={query} className="flex-auto mr-3" placeholder="Enter search terms"
+    <TextInput ref={queryRef} value={query} className="flex-auto mr-3" placeholder="Enter search terms"
       onChange={e => onQueryChange(e.target.value)} invalid={error}/>
 
     <Button className="flex-none" icon="fa-plus" onClick={onNewBookmark} onMouseOver={onNewBookmarkMouseOver}
