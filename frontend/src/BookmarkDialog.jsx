@@ -7,10 +7,6 @@ import TextArea from './TextArea'
 import TagsInput from './TagsInput'
 import Button from './Button'
 import Form from './Form'
-import withAutoID from './WithAutoID'
-
-const TextInputWithAutoID = withAutoID(TextInput)
-const TextAreaWithAutoID = withAutoID(TextArea)
 
 const BookmarkDialog = ({bookmark, onBookmarkChange, onCancel, onSave, onDelete}, ref) => {
   const urlRef = useRef(null)
@@ -82,15 +78,15 @@ const BookmarkDialog = ({bookmark, onBookmarkChange, onCancel, onSave, onDelete}
     <Modal ref={ref} title={bookmark.id !== null ? 'Edit Bookmark' : 'Add Bookmark'} buttons={buttons()} onCancel={onCancel}>
       <Form>
         <FormInputGroup label="URL" labelForRef={urlRef} className="mb-3">
-          <TextInputWithAutoID ref={urlRef} className="block w-full" value={bookmark.url} onChange={e => handleChangeURL(e.target.value)}/>
+          <TextInput ref={urlRef} className="block w-full" value={bookmark.url} onChange={e => handleChangeURL(e.target.value)}/>
         </FormInputGroup>
 
         <FormInputGroup label="Title" labelForRef={titleRef} className="mb-3">
-          <TextInputWithAutoID ref={titleRef} className="block w-full" value={bookmark.title} onChange={e => handleChangeTitle(e.target.value)}/>
+          <TextInput ref={titleRef} className="block w-full" value={bookmark.title} onChange={e => handleChangeTitle(e.target.value)}/>
         </FormInputGroup>
 
         <FormInputGroup label="Description" labelForRef={descriptionRef} className="mb-3">
-          <TextAreaWithAutoID ref={descriptionRef} className="block w-full" value={bookmark.description} onChange={e => handleChangeDescription(e.target.value)}/>
+          <TextArea ref={descriptionRef} className="block w-full" value={bookmark.description} onChange={e => handleChangeDescription(e.target.value)}/>
         </FormInputGroup>
 
         <FormInputGroup label="Tags">

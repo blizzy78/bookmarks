@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, {forwardRef} from 'react'
 import classNames from 'classnames'
+import withAutoID from './WithAutoID'
 
 const TextArea = ({id, className, value, onChange, rows}, ref) => {
   const cssClass = classNames('rounded border focus:outline-none focus:border-blue-400 focus:ring focus:ring-blue-300',
@@ -11,4 +12,4 @@ const TextArea = ({id, className, value, onChange, rows}, ref) => {
   )
 }
 
-export default forwardRef(TextArea)
+export default withAutoID(forwardRef(TextArea))
