@@ -6,6 +6,7 @@ require (
 	github.com/RoaringBitmap/roaring v0.6.0 // indirect
 	github.com/blevesearch/bleve/v2 v2.0.3
 	github.com/blizzy78/conditional-http v0.2.0
+	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/google/uuid v1.2.0
@@ -18,6 +19,6 @@ require (
 	go.uber.org/fx v1.13.1
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/lint v0.0.0-20201208152925-83fdc39ff7b5 // indirect
-	golang.org/x/sys v0.0.0-20210415045647-66c3f260301c // indirect
+	golang.org/x/sys v0.0.0-20210426214656-8feff5de7789 // indirect
 	golang.org/x/tools v0.1.1-0.20210222172741-77e031214674 // indirect
 )

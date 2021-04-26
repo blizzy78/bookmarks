@@ -1,26 +1,15 @@
-export function postJSON(url, data) {
-  return fetchJSON(url, 'POST', data)
-}
+const getJSON = url => fetchJSON(url, 'GET', null)
+const postJSON = (url, data) => fetchJSON(url, 'POST', data)
+const putJSON = (url, data) => fetchJSON(url, 'PUT', data)
+const deleteJSON = url => fetchJSON(url, 'DELETE', null)
 
-export function putJSON(url, data) {
-  return fetchJSON(url, 'PUT', data)
-}
-
-export function getJSON(url) {
-  return fetchJSON(url, 'GET', null)
-}
-
-export function deleteJSON(url) {
-  return fetchJSON(url, 'DELETE', null)
-}
-
-export function fetchJSON(url, method, data) {
+const fetchJSON = (url, method, data) => {
   // eslint-disable-next-line no-undef
   if (process.env.NODE_ENV === 'development') {
     url = 'http://localhost:8080' + url
   }
 
-  let reqData = {
+  const reqData = {
     method: method,
     cache: 'no-cache',
     headers: {
@@ -35,3 +24,5 @@ export function fetchJSON(url, method, data) {
     // 204 No Content
     .then(response => response.status !== 204 ? response.json() : null)
 }
+
+export {postJSON, putJSON, getJSON, deleteJSON, fetchJSON}

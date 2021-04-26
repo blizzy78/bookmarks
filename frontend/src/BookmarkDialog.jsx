@@ -1,4 +1,5 @@
-import React from 'react'
+/* eslint-disable react/prop-types */
+import React, {forwardRef, useEffect, useImperativeHandle, useRef} from 'react'
 import Modal from './Modal'
 import FormInputGroup from './FormInputGroup'
 import TextInput from './TextInput'
@@ -6,167 +7,98 @@ import TextArea from './TextArea'
 import TagsInput from './TagsInput'
 import Button from './Button'
 import Form from './Form'
-import PropTypes from 'prop-types'
 import withAutoID from './WithAutoID'
 
 const TextInputWithAutoID = withAutoID(TextInput)
 const TextAreaWithAutoID = withAutoID(TextArea)
 
-export default class BookmarkDialog extends React.Component {
-  constructor(props) {
-    super(props)
+const BookmarkDialog = ({bookmark, onBookmarkChange, onCancel, onSave, onDelete}, ref) => {
+  const urlRef = useRef(null)
+  const titleRef = useRef(null)
+  const descriptionRef = useRef(null)
 
-    this.urlRef = React.createRef()
-    this.titleRef = React.createRef()
-    this.descriptionRef = React.createRef()
-
-    this.handleURLChange = this.handleURLChange.bind(this)
-    this.handleTitleChange = this.handleTitleChange.bind(this)
-    this.handleDescriptionChange = this.handleDescriptionChange.bind(this)
-    this.handleTagsChange = this.handleTagsChange.bind(this)
-
-    this.state = {
-      url: props.bookmark.url,
-      title: props.bookmark.title,
-      description: props.bookmark.description,
-      tags: props.bookmark.tags
-    }
-    this.id = props.bookmark.id
-  }
-
-  componentDidUpdate() {
-    this.id = this.props.bookmark.id
-    if (this.props.bookmark.url !== this.state.url) {
-      this.setState({url: this.props.bookmark.url})
-    }
-    if (this.props.bookmark.title !== this.state.title) {
-      this.setState({title: this.props.bookmark.title})
-    }
-    if (this.props.bookmark.description !== this.state.description) {
-      this.setState({description: this.props.bookmark.description})
-    }
-    if (!this.equalTags(this.props.bookmark.tags, this.state.tags)) {
-      this.setState({tags: this.props.bookmark.tags})
-    }
-  }
-
-  equalTags(t1, t2) {
-    if (t1.length !== t2.length) {
-      return false
-    }
-
-    for (let i = 0; i < t1.length; i++) {
-      if (t1[i].name !== t2[i].name) {
-        return false
-      }
-    }
-
-    return true
-  }
-
-  componentDidMount() {
-    this.resetFocus()
-  }
-
-  handleURLChange(e) {
-    let url = e.target.value
-    this.setState({url: url})
-
-    this.fireBookmarkChange({
-      id: this.id,
+  const handleChangeURL = url => {
+    onBookmarkChange({
+      id: bookmark.id,
       url: url,
-      title: this.state.title,
-      description: this.state.description,
-      tags: this.state.tags
+      title: bookmark.title,
+      description: bookmark.description,
+      tags: bookmark.tags
     })
   }
 
-  handleTitleChange(e) {
-    let title = e.target.value
-    this.setState({title: title})
-
-    this.fireBookmarkChange({
-      id: this.id,
-      url: this.state.url,
+  const handleChangeTitle = title => {
+    onBookmarkChange({
+      id: bookmark.id,
+      url: bookmark.url,
       title: title,
-      description: this.state.description,
-      tags: this.state.tags
+      description: bookmark.description,
+      tags: bookmark.tags
     })
   }
 
-  handleDescriptionChange(e) {
-    let description = e.target.value
-    this.setState({description: description})
-
-    this.fireBookmarkChange({
-      id: this.id,
-      url: this.state.url,
-      title: this.state.title,
+  const handleChangeDescription = description => {
+    onBookmarkChange({
+      id: bookmark.id,
+      url: bookmark.url,
+      title: bookmark.title,
       description: description,
-      tags: this.state.tags
+      tags: bookmark.tags
     })
   }
 
-  handleTagsChange(tags) {
-    this.setState({tags: tags})
-
-    this.fireBookmarkChange({
-      id: this.id,
-      url: this.state.url,
-      title: this.state.title,
-      description: this.state.description,
+  const handleChangeTags = tags => {
+    onBookmarkChange({
+      id: bookmark.id,
+      url: bookmark.url,
+      title: bookmark.title,
+      description: bookmark.description,
       tags: tags
     })
   }
 
-  fireBookmarkChange(bookmark) {
-    this.props.onBookmarkChange(bookmark)
-  }
-
-  render() {
-    return (
-      <Modal title={this.id !== null ? 'Edit Bookmark' : 'Add Bookmark'} buttons={this.buttons()} onCancel={this.props.onCancel}>
-        <Form>
-          <FormInputGroup label="URL" labelForRef={this.urlRef} className="mb-3">
-            <TextInputWithAutoID ref={this.urlRef} className="block w-full" value={this.state.url} onChange={this.handleURLChange}/>
-          </FormInputGroup>
-
-          <FormInputGroup label="Title" labelForRef={this.titleRef} className="mb-3">
-            <TextInputWithAutoID ref={this.titleRef} className="block w-full" value={this.state.title} onChange={this.handleTitleChange}/>
-          </FormInputGroup>
-
-          <FormInputGroup label="Description" labelForRef={this.descriptionRef} className="mb-3">
-            <TextAreaWithAutoID ref={this.descriptionRef} className="block w-full" value={this.state.description} onChange={this.handleDescriptionChange}/>
-          </FormInputGroup>
-
-          <FormInputGroup label="Tags">
-            <TagsInput className="block w-full" tags={this.state.tags} onChange={this.handleTagsChange}/>
-          </FormInputGroup>
-        </Form>
-      </Modal>
-    )
-  }
-
-  buttons() {
+  const buttons = () => {
     return <>
-      <Button className="flex-none m-1" onClick={this.props.onSave}>Save</Button>
+      <Button className="flex-none m-1" onClick={onSave}>Save</Button>
       {
-        this.id !== null &&
-        <Button buttonStyle="danger" outline={true} className="flex-none m-1" onClick={this.props.onDelete}>Delete</Button>
+        bookmark.id !== null &&
+        <Button buttonStyle="danger" outline={true} className="flex-none m-1" onClick={onDelete}>Delete</Button>
       }
-      <Button buttonStyle="secondary" outline={true} className="flex-none m-1" onClick={this.props.onCancel}>Cancel</Button>
+      <Button buttonStyle="secondary" outline={true} className="flex-none m-1" onClick={onCancel}>Cancel</Button>
     </>
   }
 
-  resetFocus() {
-    this.urlRef.current.focus()
-  }
+  useImperativeHandle(ref, () => ({
+    resetFocus: () => {
+      urlRef.current.focus()
+    }
+  }))
+
+  useEffect(() => {
+    urlRef.current.focus()
+  }, [false])
+
+  return (
+    <Modal ref={ref} title={bookmark.id !== null ? 'Edit Bookmark' : 'Add Bookmark'} buttons={buttons()} onCancel={onCancel}>
+      <Form>
+        <FormInputGroup label="URL" labelForRef={urlRef} className="mb-3">
+          <TextInputWithAutoID ref={urlRef} className="block w-full" value={bookmark.url} onChange={e => handleChangeURL(e.target.value)}/>
+        </FormInputGroup>
+
+        <FormInputGroup label="Title" labelForRef={titleRef} className="mb-3">
+          <TextInputWithAutoID ref={titleRef} className="block w-full" value={bookmark.title} onChange={e => handleChangeTitle(e.target.value)}/>
+        </FormInputGroup>
+
+        <FormInputGroup label="Description" labelForRef={descriptionRef} className="mb-3">
+          <TextAreaWithAutoID ref={descriptionRef} className="block w-full" value={bookmark.description} onChange={e => handleChangeDescription(e.target.value)}/>
+        </FormInputGroup>
+
+        <FormInputGroup label="Tags">
+          <TagsInput className="block w-full" tags={bookmark.tags} onChange={handleChangeTags}/>
+        </FormInputGroup>
+      </Form>
+    </Modal>
+  )
 }
 
-BookmarkDialog.propTypes = {
-  bookmark: PropTypes.object.isRequired,
-  onBookmarkChange: PropTypes.func,
-  onCancel: PropTypes.func,
-  onSave: PropTypes.func.isRequired,
-  onDelete: PropTypes.func
-}
+export default forwardRef(BookmarkDialog)

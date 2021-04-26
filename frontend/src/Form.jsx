@@ -1,26 +1,15 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-export default class Form extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.handleSubmit = this.handleSubmit.bind(this)
-  }
-
-  handleSubmit(e) {
-    e.preventDefault()
-  }
-
-  render() {
-    return (
-      <form {...this.props} onSubmit={this.handleSubmit}>
-        {this.props.children}
-      </form>
-    )
-  }
-}
+const Form = ({className, children}) => (
+  <form className={className} onSubmit={e => {e.preventDefault(); return false }}>
+    {children}
+  </form>
+)
 
 Form.propTypes = {
+  className: PropTypes.string,
   children: PropTypes.any
 }
+
+export default Form

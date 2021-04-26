@@ -9,7 +9,11 @@ const Tag = ({className, tag, onClick}) => {
     'font-normal outline-none focus:outline-none hover:bg-green-600 ' +
     'dark:bg-green-700 dark:text-green-100 dark:hover:bg-green-600 dark:hover:text-green-50',
     className)
-  return <button className={cssClass} type="button" onClick={onClick}>{tag}</button>
+  return (
+    <button className={cssClass} type="button" onClick={onClick}>
+      {tag}
+    </button>
+  )
 }
 
 Tag.propTypes = {

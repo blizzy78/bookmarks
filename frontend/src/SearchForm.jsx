@@ -4,32 +4,18 @@ import Button from './Button'
 import Form from './Form'
 import PropTypes from 'prop-types'
 
-export default class SearchForm extends React.Component {
-  constructor(props) {
-    super(props)
+const SearchForm = ({query, queryRef, error, onQueryChange, onNewBookmark, onNewBookmarkMouseOver}) => (
+  <Form className="flex">
+    <TextInput forwardedRef={queryRef} value={query} className="flex-auto mr-3" placeholder="Enter search terms"
+      onChange={e => onQueryChange(e.target.value)} invalid={error}/>
 
-    this.handleQueryChange = this.handleQueryChange.bind(this)
-  }
+    <Button className="flex-none" icon="fa-plus" onClick={onNewBookmark} onMouseOver={onNewBookmarkMouseOver}
+      outline={true}>
 
-  handleQueryChange(e) {
-    this.props.onQueryChange(e.target.value)
-  }
-
-  render() {
-    return (
-      <Form className="flex">
-        <TextInput forwardedRef={this.props.queryRef} value={this.props.query} className="flex-auto mr-3" placeholder="Enter search terms"
-          onChange={this.handleQueryChange} invalid={this.props.error}/>
-
-        <Button className="flex-none" icon="fa-plus" onClick={this.props.onNewBookmark} onMouseOver={this.props.onNewBookmarkMouseOver}
-          outline={true}>
-
-          New
-        </Button>
-      </Form>
-    )
-  }
-}
+      New
+    </Button>
+  </Form>
+)
 
 SearchForm.propTypes = {
   query: PropTypes.string.isRequired,
@@ -39,3 +25,5 @@ SearchForm.propTypes = {
   onNewBookmark: PropTypes.func,
   onNewBookmarkMouseOver: PropTypes.func,
 }
+
+export default SearchForm

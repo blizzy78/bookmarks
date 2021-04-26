@@ -1,191 +1,151 @@
-import React, { Suspense } from 'react'
+import React, {useRef, useState} from 'react'
 import Section from './Section'
 import SearchForm from './SearchForm'
 import DarkModeSwitch from './DarkModeSwitch'
 import * as FetchUtil from './FetchUtil'
-import suspenseWrapPromise from './SuspenseWrapPromise'
 import loadable from '@loadable/component'
 
 const SearchResults = loadable(() => import('./SearchResults'))
 const BookmarkDialog = loadable(() => import('./BookmarkDialog'))
 
-export default class App extends React.Component {
-  constructor(props) {
-    super(props)
+const App = () => {
+  const bookmarkDialogRef = useRef(null)
 
-    this.queryRef = React.createRef()
-    this.bookmarkDialogRef = React.createRef()
+  const requestID = useRef(0)
 
-    this.handleQueryChange = this.handleQueryChange.bind(this)
-    this.handleTagClick = this.handleTagClick.bind(this)
-    this.handleEntryEditClick = this.handleEntryEditClick.bind(this)
-    this.handleEntryEditMouseOver = this.handleEntryEditMouseOver.bind(this)
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState(null)
+  const [error, setError] = useState(false)
+  const [bookmarkDialogBookmark, setBookmarkDialogBookmark] = useState(null)
 
-    this.handleNewBookmark = this.handleNewBookmark.bind(this)
-    this.handleNewBookmarkMouseOver = this.handleNewBookmarkMouseOver.bind(this)
-    this.hideBookmarkDialog = this.hideBookmarkDialog.bind(this)
-    this.handleBookmarkDialogBookmarkChange = this.handleBookmarkDialogBookmarkChange.bind(this)
-    this.handleBookmarkDialogSave = this.handleBookmarkDialogSave.bind(this)
-    this.handleBookmarkDialogDelete = this.handleBookmarkDialogDelete.bind(this)
-
-    this.state = {
-      query: '',
-      results: null,
-      oldResults: null,
-      error: false,
-
-      bookmarkDialogBookmark: null
-    }
-    this.requestID = 0
-  }
-
-  async handleQueryChange(query) {
-    this.setState({query: query})
+  const handleQueryChange = async query => {
     SearchResults.preload()
+    setQuery(query)
 
     if (query === '') {
-      this.setState({results: null, error: false})
+      setResults(null)
+      setError(false)
       return
     }
 
-    let reqID = ++this.requestID
-    let res = FetchUtil.getJSON('/rest/bookmarks?q=' + encodeURIComponent(query) + '&requestID=' + reqID)
-    let results = suspenseWrapPromise(res)
-    res.then(r => {
-      this.setState({error: r.error,  oldResults: results})
+    const reqID = requestID.current + 1
+    requestID.current = reqID
+    const results = await FetchUtil.getJSON('/rest/bookmarks?q=' + encodeURIComponent(query) + '&requestID=' + reqID)
+    if (results.requestID >= reqID) {
+      requestID.current = results.requestID
+      setResults(results)
+      setError(results.error)
+    }
+  }
+
+  const handleTagClick = tag => {
+    handleQueryChange(query + ' tags:"' + tag + '"')
+  }
+
+  const handleEntryEditClick = async id => {
+    const b = await FetchUtil.getJSON('/rest/bookmarks/' + id)
+    setBookmarkDialogBookmark({
+      id: id,
+      url: b.url,
+      title: b.title,
+      description: b.description,
+      tags: b.tags.map(t => ({name: t}))
     })
-    this.setState({results: results})
   }
 
-  handleTagClick(tag) {
-    this.handleQueryChange(this.state.query + ' tags:"' + tag + '"')
-  }
-
-  async handleEntryEditClick(id) {
-    let bookmark = await FetchUtil.getJSON('/rest/bookmarks/' + id)
-    this.setState({
-      bookmarkDialogBookmark: {
-        id: id,
-        url: bookmark.url,
-        title: bookmark.title,
-        description: bookmark.description,
-        tags: bookmark.tags.map(t => {return {name: t}})
-      }
-    })
-  }
-
-  handleEntryEditMouseOver() {
+  const handleEntryEditMouseOver = () => {
     BookmarkDialog.preload()
   }
 
-  handleNewBookmark() {
-    this.setState({
-      bookmarkDialogBookmark: {
-        id: null,
-        url: '',
-        title: '',
-        description: '',
-        tags: []
-      }
+  const handleNewBookmark = () => {
+    setBookmarkDialogBookmark({
+      id: null,
+      url: '',
+      title: '',
+      description: '',
+      tags: []
     })
   }
 
-  handleNewBookmarkMouseOver() {
+  const handleNewBookmarkMouseOver = () => {
     BookmarkDialog.preload()
   }
 
-  hideBookmarkDialog() {
-    this.setState({bookmarkDialogBookmark: null})
+  const hideBookmarkDialog = () => {
+    setBookmarkDialogBookmark(null)
   }
 
-  handleBookmarkDialogBookmarkChange(bookmark) {
-    this.setState({bookmarkDialogBookmark: bookmark})
+  const handleBookmarkDialogBookmarkChange = b => {
+    setBookmarkDialogBookmark(b)
   }
 
-  async handleBookmarkDialogSave() {
-    let req = {
-      url: this.state.bookmarkDialogBookmark.url,
-      title: this.state.bookmarkDialogBookmark.title,
-      description: this.state.bookmarkDialogBookmark.description,
-      tags: this.state.bookmarkDialogBookmark.tags.map(t => t.name)
+  const handleBookmarkDialogSave = async () => {
+    const req = {
+      url: bookmarkDialogBookmark.url,
+      title: bookmarkDialogBookmark.title,
+      description: bookmarkDialogBookmark.description,
+      tags: bookmarkDialogBookmark.tags.map(t => t.name)
     }
 
-    let id = this.state.bookmarkDialogBookmark.id
+    const id = bookmarkDialogBookmark.id
     if (id !== null) {
-      this.hideBookmarkDialog()
-      await FetchUtil.putJSON('/rest/bookmarks/' + id, req)
-      this.handleQueryChange(this.state.query)
+      FetchUtil.putJSON('/rest/bookmarks/' + id, req).then(() => {
+        handleQueryChange(query)
+      })
+      hideBookmarkDialog()
     } else {
-      this.resetBookmarkDialog()
-      await FetchUtil.postJSON('/rest/bookmarks', req)
+      FetchUtil.postJSON('/rest/bookmarks', req)
+      resetBookmarkDialog()
     }
   }
 
-  async handleBookmarkDialogDelete() {
+  const handleBookmarkDialogDelete = async () => {
     if (!window.confirm('Delete bookmark?')) {
       return
     }
 
-    let id = this.state.bookmarkDialogBookmark.id
-    this.hideBookmarkDialog()
-    await FetchUtil.deleteJSON('/rest/bookmarks/' + id)
-    this.handleQueryChange(this.state.query)
-  }
-
-  resetBookmarkDialog() {
-    this.setState({
-      bookmarkDialogBookmark: {
-        id: null,
-        url: '',
-        title: '',
-        description: '',
-        tags: []
-      }
+    FetchUtil.deleteJSON('/rest/bookmarks/' + bookmarkDialogBookmark.id).then(() => {
+      handleQueryChange(query)
     })
-    this.bookmarkDialogRef.current.resetFocus()
+    hideBookmarkDialog()
   }
 
-  componentDidMount() {
-    this.queryRef.current.focus()
+  const resetBookmarkDialog = () => {
+    setBookmarkDialogBookmark({
+      id: null,
+      url: '',
+      title: '',
+      description: '',
+      tags: []
+    })
+    bookmarkDialogRef.current.resetFocus()
   }
 
-  render() {
-    return <>
-      <Section className="mb-5">
-        <SearchForm query={this.state.query} queryRef={this.queryRef} onQueryChange={this.handleQueryChange}
-          onNewBookmark={this.handleNewBookmark} onNewBookmarkMouseOver={this.handleNewBookmarkMouseOver}
-          error={this.state.error}/>
+  return <>
+    <Section className="mb-5">
+      <SearchForm query={query} onQueryChange={handleQueryChange}
+        onNewBookmark={handleNewBookmark} onNewBookmarkMouseOver={handleNewBookmarkMouseOver}
+        error={error}/>
+    </Section>
+
+    {
+      results !== null && !error &&
+      <Section>
+        <SearchResults results={results}
+          onTagClick={handleTagClick} onEntryEditClick={handleEntryEditClick} onEntryEditMouseOver={handleEntryEditMouseOver}/>
       </Section>
+    }
 
-      {
-        this.state.results !== null && !this.state.error &&
-        <Suspense
-          fallback={
-            this.state.oldResults !== null &&
-            <Section>
-              <SearchResults requestID={this.state.oldResults().requestID} results={this.state.oldResults}
-                onTagClick={this.handleTagClick} onEntryEditClick={this.handleEntryEditClick}
-                onEntryEditMouseOver={this.handleEntryEditMouseOver}/>
-            </Section>
-          }>
+    <Section className="mt-28 border-t pt-3 flex justify-center">
+      <DarkModeSwitch/>
+    </Section>
 
-          <Section>
-            <SearchResults requestID={this.requestID} results={this.state.results}
-              onTagClick={this.handleTagClick} onEntryEditClick={this.handleEntryEditClick}
-              onEntryEditMouseOver={this.handleEntryEditMouseOver}/>
-          </Section>
-        </Suspense>
-      }
-
-      <Section className="mt-28 border-t pt-3 flex justify-center">
-        <DarkModeSwitch/>
-      </Section>
-
-      {
-        this.state.bookmarkDialogBookmark !== null &&
-        <BookmarkDialog ref={this.bookmarkDialogRef} bookmark={this.state.bookmarkDialogBookmark} onBookmarkChange={this.handleBookmarkDialogBookmarkChange}
-          onCancel={this.hideBookmarkDialog} onSave={this.handleBookmarkDialogSave} onDelete={this.handleBookmarkDialogDelete}/>
-      }
-    </>
-  }
+    {
+      bookmarkDialogBookmark !== null &&
+      <BookmarkDialog ref={bookmarkDialogRef} bookmark={bookmarkDialogBookmark} onBookmarkChange={handleBookmarkDialogBookmarkChange}
+        onCancel={hideBookmarkDialog} onSave={handleBookmarkDialogSave} onDelete={handleBookmarkDialogDelete}/>
+    }
+  </>
 }
+
+export default App

@@ -1,29 +1,19 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import useForceInitialRerender from './UseForceInitialRerender'
 
-export default class FormInputGroup extends React.Component {
-  componentDidMount() {
-    if (!this.props.labelForRef) {
-      return
-    }
+const FormInputGroup = ({className, labelForRef, label, children}) => {
+  useForceInitialRerender()
 
-    // must render again so that this.props.labelForRef is populated
-    this.setState({})
-  }
+  return (
+    <div className={className}>
+      <label htmlFor={labelForRef && labelForRef.current && labelForRef.current.id} className="inline-block mb-1">
+        {label}
+      </label>
 
-  render() {
-    return (
-      <div className={this.props.className}>
-        <label htmlFor={this.props.labelForRef && this.props.labelForRef.current && this.props.labelForRef.current.id}
-          className="inline-block mb-1">
-
-          {this.props.label}
-        </label>
-
-        {this.props.children}
-      </div>
-    )
-  }
+      {children}
+    </div>
+  )
 }
 
 FormInputGroup.propTypes = {
@@ -32,3 +22,5 @@ FormInputGroup.propTypes = {
   label: PropTypes.string.isRequired,
   children: PropTypes.any
 }
+
+export default FormInputGroup
