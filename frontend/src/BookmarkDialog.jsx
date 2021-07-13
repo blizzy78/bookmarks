@@ -72,7 +72,7 @@ const BookmarkDialog = ({bookmark, onBookmarkChange, onCancel, onSave, onDelete}
 
   useEffect(() => {
     urlRef.current.focus()
-  }, [false])
+  }, [])
 
   return (
     <Modal ref={ref} title={bookmark.id !== null ? 'Edit Bookmark' : 'Add Bookmark'} buttons={buttons()} onCancel={onCancel}>

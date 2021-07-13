@@ -123,9 +123,8 @@ const App = () => {
   }
 
   useEffect(() => {
-    console.log('focus query')
     queryRef.current.focus()
-  }, [false])
+  }, [])
 
   return <>
     <Section className="mb-5">

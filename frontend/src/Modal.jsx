@@ -9,7 +9,7 @@ const Modal = ({title, children, buttons, onCancel}, ref) => {
   useLayoutEffect(() => {
     modalRef.current = new BModal(ref.current, {backdrop: 'static', keyboard: false})
     ref.current.addEventListener('hidePrevented.bs.modal', onCancel)
-  }, [false])
+  }, [])
 
   useEffect(() => {
     modalRef.current.show()
