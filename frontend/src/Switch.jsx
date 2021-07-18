@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import './Switch.css'
 
 const Switch = ({value, onChange}) => (
-  <input type="checkbox" className="form-check-input form-check-switch" checked={value} onChange={onChange}/>
+  <input type="checkbox" className="form-check-input form-check-switch dark:form-check-light" checked={value} onChange={onChange}/>
 )
 
 Switch.propTypes = {

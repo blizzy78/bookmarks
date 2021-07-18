@@ -19,7 +19,7 @@ const DarkModeSwitch = () => {
   return (
     <Form>
       <Icon name="fa-sun" className="mr-3 text-gray-400"/>
-      <Switch value={dark} onChange={() => setDark(!dark)}/>
+      <Switch value={dark} onChange={() => setDark(v => !v)}/>
       <Icon name="fa-moon" className="ml-3 text-gray-400"/>
     </Form>
   )

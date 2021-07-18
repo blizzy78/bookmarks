@@ -53,17 +53,6 @@ const BookmarkDialog = ({bookmark, onBookmarkChange, onCancel, onSave, onDelete}
     })
   }
 
-  const buttons = () => {
-    return <>
-      <Button className="flex-none m-1" onClick={onSave}>Save</Button>
-      {
-        bookmark.id !== null &&
-        <Button buttonStyle="danger" outline={true} className="flex-none m-1" onClick={onDelete}>Delete</Button>
-      }
-      <Button buttonStyle="secondary" outline={true} className="flex-none m-1" onClick={onCancel}>Cancel</Button>
-    </>
-  }
-
   useImperativeHandle(ref, () => ({
     resetFocus: () => {
       urlRef.current.focus()
@@ -74,8 +63,17 @@ const BookmarkDialog = ({bookmark, onBookmarkChange, onCancel, onSave, onDelete}
     urlRef.current.focus()
   }, [])
 
+  const buttons = <>
+    <Button className="flex-none m-1" onClick={onSave}>Save</Button>
+    {
+      bookmark.id !== null &&
+      <Button buttonStyle="danger" outline={true} className="flex-none m-1" onClick={onDelete}>Delete</Button>
+    }
+    <Button buttonStyle="secondary" outline={true} className="flex-none m-1" onClick={onCancel}>Cancel</Button>
+  </>
+
   return (
-    <Modal ref={ref} title={bookmark.id !== null ? 'Edit Bookmark' : 'Add Bookmark'} buttons={buttons()} onCancel={onCancel}>
+    <Modal title={bookmark.id !== null ? 'Edit Bookmark' : 'Add Bookmark'} buttons={buttons} onCancel={onCancel}>
       <Form>
         <FormInputGroup label="URL" labelForRef={urlRef} className="mb-3">
           <TextInput ref={urlRef} className="block w-full" value={bookmark.url} onChange={e => handleChangeURL(e.target.value)}/>
