@@ -1,4 +1,5 @@
-//+build mage
+//go:build mage
+// +build mage
 
 package main
 
@@ -12,7 +13,7 @@ import (
 
 var Default = Bookmarks
 
-func InitDev(ctx context.Context) error {
+func InitDev() error {
 	wd, err := os.Getwd()
 	if err != nil {
 		return err

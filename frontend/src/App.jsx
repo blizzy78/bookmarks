@@ -4,6 +4,7 @@ import SearchForm from './SearchForm'
 import DarkModeSwitch from './DarkModeSwitch'
 import * as FetchUtil from './FetchUtil'
 import loadable from '@loadable/component'
+import toast, { Toaster } from 'react-hot-toast'
 
 const SearchResults = loadable(() => import('./SearchResults'))
 const BookmarkDialog = loadable(() => import('./BookmarkDialog'))
@@ -98,6 +99,8 @@ const App = () => {
       FetchUtil.postJSON('/rest/bookmarks', req)
       resetBookmarkDialog()
     }
+
+    toast('Bookmark saved.')
   }
 
   const handleBookmarkDialogDelete = async () => {
@@ -109,6 +112,8 @@ const App = () => {
       handleQueryChange(query)
     })
     hideBookmarkDialog()
+
+    toast('Bookmark deleted.')
   }
 
   const resetBookmarkDialog = () => {
@@ -150,6 +155,11 @@ const App = () => {
       <BookmarkDialog ref={bookmarkDialogRef} bookmark={bookmarkDialogBookmark} onBookmarkChange={handleBookmarkDialogBookmarkChange}
         onCancel={hideBookmarkDialog} onSave={handleBookmarkDialogSave} onDelete={handleBookmarkDialogDelete}/>
     }
+
+    <Toaster position="bottom-center" toastOptions={{
+      className: 'bg-blue-200 dark:bg-gray-700 dark:text-gray-300',
+      duration: 5000
+    }}/>
   </>
 }
 
