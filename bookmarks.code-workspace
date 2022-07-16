@@ -11,8 +11,7 @@
 		"recommendations": [
 			"EditorConfig.EditorConfig",
 			"golang.go",
-			"dbaeumer.vscode-eslint",
-			"eg2.vscode-npm-script"
+			"dbaeumer.vscode-eslint"
 		]
 	},
 	"settings": {
