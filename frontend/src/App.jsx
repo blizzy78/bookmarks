@@ -51,7 +51,7 @@ const App = () => {
       url: b.url,
       title: b.title,
       description: b.description,
-      tags: b.tags.map(t => ({name: t}))
+      tags: b.tags ? b.tags.map(t => ({name: t})) : []
     })
   }
 

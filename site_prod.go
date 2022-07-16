@@ -1,4 +1,5 @@
-//+build prod
+//go:build prod
+// +build prod
 
 package main
 
@@ -14,7 +15,7 @@ import (
 )
 
 func (s site) registerRoutes(r *mux.Router) error {
-	s.logger.Debug("registering site routes")
+	s.logger.Info().Msg("register routes")
 
 	t, err := fs.Sub(templates, "frontend/build")
 	if err != nil {

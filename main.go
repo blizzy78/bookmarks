@@ -2,32 +2,42 @@ package main
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
 	"go.uber.org/fx"
 )
 
-var errLoginCredentialsMissing = errors.New("login credentials missing")
-
 func main() {
-	fxlogger := log.New()
-	fxlogger.Level = log.WarnLevel
+	logger := newLogger()
 
-	logger := log.New()
-	logger.Level = log.InfoLevel
+	code := 0
 
-	fx.New(
-		fx.Logger(fxlogger),
+	if err := run(logger); err != nil {
+		logger.Fatal().Err(err).Msg("run")
+
+		code = 1
+	}
+
+	logger.Info().Msg("exit")
+
+	os.Exit(code)
+}
+
+func run(logger *zerolog.Logger) error {
+	app := fx.New(
+		fx.WithLogger(newFXLogger(logger, zerolog.WarnLevel)),
 
 		fx.Supply(logger),
 
 		fx.Provide(
+			loadConfig,
 			newMux,
 			newServer,
 			newBookmarks,
@@ -36,47 +46,65 @@ func main() {
 		),
 
 		fx.Invoke(func(rest, site, *http.Server) {}),
-	).Run()
+	)
+
+	if err := app.Err(); err != nil {
+		return err
+	}
+
+	app.Run()
+
+	return nil
 }
 
 func newMux() *mux.Router {
-	r := mux.NewRouter()
-	r.Use(
+	router := mux.NewRouter()
+
+	router.Use(
 		handlers.RecoveryHandler(),
 		handlers.CompressHandler,
 	)
-	return r
+
+	return router
 }
 
-func newServer(lc fx.Lifecycle, r *mux.Router, logger *log.Logger) *http.Server {
-	s := http.Server{
-		Addr:    ":8080",
-		Handler: handlers.LoggingHandler(logger.Writer(), r),
+func newServer(lifecycle fx.Lifecycle, router *mux.Router, config *configuration, logger *zerolog.Logger) *http.Server {
+	logger = componentLogger(logger, "server")
+
+	server := http.Server{
+		Addr:    config.Server.Address,
+		Handler: handlers.LoggingHandler(logger, router),
 	}
 
-	lc.Append(fx.Hook{
+	lifecycle.Append(fx.Hook{
 		OnStart: func(context.Context) error {
-			logger.Infof("starting web server at %s", s.Addr)
-
-			l, err := net.Listen("tcp", s.Addr)
+			listener, err := net.Listen("tcp", server.Addr)
 			if err != nil {
-				return err
+				return fmt.Errorf("listen: %w", err)
 			}
 
 			go func() {
-				_ = s.Serve(l)
+				_ = server.Serve(listener)
 			}()
+
+			logger.Info().Str("address", server.Addr).Msg("web server running")
 
 			return nil
 		},
 
 		OnStop: func(ctx context.Context) error {
-			logger.Info("shutting down web server")
+			logger.Info().Msg("shutdown web server")
+
 			ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 			defer cancel()
-			return s.Shutdown(ctx)
+
+			if err := server.Shutdown(ctx); err != nil {
+				return fmt.Errorf("shutdown: %w", err)
+			}
+
+			return nil
 		},
 	})
 
-	return &s
+	return &server
 }

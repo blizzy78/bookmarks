@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"reflect"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
 )
 
 type restHandler interface {
@@ -19,56 +19,61 @@ func (f restHandlerFunc) serveREST(ctx context.Context, req interface{}, httpReq
 	return f(ctx, req, httpReq)
 }
 
-func handleREST(reqType reflect.Type, next restHandler, logger *log.Logger) http.Handler {
+func handleREST(reqType reflect.Type, next restHandler, logger *zerolog.Logger) http.Handler { //nolint:gocognit // it's a bit more complicated
 	if reqType != nil && reqType.Kind() != reflect.Ptr {
 		panic("non-nil request type must be pointer")
 	}
 
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		h := w.Header()
-		h.Add("Cache-Control", "no-cache, no-store, must-revalidate")
-		h.Add("Pragma", "no-cache")
-		h.Add("Access-Control-Allow-Origin", "*")
-		h.Add("Access-Control-Allow-Credentials", "true")
-		h.Add("Access-Control-Allow-Methods", "OPTIONS, HEAD, GET, POST, PUT, DELETE")
-		h.Add("Access-Control-Allow-Headers", "Content-Type")
+	return http.HandlerFunc(func(writer http.ResponseWriter, httpReq *http.Request) {
+		header := writer.Header()
 
-		if r.Method == http.MethodOptions {
+		header.Add("Cache-Control", "no-cache, no-store, must-revalidate")
+		header.Add("Pragma", "no-cache")
+		header.Add("Access-Control-Allow-Origin", "*")
+		header.Add("Access-Control-Allow-Credentials", "true")
+		header.Add("Access-Control-Allow-Methods", "OPTIONS, HEAD, GET, POST, PUT, DELETE")
+		header.Add("Access-Control-Allow-Headers", "Content-Type")
+
+		if httpReq.Method == http.MethodOptions {
 			return
 		}
 
 		req := interface{}(nil)
 		if reqType != nil {
 			req = reflect.New(reqType.Elem()).Interface()
-			defer r.Body.Close()
-			if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-				logger.Errorf("unmarshal request of type: %s: %v", reqType.Name(), err)
-				internalServerError(w)
+
+			defer func() {
+				_ = httpReq.Body.Close()
+			}()
+
+			if err := json.NewDecoder(httpReq.Body).Decode(req); err != nil {
+				logger.Err(err).Str("requestType", reqType.Name()).Msg("unmarshal request")
+				internalServerError(writer)
 				return
 			}
 		}
 
-		res, err := next.serveREST(r.Context(), req, r)
+		res, err := next.serveREST(httpReq.Context(), req, httpReq)
 		if err != nil {
-			logger.Errorf("serve REST request: %v", err)
-			internalServerError(w)
+			logger.Err(err).Msg("serve REST request")
+			internalServerError(writer)
 			return
 		}
 
 		if res == nil {
-			http.Error(w, "No Content", http.StatusNoContent)
+			http.Error(writer, "No Content", http.StatusNoContent)
 			return
 		}
 
-		w.Header().Add("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(res); err != nil {
-			logger.Errorf("send REST response: %v", err)
-			internalServerError(w)
+		writer.Header().Add("Content-Type", "application/json")
+		if err := json.NewEncoder(writer).Encode(res); err != nil {
+			logger.Err(err).Msg("send REST response")
+			internalServerError(writer)
 		}
 	})
 }
 
-func handleRESTFunc(reqType reflect.Type, f restHandlerFunc, logger *log.Logger) http.Handler {
+func handleRESTFunc(reqType reflect.Type, f restHandlerFunc, logger *zerolog.Logger) http.Handler {
 	return handleREST(reqType, f, logger)
 }
 

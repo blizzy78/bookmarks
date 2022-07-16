@@ -24,7 +24,7 @@ const Entry = ({result, onTagClick, onEditClick, onEditMouseOver}) => (
     }
 
     {
-      result.tags.length > 0 &&
+      (result.tags && result.tags.length > 0) &&
       <div className="text-xs mt-1">
         <Tags tags={result.tags} onTagClick={onTagClick}/>
       </div>

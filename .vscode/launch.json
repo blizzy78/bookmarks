@@ -21,6 +21,10 @@
             "mode": "debug",
             "program": "${workspaceFolder}",
             "cwd": "${workspaceFolder}",
+			"env": {
+				"LOG_PRETTY": "true",
+				"LOG_COLOR": "true"
+			},
 			"presentation": {
 				"hidden": true
 			}
