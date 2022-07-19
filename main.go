@@ -2,16 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"net"
-	"net/http"
 	"os"
-	"time"
+	"os/signal"
+	"syscall"
 
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog"
-	"go.uber.org/fx"
 )
 
 func main() {
@@ -31,80 +27,44 @@ func main() {
 }
 
 func run(logger *zerolog.Logger) error {
-	app := fx.New(
-		fx.WithLogger(newFXLogger(logger, zerolog.WarnLevel)),
-
-		fx.Supply(logger),
-
-		fx.Provide(
-			loadConfig,
-			newMux,
-			newServer,
-			newBookmarks,
-			newSite,
-			newREST,
-		),
-
-		fx.Invoke(func(rest, site, *http.Server) {}),
-	)
-
-	if err := app.Err(); err != nil {
+	config, err := loadConfig()
+	if err != nil {
 		return err
 	}
 
-	app.Run()
+	bookmarks := newBookmarks(config, logger)
+	router := mux.NewRouter()
+	rest := newREST(bookmarks, router, logger)
+	site := newSite(router, logger)
+	server := newServer(config, router, logger)
+
+	rest.start()
+
+	if err = site.start(); err != nil {
+		return err
+	}
+
+	stopServer, err := server.start()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := stopServer(context.Background()); err != nil {
+			logger.Err(err).Msg("stop server")
+		}
+	}()
+
+	waitForSignal(logger)
 
 	return nil
 }
 
-func newMux() *mux.Router {
-	router := mux.NewRouter()
+func waitForSignal(logger *zerolog.Logger) {
+	ch := make(chan os.Signal, 1)
 
-	router.Use(
-		handlers.RecoveryHandler(),
-		handlers.CompressHandler,
-	)
+	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 
-	return router
-}
-
-func newServer(lifecycle fx.Lifecycle, router *mux.Router, config *configuration, logger *zerolog.Logger) *http.Server {
-	logger = componentLogger(logger, "server")
-
-	server := http.Server{
-		Addr:    config.Server.Address,
-		Handler: handlers.LoggingHandler(logger, router),
-	}
-
-	lifecycle.Append(fx.Hook{
-		OnStart: func(context.Context) error {
-			listener, err := net.Listen("tcp", server.Addr)
-			if err != nil {
-				return fmt.Errorf("listen: %w", err)
-			}
-
-			go func() {
-				_ = server.Serve(listener)
-			}()
-
-			logger.Info().Str("address", server.Addr).Msg("web server running")
-
-			return nil
-		},
-
-		OnStop: func(ctx context.Context) error {
-			logger.Info().Msg("shutdown web server")
-
-			ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-			defer cancel()
-
-			if err := server.Shutdown(ctx); err != nil {
-				return fmt.Errorf("shutdown: %w", err)
-			}
-
-			return nil
-		},
-	})
-
-	return &server
+	<-ch
+	logger.Info().Msg("received exit signal")
 }

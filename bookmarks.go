@@ -7,7 +7,6 @@ import (
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/rs/zerolog"
-	"go.uber.org/fx"
 )
 
 type bookmarks struct {
@@ -39,7 +38,7 @@ type hit struct {
 
 var errStringSliceConversion = errors.New("convert to string slice")
 
-func newBookmarks(lifecycle fx.Lifecycle, config *configuration, logger *zerolog.Logger) (*bookmarks, error) {
+func newBookmarks(config *configuration, logger *zerolog.Logger) *bookmarks {
 	logger = componentLogger(logger, "bookmarks")
 
 	logger.Info().Str("appID", config.Algolia.AppID).Str("index", config.Algolia.IndexName).Msg("use Algolia")
@@ -51,7 +50,7 @@ func newBookmarks(lifecycle fx.Lifecycle, config *configuration, logger *zerolog
 		i: index,
 	}
 
-	return &bm, nil
+	return &bm
 }
 
 func (bm *bookmarks) saveBookmark(b bookmark) error {

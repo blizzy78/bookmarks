@@ -11,11 +11,14 @@ import (
 	"time"
 
 	"github.com/blizzy78/conditional-http/handler"
-	"github.com/gorilla/mux"
 )
 
-func (s site) registerRoutes(r *mux.Router) error {
-	s.logger.Info().Msg("register routes")
+func (site *site) start() error {
+	return site.registerRoutes()
+}
+
+func (site *site) registerRoutes() error {
+	site.logger.Info().Msg("register routes")
 
 	t, err := fs.Sub(templates, "frontend/build")
 	if err != nil {
@@ -44,7 +47,7 @@ func (s site) registerRoutes(r *mux.Router) error {
 
 	h = handler.IfNoneMatchIfModifiedSinceHandler(true, h)
 
-	r.PathPrefix("").Handler(http.StripPrefix("/", h)).Methods(http.MethodGet, http.MethodHead)
+	site.router.PathPrefix("").Handler(http.StripPrefix("/", h)).Methods(http.MethodGet, http.MethodHead)
 
 	return nil
 }

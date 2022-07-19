@@ -3,8 +3,6 @@
 
 package main
 
-import "github.com/gorilla/mux"
-
-func (s site) registerRoutes(r *mux.Router) error {
+func (site *site) start() error {
 	return nil
 }
