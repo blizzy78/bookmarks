@@ -46,6 +46,30 @@ There are no other requirements to run it, the executable is self-contained.
 A web server will be started at :8080. Bookmarks data will be saved to folder `./bookmarks.bleve/`
 
 
+Configuration File
+------------------
+
+**config.yaml**:
+
+```yaml
+# settings for the app's web server
+server:
+  # bind address
+  address: :8080
+
+# settings for Algolia
+algolia:
+  # app ID
+  app-id: ABCDEF1234
+
+  # API key (needs write access to the index)
+  api-key: 1234567890abcdef1234567890abcdef
+
+  # index name
+  index-name: bookmarks
+```
+
+
 Development Environment
 -----------------------
 
