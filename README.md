@@ -14,14 +14,6 @@ I will infrequently change things around, add, remove, and break things, so cons
 Usage
 -----
 
-You can use Lucene-style search syntax in the query field, such as
-
-- `foo bar` (same as `foo OR bar`)
-- `foo AND bar`
-- `+foo -bar +tags:baz -tags:qux`
-
-Click on any tag in the search results to add it to the query.
-
 To add new bookmarks, click on the "New" button. To edit or delete bookmarks, search first, then hover over
 a bookmark's title, then click on the little edit button next to it.
 

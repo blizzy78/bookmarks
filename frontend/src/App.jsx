@@ -40,10 +40,6 @@ const App = () => {
     }
   }
 
-  const handleTagClick = tag => {
-    handleQueryChange(query + ' tags:"' + tag + '"')
-  }
-
   const handleEntryEditClick = async id => {
     const b = await FetchUtil.getJSON('/rest/bookmarks/' + id)
     setBookmarkDialogBookmark({
@@ -141,12 +137,11 @@ const App = () => {
     {
       results !== null && !error &&
       <Section>
-        <SearchResults results={results}
-          onTagClick={handleTagClick} onEntryEditClick={handleEntryEditClick} onEntryEditMouseOver={handleEntryEditMouseOver}/>
+        <SearchResults results={results} onEntryEditClick={handleEntryEditClick} onEntryEditMouseOver={handleEntryEditMouseOver}/>
       </Section>
     }
 
-    <Section className="mt-28 border-t pt-3 flex justify-center">
+    <Section className="mt-28 border-t pt-3 flex flex-row justify-center">
       <DarkModeSwitch/>
     </Section>
 
