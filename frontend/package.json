@@ -57,5 +57,6 @@
     "postcss": "^7.0.35",
     "precss": "^4.0.0",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.1.0"
-  }
+  },
+  "proxy": "http://localhost:8080"
 }

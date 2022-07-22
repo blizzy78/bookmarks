@@ -4,11 +4,6 @@ const putJSON = (url, data) => fetchJSON(url, 'PUT', data)
 const deleteJSON = url => fetchJSON(url, 'DELETE', null)
 
 const fetchJSON = (url, method, data) => {
-  // eslint-disable-next-line no-undef
-  if (process.env.NODE_ENV === 'development') {
-    url = 'http://localhost:8080' + url
-  }
-
   const reqData = {
     method: method,
     cache: 'no-cache',
