@@ -1,18 +1,21 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
-  purge: [
-    './public/*.html',
-    './src/*.js',
-    './src/*.jsx',
-    './src/*.css'
+
+  content: [
+    './src/**/*.{js,jsx,ts,tsx}',
+    './public/*.html'
   ],
-  plugins: [
-    require('@tailwindcss/forms')
-  ],
-  variants: {
+
+  theme: {
     extend: {
-      filter: ['dark'],
-      brightness: ['dark']
+      fontFamily: {
+        copy: ['Lato']
+      }
     }
+  },
+
+  corePlugins: {
+    preflight: false
   }
 }

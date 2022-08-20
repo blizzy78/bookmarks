@@ -33,13 +33,14 @@ func (rs *rest) start() {
 func (rs *rest) registerRoutes() {
 	rs.logger.Info().Msg("register routes")
 
-	router := rs.router.PathPrefix("/rest/bookmarks").Subrouter()
+	bmarks := rs.router.PathPrefix("/rest/bookmarks").Subrouter()
+	bmarks.Handle("", handleRESTFunc(nil, rs.search, rs.logger)).Methods(http.MethodGet, http.MethodOptions).Queries("q", "", "requestID", "{requestID:[0-9]+}")
 
-	router.Handle("/{id}", handleRESTFunc(nil, rs.getBookmark, rs.logger)).Methods(http.MethodGet, http.MethodOptions)
-	router.Handle("/{id}", handleRESTFunc(nil, rs.deleteBookmark, rs.logger)).Methods(http.MethodDelete, http.MethodOptions)
-	router.Handle("/{id}", handleRESTFunc(reflect.TypeOf((*bookmark)(nil)), rs.updateBookmark, rs.logger)).Methods(http.MethodPut, http.MethodOptions)
-	router.Handle("", handleRESTFunc(nil, rs.search, rs.logger)).Methods(http.MethodGet, http.MethodOptions).Queries("q", "", "requestID", "{requestID:[0-9]+}")
-	router.Handle("", handleRESTFunc(reflect.TypeOf((*bookmark)(nil)), rs.createBookmark, rs.logger)).Methods(http.MethodPost, http.MethodOptions)
+	bmark := rs.router.PathPrefix("/rest/bookmark").Subrouter()
+	bmark.Handle("", handleRESTFunc(reflect.TypeOf((*bookmark)(nil)), rs.createBookmark, rs.logger)).Methods(http.MethodPost, http.MethodOptions)
+	bmark.Handle("/{id}", handleRESTFunc(nil, rs.getBookmark, rs.logger)).Methods(http.MethodGet, http.MethodOptions)
+	bmark.Handle("/{id}", handleRESTFunc(nil, rs.deleteBookmark, rs.logger)).Methods(http.MethodDelete, http.MethodOptions)
+	bmark.Handle("/{id}", handleRESTFunc(reflect.TypeOf((*bookmark)(nil)), rs.updateBookmark, rs.logger)).Methods(http.MethodPut, http.MethodOptions)
 }
 
 func (rs *rest) search(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
