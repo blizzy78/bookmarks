@@ -24,9 +24,8 @@ type bookmark struct {
 }
 
 type searchResponse struct {
-	RequestID uint64 `json:"requestID"`
-	Error     bool   `json:"error"`
-	Hits      []hit  `json:"hits"`
+	Error bool  `json:"error"`
+	Hits  []hit `json:"hits"`
 }
 
 type hit struct {

@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"reflect"
-	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -34,7 +32,7 @@ func (rs *rest) registerRoutes() {
 	rs.logger.Info().Msg("register routes")
 
 	bmarks := rs.router.PathPrefix("/rest/bookmarks").Subrouter()
-	bmarks.Handle("", handleRESTFunc(nil, rs.search, rs.logger)).Methods(http.MethodGet, http.MethodOptions).Queries("q", "", "requestID", "{requestID:[0-9]+}")
+	bmarks.Handle("", handleRESTFunc(nil, rs.search, rs.logger)).Methods(http.MethodGet, http.MethodOptions).Queries("q", "")
 	bmarks.Handle("/tags", handleRESTFunc(nil, rs.getAllTags, rs.logger)).Methods(http.MethodGet, http.MethodOptions)
 
 	bmark := rs.router.PathPrefix("/rest/bookmark").Subrouter()
@@ -47,25 +45,16 @@ func (rs *rest) registerRoutes() {
 func (rs *rest) search(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
 	q := hr.URL.Query()
 	query := strings.TrimSpace(q.Get("q"))
-	reqIDStr := q.Get("requestID")
-
-	reqID, err := strconv.ParseUint(reqIDStr, 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("parse request ID: %w", err)
-	}
 
 	res, err := rs.bm.search(query)
 	if err != nil {
 		rs.logger.Err(err).Msg("search")
 
 		return &searchResponse{
-			RequestID: reqID,
-			Error:     true,
-			Hits:      []hit{},
+			Error: true,
+			Hits:  []hit{},
 		}, nil
 	}
-
-	res.RequestID = reqID
 
 	return res, nil
 }
