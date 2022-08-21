@@ -27,8 +27,10 @@ func newServer(config *configuration, router *mux.Router, logger *zerolog.Logger
 
 	return &server{
 		s: &http.Server{
-			Addr:    config.Server.Address,
-			Handler: handler,
+			Addr:              config.Server.Address,
+			Handler:           handler,
+			ReadHeaderTimeout: 5 * time.Second,
+			ReadTimeout:       10 * time.Second,
 		},
 		logger: logger,
 	}
