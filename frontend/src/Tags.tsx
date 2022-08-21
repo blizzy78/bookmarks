@@ -13,7 +13,7 @@ export const Tags = ({ tags }: { tags: string[] }): JSX.Element => (
 )
 
 const Tag = ({ children }: { children: ReactNode }) => (
-  <div className="px-2 py-1 rounded dark:bg-slate-600 text-xs">
+  <div className="px-2 py-1 rounded border dark:border-slate-500 dark:bg-slate-600 text-xs">
     {children}
   </div>
 )

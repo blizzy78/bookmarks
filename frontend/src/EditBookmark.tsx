@@ -76,7 +76,7 @@ export const BookmarkForm = ({ objectID, onSave, onClose, onDelete }: {
 
   return (
     <form onSubmit={form.onSubmit(onSaveInternal)} className="relative flex flex-col gap-10">
-      <Mantine.LoadingOverlay visible={allTagsFetching || (!!objectID && isFetching)}/>
+      <Mantine.LoadingOverlay visible={allTagsFetching || (!!objectID && isFetching)} overlayColor="#334155"/>
 
       <div className="flex flex-col gap-3">
         <Mantine.TextInput label="URL" withAsterisk {...form.getInputProps('url')}/>
@@ -84,7 +84,13 @@ export const BookmarkForm = ({ objectID, onSave, onClose, onDelete }: {
         <Mantine.Textarea label="Description" autosize minRows={3} {...form.getInputProps('description')}/>
 
         <Mantine.MultiSelect label="Tags" data={tags} searchable {...form.getInputProps('tags')}
-          creatable getCreateLabel={q => `+ ${q}`} onCreate={onCreateTag}/>
+          creatable getCreateLabel={q => `+ ${q}`} onCreate={onCreateTag} styles={{
+            value: {
+              borderWidth: '1px',
+              borderColor: '#64748b',
+              backgroundColor: '#475569'
+            }
+          }}/>
       </div>
 
       <div className="flex flex-row gap-3 justify-end">
