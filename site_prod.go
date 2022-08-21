@@ -22,18 +22,18 @@ func (site *site) registerRoutes() error {
 
 	t, err := fs.Sub(templates, "frontend/build")
 	if err != nil {
-		return err
+		return fmt.Errorf("sub frontend/build: %w", err)
 	}
 
-	h := staticFilesHandler(t)
-	h = cacheControlHandler("public, max-age=2592000", h)
+	hand := staticFilesHandler(t)
+	hand = cacheControlHandler("public, max-age=2592000", hand)
 
-	h, err = handler.LastModifiedHandlerConstant(time.Now(), h)
+	hand, err = handler.LastModifiedHandlerConstant(time.Now(), hand)
 	if err != nil {
-		return err
+		return fmt.Errorf("last-mod handler: %w", err)
 	}
 
-	h = handler.ETagHandler(
+	hand = handler.ETagHandler(
 		func(w http.ResponseWriter, r *http.Request) (handler.ETag, bool) {
 			u := r.RequestURI
 			l := w.Header().Get("Last-Modified")
@@ -43,11 +43,11 @@ func (site *site) registerRoutes() error {
 				Weak: true,
 			}, true
 		},
-		handler.AfterHeaders, h)
+		handler.AfterHeaders, hand)
 
-	h = handler.IfNoneMatchIfModifiedSinceHandler(true, h)
+	hand = handler.IfNoneMatchIfModifiedSinceHandler(true, hand)
 
-	site.router.PathPrefix("").Handler(http.StripPrefix("/", h)).Methods(http.MethodGet, http.MethodHead)
+	site.router.PathPrefix("").Handler(http.StripPrefix("/", hand)).Methods(http.MethodGet, http.MethodHead)
 
 	return nil
 }

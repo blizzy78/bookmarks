@@ -42,7 +42,7 @@ func (rs *rest) registerRoutes() {
 	bmark.Handle("/{id}", handleRESTFunc(reflect.TypeOf((*bookmark)(nil)), rs.updateBookmark, rs.logger)).Methods(http.MethodPut, http.MethodOptions)
 }
 
-func (rs *rest) search(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
+func (rs *rest) search(_ context.Context, r any, hr *http.Request) (any, error) {
 	q := hr.URL.Query()
 	query := strings.TrimSpace(q.Get("q"))
 
@@ -59,28 +59,28 @@ func (rs *rest) search(_ context.Context, r interface{}, hr *http.Request) (inte
 	return res, nil
 }
 
-func (rs *rest) updateBookmark(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
+func (rs *rest) updateBookmark(_ context.Context, r any, hr *http.Request) (any, error) {
 	b := r.(*bookmark) //nolint:forcetypeassert // type is guaranteed by registerRoutes
 	b.ID = mux.Vars(hr)["id"]
 
 	return nil, rs.bm.saveBookmark(*b)
 }
 
-func (rs *rest) createBookmark(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
+func (rs *rest) createBookmark(_ context.Context, r any, hr *http.Request) (any, error) {
 	b := r.(*bookmark) //nolint:forcetypeassert // type is guaranteed by registerRoutes
 	return nil, rs.bm.saveBookmark(*b)
 }
 
-func (rs *rest) deleteBookmark(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
+func (rs *rest) deleteBookmark(_ context.Context, r any, hr *http.Request) (any, error) {
 	id := mux.Vars(hr)["id"]
 	return nil, rs.bm.deleteBookmark(id)
 }
 
-func (rs *rest) getBookmark(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
+func (rs *rest) getBookmark(_ context.Context, r any, hr *http.Request) (any, error) {
 	id := mux.Vars(hr)["id"]
 	return rs.bm.getBookmark(id)
 }
 
-func (rs *rest) getAllTags(_ context.Context, r interface{}, hr *http.Request) (interface{}, error) {
+func (rs *rest) getAllTags(_ context.Context, r any, hr *http.Request) (any, error) {
 	return rs.bm.allTags()
 }

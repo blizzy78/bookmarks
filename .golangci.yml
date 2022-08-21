@@ -1,3 +1,7 @@
+run:
+  build-tags:
+    - prod
+
 # https://github.com/golangci/golangci-lint/issues/456#issuecomment-617470264
 issues:
   exclude-use-default: false
@@ -29,7 +33,6 @@ linters:
     - gofmt
     - goprintffuncname
     - gosec
-    - ifshort
     - nakedret
     - nestif
     - nilerr
@@ -39,17 +42,19 @@ linters:
     - predeclared
     - promlinter
     - revive
-    - rowserrcheck
-    - sqlclosecheck
     - stylecheck
     - thelper
     - tparallel
     - unconvert
     - unparam
     - varnamelen
-    - wastedassign
     - wrapcheck
     - wsl
+  disable:
+    # disabled for Go 1.19
+    - rowserrcheck
+    - sqlclosecheck
+    - wastedassign
 
 linters-settings:
   gocognit:
@@ -62,7 +67,7 @@ linters-settings:
     require-explanation: true
     require-specific: true
   unused:
-    go: 1.17
+    go: 1.19
   varnamelen:
     check-return: true
     ignore-type-assert-ok: true

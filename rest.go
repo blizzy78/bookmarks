@@ -10,12 +10,12 @@ import (
 )
 
 type restHandler interface {
-	serveREST(ctx context.Context, req interface{}, httpReq *http.Request) (interface{}, error)
+	serveREST(ctx context.Context, req any, httpReq *http.Request) (any, error)
 }
 
-type restHandlerFunc func(ctx context.Context, req interface{}, httpReq *http.Request) (interface{}, error)
+type restHandlerFunc func(ctx context.Context, req any, httpReq *http.Request) (any, error)
 
-func (f restHandlerFunc) serveREST(ctx context.Context, req interface{}, httpReq *http.Request) (interface{}, error) {
+func (f restHandlerFunc) serveREST(ctx context.Context, req any, httpReq *http.Request) (any, error) {
 	return f(ctx, req, httpReq)
 }
 
@@ -38,7 +38,7 @@ func handleREST(reqType reflect.Type, next restHandler, logger *zerolog.Logger) 
 			return
 		}
 
-		req := interface{}(nil)
+		req := any(nil)
 		if reqType != nil {
 			req = reflect.New(reqType.Elem()).Interface()
 

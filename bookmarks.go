@@ -139,7 +139,7 @@ func (bm *bookmarks) allTags() ([]string, error) {
 	return tags, nil
 }
 
-func matchToHit(match map[string]interface{}) hit {
+func matchToHit(match map[string]any) hit {
 	id := match["objectID"].(string) //nolint:forcetypeassert // we know it's a string
 
 	url := match["url"].(string) //nolint:forcetypeassert // we know it's a string
@@ -164,13 +164,13 @@ func matchToHit(match map[string]interface{}) hit {
 	}
 }
 
-func highlightedValue(match map[string]interface{}, key string) interface{} {
-	highlighted, ok := match["_highlightResult"].(map[string]interface{})
+func highlightedValue(match map[string]any, key string) any {
+	highlighted, ok := match["_highlightResult"].(map[string]any)
 	if !ok {
 		return match[key]
 	}
 
-	entry, ok := highlighted[key].(map[string]interface{})
+	entry, ok := highlighted[key].(map[string]any)
 	if !ok {
 		return match[key]
 	}
@@ -178,7 +178,7 @@ func highlightedValue(match map[string]interface{}, key string) interface{} {
 	return entry["value"]
 }
 
-func stringsToSlice(value interface{}) []string {
+func stringsToSlice(value any) []string {
 	if value == nil {
 		return []string{}
 	}
@@ -187,7 +187,7 @@ func stringsToSlice(value interface{}) []string {
 	case []string:
 		return sValue
 
-	case []interface{}:
+	case []any:
 		res := make([]string, len(sValue))
 		for i, v := range sValue {
 			res[i] = v.(string) //nolint:forcetypeassert // we know it's a string

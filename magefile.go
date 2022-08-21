@@ -37,6 +37,19 @@ func Frontend(ctx context.Context) error {
 	})
 }
 
+// Lint runs linters.
+func Lint() error {
+	if err := sh.Run("go", "run", "github.com/golangci/golangci-lint/cmd/golangci-lint@latest", "run", "-c", ".golangci.yml"); err != nil {
+		return fmt.Errorf("go run golangci-lint: %w", err)
+	}
+
+	if err := sh.Run("go", "run", "github.com/blizzy78/consistent/cmd/consistent@latest", "./..."); err != nil {
+		return fmt.Errorf("go run consistent: %w", err)
+	}
+
+	return nil
+}
+
 // Build builds the backend executable.
 func Build(ctx context.Context) error {
 	mg.CtxDeps(ctx, Frontend)
