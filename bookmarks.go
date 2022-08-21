@@ -3,8 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 
+	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/rs/zerolog"
 )
@@ -90,7 +92,7 @@ func (bm *bookmarks) deleteBookmark(id string) error {
 }
 
 func (bm *bookmarks) search(query string) (searchResponse, error) {
-	res, err := bm.i.Search(query)
+	res, err := bm.i.Search(query, opt.HitsPerPage(30))
 	if err != nil {
 		return searchResponse{
 			Error: true,
@@ -106,6 +108,36 @@ func (bm *bookmarks) search(query string) (searchResponse, error) {
 	}
 
 	return searchRes, nil
+}
+
+func (bm *bookmarks) allTags() ([]string, error) {
+	res, err := bm.i.Search("", opt.AttributesToRetrieve("tags"), opt.HitsPerPage(1000000))
+	if err != nil {
+		return nil, fmt.Errorf("search: %w", err)
+	}
+
+	tagsUnique := map[string]struct{}{}
+
+	for _, hit := range res.Hits {
+		tags := stringsToSlice(hit["tags"])
+
+		for _, tag := range tags {
+			if _, ok := tagsUnique[tag]; ok {
+				continue
+			}
+
+			tagsUnique[tag] = struct{}{}
+		}
+	}
+
+	tags := make([]string, 0, len(tagsUnique))
+	for tag := range tagsUnique {
+		tags = append(tags, tag)
+	}
+
+	sort.Strings(tags)
+
+	return tags, nil
 }
 
 func matchToHit(match map[string]interface{}) hit {

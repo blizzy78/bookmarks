@@ -97,12 +97,17 @@ export interface SaveBookmarkData {
 }
 
 export const useCreateBookmark = (): ((data: SaveBookmarkData) => Promise<undefined>) => {
+  const invalidateAllTags = useInvalidateAllTags()
+
   const mutation = ReactQuery.useMutation<undefined, FetchUtil.HTTPError, SaveBookmarkData>(
     (data: SaveBookmarkData) => FetchUtil.postJSON('/rest/bookmark', data.bookmark),
     {
       onMutate: variables => variables.onCreating(),
 
-      onSuccess: (data, variables) => variables.onCreated()
+      onSuccess: (data, variables) => {
+        variables.onCreated()
+        invalidateAllTags()
+      }
     }
   )
 
@@ -112,6 +117,7 @@ export const useCreateBookmark = (): ((data: SaveBookmarkData) => Promise<undefi
 export const useUpdateBookmark = (): ((data: SaveBookmarkData) => Promise<undefined>) => {
   const invalidateBookmark = useInvalidateBookmark()
   const invalidateSearch = useInvalidateSearch()
+  const invalidateAllTags = useInvalidateAllTags()
 
   const mutation = ReactQuery.useMutation<undefined, FetchUtil.HTTPError, SaveBookmarkData>(
     (data: SaveBookmarkData) => FetchUtil.putJSON(`/rest/bookmark/${encodeURIComponent(data.bookmark.objectID as string)}`, data.bookmark),
@@ -122,6 +128,7 @@ export const useUpdateBookmark = (): ((data: SaveBookmarkData) => Promise<undefi
         variables.onCreated()
         invalidateBookmark(variables.bookmark.objectID as string)
         invalidateSearch()
+        invalidateAllTags()
       }
     }
   )
@@ -138,6 +145,7 @@ export interface DeleteBookmarkData {
 export const useDeleteBookmark = (): ((data: DeleteBookmarkData) => Promise<undefined>) => {
   const invalidateBookmark = useInvalidateBookmark()
   const invalidateSearch = useInvalidateSearch()
+  const invalidateAllTags = useInvalidateAllTags()
 
   const mutation = ReactQuery.useMutation<undefined, FetchUtil.HTTPError, DeleteBookmarkData>(
     (data: DeleteBookmarkData) => FetchUtil.deleteJSON(`/rest/bookmark/${encodeURIComponent(data.objectID)}`),
@@ -148,9 +156,34 @@ export const useDeleteBookmark = (): ((data: DeleteBookmarkData) => Promise<unde
         variables.onDeleted()
         invalidateBookmark(variables.objectID as string)
         invalidateSearch()
+        invalidateAllTags()
       }
     }
   )
 
   return mutation.mutateAsync
+}
+
+export const useAllTags = (): ReactQuery.UseQueryResult<string[], FetchUtil.HTTPError> => (
+  ReactQuery.useQuery(
+    ['bookmarks.tags'],
+    () => FetchUtil.getJSON('/rest/bookmarks/tags'),
+    {
+      staleTime: Infinity,
+      cacheTime: Infinity,
+      retry: retry
+    }
+  )
+)
+
+const useInvalidateAllTags = (): () => void => {
+  const queryClient = ReactQuery.useQueryClient()
+
+  return useCallback(
+    () => {
+      queryClient.cancelQueries(['bookmarks.tags'])
+      queryClient.invalidateQueries(['bookmarks.tags'])
+    },
+    [queryClient]
+  )
 }

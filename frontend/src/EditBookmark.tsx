@@ -33,13 +33,24 @@ export const BookmarkForm = ({ objectID, onSave, onClose, onDelete }: {
 
   const [tags, setTags] = useState<Mantine.SelectItem[]>([])
 
+  const { data: allTagsData, isFetching: allTagsFetching } = API.useAllTags()
+
+  useEffect(
+    () => {
+      if (!allTagsData) {
+        setTags([])
+        return
+      }
+
+      setTags(allTagsData.map(t => ({ value: t, label: t })))
+    },
+    [allTagsData]
+  )
+
   const { data, isFetching } = API.useBookmark(objectID)
 
   useEffect(
     () => {
-      const tags = data?.tags?.map(t => ({ value: t, label: t })) ?? []
-      setTags(tags)
-
       form.setValues({
         url: data?.url ?? '',
         title: data?.title ?? '',
@@ -65,12 +76,12 @@ export const BookmarkForm = ({ objectID, onSave, onClose, onDelete }: {
 
   return (
     <form onSubmit={form.onSubmit(onSaveInternal)} className="relative flex flex-col gap-10">
-      <Mantine.LoadingOverlay visible={!!objectID && isFetching}/>
+      <Mantine.LoadingOverlay visible={allTagsFetching || (!!objectID && isFetching)}/>
 
       <div className="flex flex-col gap-3">
         <Mantine.TextInput label="URL" withAsterisk {...form.getInputProps('url')}/>
         <Mantine.TextInput label="Title" withAsterisk {...form.getInputProps('title')}/>
-        <Mantine.Textarea label="Description" autosize minRows={2} {...form.getInputProps('description')}/>
+        <Mantine.Textarea label="Description" autosize minRows={3} {...form.getInputProps('description')}/>
 
         <Mantine.MultiSelect label="Tags" data={tags} searchable {...form.getInputProps('tags')}
           creatable getCreateLabel={q => `+ ${q}`} onCreate={onCreateTag}/>
