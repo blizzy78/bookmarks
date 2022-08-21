@@ -9,19 +9,12 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type restHandler interface {
-	serveREST(ctx context.Context, req any, httpReq *http.Request) (any, error)
-}
+type restHandlerFunc[Req any, Res any] func(ctx context.Context, req Req, httpReq *http.Request) (Res, error)
 
-type restHandlerFunc func(ctx context.Context, req any, httpReq *http.Request) (any, error)
-
-func (f restHandlerFunc) serveREST(ctx context.Context, req any, httpReq *http.Request) (any, error) {
-	return f(ctx, req, httpReq)
-}
-
-func handleREST(reqType reflect.Type, next restHandler, logger *zerolog.Logger) http.Handler { //nolint:gocognit // it's a bit more complicated
-	if reqType != nil && reqType.Kind() != reflect.Ptr {
-		panic("non-nil request type must be pointer")
+func handleRESTFunc[Req any, Res any](fun restHandlerFunc[Req, Res], logger *zerolog.Logger) http.Handler {
+	var reqCheck Req
+	if reflect.TypeOf(reqCheck).Kind() == reflect.Ptr {
+		panic("request type must not be pointer")
 	}
 
 	return http.HandlerFunc(func(writer http.ResponseWriter, httpReq *http.Request) {
@@ -38,31 +31,36 @@ func handleREST(reqType reflect.Type, next restHandler, logger *zerolog.Logger) 
 			return
 		}
 
-		req := any(nil)
-		if reqType != nil {
-			req = reflect.New(reqType.Elem()).Interface()
+		var req Req
 
+		switch any(req).(type) {
+		case nil, struct{}:
+
+		default:
 			defer func() {
 				_ = httpReq.Body.Close()
 			}()
 
-			if err := json.NewDecoder(httpReq.Body).Decode(req); err != nil {
-				logger.Err(err).Str("requestType", reqType.Name()).Msg("unmarshal request")
+			if err := json.NewDecoder(httpReq.Body).Decode(&req); err != nil {
+				logger.Err(err).Str("requestType", reflect.TypeOf(req).Name()).Msg("unmarshal request")
 				internalServerError(writer)
 				return
 			}
 		}
 
-		res, err := next.serveREST(httpReq.Context(), req, httpReq)
+		res, err := fun(httpReq.Context(), req, httpReq)
 		if err != nil {
 			logger.Err(err).Msg("serve REST request")
 			internalServerError(writer)
 			return
 		}
 
-		if res == nil {
+		switch any(res).(type) {
+		case nil, struct{}, *struct{}:
 			http.Error(writer, "No Content", http.StatusNoContent)
 			return
+
+		default:
 		}
 
 		writer.Header().Add("Content-Type", "application/json")
@@ -71,10 +69,6 @@ func handleREST(reqType reflect.Type, next restHandler, logger *zerolog.Logger) 
 			internalServerError(writer)
 		}
 	})
-}
-
-func handleRESTFunc(reqType reflect.Type, f restHandlerFunc, logger *zerolog.Logger) http.Handler {
-	return handleREST(reqType, f, logger)
 }
 
 func internalServerError(w http.ResponseWriter) {
