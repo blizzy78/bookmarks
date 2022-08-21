@@ -37,14 +37,7 @@ export const useSearch = (query: MutableRefObject<string>): ReactQuery.UseQueryR
         }
       }
 
-      if (query.current === 'e') {
-        return {
-          error: true,
-          hits: []
-        }
-      }
-
-      return FetchUtil.getJSON(`/rest/bookmarks?requestID=1&q=${encodeURIComponent(query.current)}`)
+      return FetchUtil.getJSON(`/rest/bookmarks?q=${encodeURIComponent(query.current)}`)
     },
     {
       staleTime: Infinity,
