@@ -52,7 +52,7 @@ func Lint() error {
 
 // Build builds the backend executable.
 func Build(ctx context.Context) error {
-	mg.CtxDeps(ctx, Frontend)
+	mg.SerialCtxDeps(ctx, Lint, Frontend)
 
 	if err := sh.Run("go", "build", "-o", "bookmarks", "-tags", "prod", "."); err != nil {
 		return fmt.Errorf("go build: %w", err)
