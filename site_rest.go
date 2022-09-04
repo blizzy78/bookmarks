@@ -33,6 +33,7 @@ func (rs *rest) registerRoutes() {
 	bmarks := rs.router.PathPrefix("/rest/bookmarks").Subrouter()
 	bmarks.Handle("", handleRESTFunc(rs.search, rs.logger)).Methods(http.MethodGet, http.MethodOptions).Queries("q", "")
 	bmarks.Handle("/tags", handleRESTFunc(rs.getAllTags, rs.logger)).Methods(http.MethodGet, http.MethodOptions)
+	bmarks.Handle("/tagCounts", handleRESTFunc(rs.getAllTagCounts, rs.logger)).Methods(http.MethodGet, http.MethodOptions)
 
 	bmark := rs.router.PathPrefix("/rest/bookmark").Subrouter()
 	bmark.Handle("", handleRESTFunc(rs.createBookmark, rs.logger)).Methods(http.MethodPost, http.MethodOptions)
@@ -86,4 +87,8 @@ func (rs *rest) getBookmark(_ context.Context, _ struct{}, hr *http.Request) (*b
 
 func (rs *rest) getAllTags(_ context.Context, _ struct{}, hr *http.Request) ([]string, error) {
 	return rs.bm.allTags()
+}
+
+func (rs *rest) getAllTagCounts(_ context.Context, _ struct{}, hr *http.Request) (map[string]int, error) {
+	return rs.bm.allTagCounts()
 }

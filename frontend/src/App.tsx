@@ -4,8 +4,10 @@ import * as FontAwesome from '@fortawesome/react-fontawesome'
 import * as Mantine from '@mantine/core'
 import * as MantineHooks from '@mantine/hooks'
 import * as MantineNotifications from '@mantine/notifications'
+import classNames from 'classnames'
 import { useEffect, useRef, useState } from 'react'
 import * as ReactQuery from 'react-query'
+import * as ReactTagCloud from 'react-tagcloud'
 import * as API from './API'
 import { BreakpointReadout } from './BreakpointReadout'
 import { BookmarkForm, BookmarkFormData } from './EditBookmark'
@@ -152,6 +154,13 @@ const AppContents = (): JSX.Element => {
       </section>
 
       {
+        (!result?.hits || result.hits.length === 0) &&
+        <section className="max-w-screen-sm mx-auto mt-20">
+          <TagCloud limit={30}/>
+        </section>
+      }
+
+      {
         (result?.hits && result.hits.length > 0) &&
         <section className="container xl:max-w-screen-lg mx-auto flex flex-col gap-8">
           {
@@ -189,5 +198,41 @@ const BookmarkEditor = ({ bookmarkID, onSave, onClose, onDelete }: {
         !!bookmarkID && <BookmarkForm objectID={bookmarkID.id} onSave={onSave} onClose={onClose} onDelete={onDelete}/>
       }
     </Mantine.Drawer>
+  )
+}
+
+interface TagCloudEntry {
+  key: string
+  value: string
+  count: number
+}
+
+const TagCloud = ({ limit }: { limit: number }): JSX.Element | null => {
+  const { data } = API.useAllTagCounts()
+
+  if (!data) {
+    return null
+  }
+
+  const tags: TagCloudEntry[] = Object.keys(data)
+    .map(t => ({ key: t, value: t, count: data[t] }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit)
+
+  return (
+    <div>
+      <ReactTagCloud.TagCloud className="flex flex-row justify-center flex-wrap gap-2"
+        minSize={1} maxSize={5} tags={tags} renderer={tagCloudTag} disableRandomColor/>
+    </div>
+  )
+}
+
+const tagCloudTag = (tag: TagCloudEntry, size: number): JSX.Element => {
+  return (
+    <div key={tag.value} className={classNames('self-center leading-none', size >= 2 ? 'dark:text-slate-400' : 'dark:text-slate-500')}
+      style={{ fontSize: `${size}rem` }}>
+
+      {tag.value}
+    </div>
   )
 }

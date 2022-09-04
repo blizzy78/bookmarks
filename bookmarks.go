@@ -139,6 +139,15 @@ func (bm *bookmarks) allTags() ([]string, error) {
 	return tags, nil
 }
 
+func (bm *bookmarks) allTagCounts() (map[string]int, error) {
+	res, err := bm.i.Search("", opt.Facets("tags"), opt.HitsPerPage(0))
+	if err != nil {
+		return nil, fmt.Errorf("search: %w", err)
+	}
+
+	return res.Facets["tags"], nil
+}
+
 func matchToHit(match map[string]any) hit {
 	id := match["objectID"].(string) //nolint:forcetypeassert // we know it's a string
 
