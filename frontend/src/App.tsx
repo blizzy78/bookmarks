@@ -220,10 +220,8 @@ const TagCloud = ({ limit }: { limit: number }): JSX.Element | null => {
     .slice(0, limit)
 
   return (
-    <div>
-      <ReactTagCloud.TagCloud className="flex flex-row justify-center flex-wrap gap-2"
-        minSize={1} maxSize={5} tags={tags} renderer={tagCloudTag} disableRandomColor/>
-    </div>
+    <ReactTagCloud.TagCloud className="flex flex-row justify-center flex-wrap gap-2"
+      minSize={1} maxSize={5} tags={tags} renderer={tagCloudTag} disableRandomColor/>
   )
 }
 
