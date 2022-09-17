@@ -1,5 +1,5 @@
+import * as ReactQuery from '@tanstack/react-query'
 import { MutableRefObject, useCallback } from 'react'
-import * as ReactQuery from 'react-query'
 import * as FetchUtil from './FetchUtil'
 
 export interface Result {

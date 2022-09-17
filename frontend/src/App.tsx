@@ -4,9 +4,9 @@ import * as FontAwesome from '@fortawesome/react-fontawesome'
 import * as Mantine from '@mantine/core'
 import * as MantineHooks from '@mantine/hooks'
 import * as MantineNotifications from '@mantine/notifications'
+import * as ReactQuery from '@tanstack/react-query'
 import classNames from 'classnames'
 import { useEffect, useRef, useState } from 'react'
-import * as ReactQuery from 'react-query'
 import * as ReactTagCloud from 'react-tagcloud'
 import * as API from './API'
 import { BreakpointReadout } from './BreakpointReadout'
@@ -16,7 +16,7 @@ import { Entry } from './Entry'
 const queryClient = new ReactQuery.QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: false
     }
   }
 })
@@ -175,7 +175,7 @@ const AppContents = (): JSX.Element => {
     <BookmarkEditor bookmarkID={editingBookmarkID} onSave={onEditorSave} onClose={onEditorClose} onDelete={onEditorDelete}/>
 
     {
-      process.env.NODE_ENV === 'development' &&
+      import.meta.env.DEV &&
       <BreakpointReadout className="fixed right-2 top-2 opacity-80 z-50"/>
     }
   </>

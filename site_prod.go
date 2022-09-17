@@ -20,9 +20,9 @@ func (site *site) start() error {
 func (site *site) registerRoutes() error {
 	site.logger.Info().Msg("register routes")
 
-	t, err := fs.Sub(templates, "frontend/build")
+	t, err := fs.Sub(templates, "frontend/dist")
 	if err != nil {
-		return fmt.Errorf("sub frontend/build: %w", err)
+		return fmt.Errorf("sub frontend/dist: %w", err)
 	}
 
 	hand := staticFilesHandler(t)
