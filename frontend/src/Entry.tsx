@@ -10,22 +10,18 @@ export const Entry = ({ hit, onEditClick }: {
   }): JSX.Element => (
 
   <div className="flex flex-col gap-1">
-    <h3 className="flex flex-row gap-3">
+    <a className="text-sm dark:text-green-400" href={hit.url} rel="noreferrer noopener" dangerouslySetInnerHTML={{__html: hit.urlHTML}}/>
+
+    <h3 className="flex flex-row gap-3 items-center">
       <a className="dark:text-blue-400 font-semibold" href={hit.url} rel="noreferrer noopener" dangerouslySetInnerHTML={{__html: hit.titleHTML}}/>
 
-      <Mantine.ActionIcon title="Edit" variant="subtle" onClick={onEditClick} className="dark:text-slate-500 dark:hover:text-slate-200" sx={{
-        '&:hover': {
-          backgroundColor: '#334155'
-        }
-      }}>
+      <Mantine.ActionIcon title="Edit" variant="subtle" onClick={onEditClick} className="dark:text-slate-500 dark:hover:text-slate-200 dark:hover:bg-slate-700">
         <FontAwesome.FontAwesomeIcon icon={FontAwesomeSolid.faEdit}/>
       </Mantine.ActionIcon>
     </h3>
 
-    <a className="text-sm text-green-600 dark:text-green-400" href={hit.url} rel="noreferrer noopener" dangerouslySetInnerHTML={{__html: hit.urlHTML}}/>
-
     {
-      hit.descriptionHTML.length > 0 &&
+      hit.descriptionHTML !== '' &&
       <p dangerouslySetInnerHTML={{__html: hit.descriptionHTML}}/>
     }
 

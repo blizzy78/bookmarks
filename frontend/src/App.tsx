@@ -21,28 +21,34 @@ const queryClient = new ReactQuery.QueryClient({
   }
 })
 
+const mantineTheme: Mantine.MantineThemeOverride = {
+  colorScheme: 'dark',
+  fontFamily: 'Lato',
+
+  colors: {
+    dark: [
+      '#e2e8f0',
+      '#ff00ff',
+      '#ff00ff',
+      '#94a3b8',
+      '#94a3b8',
+      '#475569',
+      '#334155',
+      '#334155',
+      '#475569',
+      '#0f172a'
+    ]
+  }
+}
+
+const emotionCache = Mantine.createEmotionCache({
+  key: 'mantine',
+  prepend: false
+})
+
 export const App = (): JSX.Element => (
   <ReactQuery.QueryClientProvider client={queryClient}>
-    <Mantine.MantineProvider theme={{
-      colorScheme: 'dark',
-      fontFamily: 'Lato',
-
-      colors: {
-        dark: [
-          '#e2e8f0',
-          '#ff00ff',
-          '#ff00ff',
-          '#94a3b8',
-          '#94a3b8',
-          '#475569',
-          '#334155',
-          '#334155',
-          '#475569',
-          '#0f172a'
-        ]
-      }
-    }}>
-
+    <Mantine.MantineProvider theme={mantineTheme} emotionCache={emotionCache}>
       <MantineNotifications.NotificationsProvider position="bottom-left">
         <AppContents/>
       </MantineNotifications.NotificationsProvider>
@@ -142,15 +148,17 @@ const AppContents = (): JSX.Element => {
   }
 
   return <>
-    <main className="mt-10 mb-20 flex flex-col gap-12">
-      <section className="container xl:max-w-screen-lg mx-auto flex flex-row gap-3">
-        <Mantine.TextInput className="flex-grow" placeholder="Enter search query" radius="md" size="md" autoFocus
-          value={query} onChange={e => setQuery(e.currentTarget.value)}
-          error={isError || result?.error}/>
+    <main className="flex flex-col mb-20">
+      <section className="py-10 bg-slate-800 sticky top-0 z-10">
+        <div className="container xl:max-w-screen-lg mx-auto flex flex-row gap-3">
+          <Mantine.TextInput className="flex-grow" placeholder="Enter search query" radius="md" size="md" autoFocus
+            value={query} onChange={e => setQuery(e.currentTarget.value)}
+            error={isError || result?.error}/>
 
-        <Mantine.Button className="flex-shrink dark:text-slate-200" radius="md" size="md" variant="default" onClick={onAddClick}>
-          Add
-        </Mantine.Button>
+          <Mantine.Button className="flex-shrink dark:text-slate-200" radius="md" size="md" variant="default" onClick={onAddClick}>
+            Add
+          </Mantine.Button>
+        </div>
       </section>
 
       {
@@ -189,9 +197,12 @@ const BookmarkEditor = ({ bookmarkID, onSave, onClose, onDelete }: {
   }): JSX.Element => {
 
   return (
-    <Mantine.Drawer className="p-5" title={<h2 className="text-lg font-semibold">
-      {bookmarkID?.id ? 'Edit Bookmark' : 'Add Bookmark'}
-    </h2>} size="xl"
+    <Mantine.Drawer size="xl" padding="lg"
+    title={
+      <h2 className="text-lg font-semibold">
+        {bookmarkID?.id ? 'Edit Bookmark' : 'Add Bookmark'}
+      </h2>
+    }
     opened={!!bookmarkID} onClose={onClose}>
 
       {

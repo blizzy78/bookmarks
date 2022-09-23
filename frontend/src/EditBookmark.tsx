@@ -26,8 +26,8 @@ export const BookmarkForm = ({ objectID, onSave, onClose, onDelete }: {
     },
 
     validate: {
-      url: value => value.length === 0 ? 'URL is required' : null,
-      title: value => value.length === 0 ? 'Title is required' : null
+      url: value => value === '' ? 'URL is required' : null,
+      title: value => value === '' ? 'Title is required' : null
     }
   })
 
