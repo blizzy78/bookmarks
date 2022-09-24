@@ -1,5 +1,5 @@
 import * as ReactQuery from '@tanstack/react-query'
-import { MutableRefObject, useCallback } from 'react'
+import { useCallback } from 'react'
 import * as FetchUtil from './FetchUtil'
 
 export interface Result {
@@ -24,30 +24,34 @@ export interface Bookmark {
   tags?: string[]
 }
 
+export interface SaveBookmarkData {
+  bookmark: Bookmark
+  onCreating(): void
+  onCreated(): void
+}
+
+export interface DeleteBookmarkData {
+  objectID: string
+  onDeleting(): void
+  onDeleted(): void
+}
+
 const retry = (failureCount: number, error: FetchUtil.HTTPError) => error.status != 404 && error.status < 500
 
-export const useSearch = (query: MutableRefObject<string>): ReactQuery.UseQueryResult<Result, FetchUtil.HTTPError> => (
+export const useSearch = (query: string): ReactQuery.UseQueryResult<Result, FetchUtil.HTTPError> => (
   ReactQuery.useQuery(
-    ['search'],
-    () => {
-      if (query.current === '') {
-        return {
-          error: false,
-          hits: []
-        }
-      }
-
-      return FetchUtil.getJSON(`/rest/bookmarks?q=${encodeURIComponent(query.current)}`)
-    },
+    ['search', query],
+    () => FetchUtil.getJSON(`/rest/bookmarks?q=${encodeURIComponent(query)}`),
     {
-      staleTime: Infinity,
+      enabled: query.trim() !== '',
+      staleTime: 15 * 60 * 1000,
       cacheTime: Infinity,
       retry: retry
     }
   )
 )
 
-export const useInvalidateSearch = (): () => void => {
+const useInvalidateSearch = (): () => void => {
   const queryClient = ReactQuery.useQueryClient()
 
   return useCallback(
@@ -64,7 +68,7 @@ export const useBookmark = (objectID: string | undefined): ReactQuery.UseQueryRe
     objectID ? ['bookmark', objectID] : ['bookmark.new'],
     () => objectID ? FetchUtil.getJSON(`/rest/bookmark/${encodeURIComponent(objectID)}`) : {},
     {
-      staleTime: Infinity,
+      staleTime: 15 * 60 * 1000,
       cacheTime: Infinity,
       retry: retry
     }
@@ -83,13 +87,8 @@ const useInvalidateBookmark = (): (objectID: string) => void => {
   )
 }
 
-export interface SaveBookmarkData {
-  bookmark: Bookmark
-  onCreating(): void
-  onCreated(): void
-}
-
 export const useCreateBookmark = (): ((data: SaveBookmarkData) => Promise<undefined>) => {
+  const invalidateSearch = useInvalidateSearch()
   const invalidateAllTags = useInvalidateAllTags()
   const invalidateAllTagCounts = useInvalidateAllTagCounts()
 
@@ -100,6 +99,7 @@ export const useCreateBookmark = (): ((data: SaveBookmarkData) => Promise<undefi
 
       onSuccess: (data, variables) => {
         variables.onCreated()
+        invalidateSearch()
         invalidateAllTags()
         invalidateAllTagCounts()
       }
@@ -133,12 +133,6 @@ export const useUpdateBookmark = (): ((data: SaveBookmarkData) => Promise<undefi
   return mutation.mutateAsync
 }
 
-export interface DeleteBookmarkData {
-  objectID: string
-  onDeleting(): void
-  onDeleted(): void
-}
-
 export const useDeleteBookmark = (): ((data: DeleteBookmarkData) => Promise<undefined>) => {
   const invalidateBookmark = useInvalidateBookmark()
   const invalidateSearch = useInvalidateSearch()
@@ -168,7 +162,7 @@ export const useAllTags = (): ReactQuery.UseQueryResult<string[], FetchUtil.HTTP
     ['bookmarks.tags'],
     () => FetchUtil.getJSON('/rest/bookmarks/tags'),
     {
-      staleTime: Infinity,
+      staleTime: 15 * 60 * 1000,
       cacheTime: Infinity,
       retry: retry
     }
@@ -192,7 +186,7 @@ export const useAllTagCounts = (): ReactQuery.UseQueryResult<{[tag: string]: num
     ['bookmarks.tagCounts'],
     () => FetchUtil.getJSON('/rest/bookmarks/tagCounts'),
     {
-      staleTime: Infinity,
+      staleTime: 15 * 60 * 1000,
       cacheTime: Infinity,
       retry: retry
     }

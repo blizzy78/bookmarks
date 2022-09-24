@@ -6,7 +6,7 @@ import * as MantineHooks from '@mantine/hooks'
 import * as MantineNotifications from '@mantine/notifications'
 import * as ReactQuery from '@tanstack/react-query'
 import classNames from 'classnames'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import * as ReactTagCloud from 'react-tagcloud'
 import * as API from './API'
 import { BreakpointReadout } from './BreakpointReadout'
@@ -58,20 +58,9 @@ export const App = (): JSX.Element => (
 
 const AppContents = (): JSX.Element => {
   const [query, setQuery] = useState('')
-  const [debouncedQuery] = MantineHooks.useDebouncedValue(query, 250)
+  const [debouncedQuery] = MantineHooks.useDebouncedValue(query, 350)
 
-  const invalidateSearch = API.useInvalidateSearch()
-  const debouncedQueryRef = useRef('')
-
-  useEffect(
-    () => {
-      debouncedQueryRef.current = debouncedQuery
-      invalidateSearch()
-    },
-    [debouncedQuery, invalidateSearch]
-  )
-
-  const { data: result, isError } = API.useSearch(debouncedQueryRef)
+  const { data: result, isFetching, isError } = API.useSearch(debouncedQuery)
 
   const [editingBookmarkID, setEditingBookmarkID] = useState<{ id: string | undefined } | undefined>(undefined)
 
@@ -162,14 +151,23 @@ const AppContents = (): JSX.Element => {
       </section>
 
       {
-        (!result?.hits || result.hits.length === 0) &&
+        (!result && !isFetching && !isError) &&
         <section className="max-w-screen-sm mx-auto mt-20">
           <TagCloud limit={30}/>
         </section>
       }
 
       {
-        (result?.hits && result.hits.length > 0) &&
+        (!!result && result.hits.length === 0) &&
+        <section className="container xl:max-w-screen-lg mx-auto">
+          <p>
+            Nothing found.
+          </p>
+        </section>
+      }
+
+      {
+        (!!result && result.hits.length > 0) &&
         <section className="container xl:max-w-screen-lg mx-auto flex flex-col gap-8">
           {
             result.hits.map((h, idx) => (
