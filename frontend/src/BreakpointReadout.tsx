@@ -1,12 +1,12 @@
 import classNames from 'classnames'
 
-export const BreakpointReadout = ({ className }: { className?: string }): JSX.Element => (
+export const BreakpointReadout = ({ className }: { className?: string }) => (
   <div className={classNames('rounded border border-yellow-500 bg-yellow-300 text-gray-800 px-3 py-1', className)}>
     <Text/>
   </div>
 )
 
-export const Text = (): JSX.Element => <>
+export const Text = () => <>
   <div className="inline sm:hidden">xs</div>
   <div className="hidden sm:inline md:hidden">sm</div>
   <div className="hidden md:inline lg:hidden">md</div>

@@ -4,18 +4,16 @@ module.exports = {
 
   content: [
     './src/**/*.{js,jsx,ts,tsx}',
-    './index.html'
+    './index.html',
   ],
 
   theme: {
     extend: {
       fontFamily: {
-        copy: ['Lato']
-      }
-    }
+        'roboto-flex': 'Roboto Flex',
+        'roboto-condensed': 'Roboto Condensed',
+        inherit: 'inherit',
+      },
+    },
   },
-
-  corePlugins: {
-    preflight: false
-  }
 }

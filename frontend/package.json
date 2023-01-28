@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@emotion/react": "^11.10.5",
-    "@fontsource/lato": "^4.5.10",
+    "@fontsource/roboto-condensed": "^4.5.9",
+    "@fontsource/roboto-flex": "^4.5.5",
     "@fortawesome/fontawesome-svg-core": "^6.2.1",
     "@fortawesome/free-solid-svg-icons": "^6.2.1",
     "@fortawesome/react-fontawesome": "^0.2.0",

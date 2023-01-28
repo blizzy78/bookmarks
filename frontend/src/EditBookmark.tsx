@@ -15,7 +15,7 @@ export const BookmarkForm = ({ objectID, onSave, onClose, onDelete }: {
     onSave(values: BookmarkFormData): boolean
     onClose(): void
     onDelete(): void
-  }): JSX.Element => {
+  }) => {
 
   const form = MantineForm.useForm<BookmarkFormData>({
     initialValues: {
@@ -78,34 +78,57 @@ export const BookmarkForm = ({ objectID, onSave, onClose, onDelete }: {
     <form onSubmit={form.onSubmit(onSaveInternal)} className="relative flex flex-col gap-10">
       <Mantine.LoadingOverlay visible={allTagsFetching || (!!objectID && isFetching)} overlayColor="#334155"/>
 
-      <div className="flex flex-col gap-3">
-        <Mantine.TextInput label="URL" withAsterisk {...form.getInputProps('url')}/>
-        <Mantine.TextInput label="Title" withAsterisk {...form.getInputProps('title')}/>
-        <Mantine.Textarea label="Description" autosize minRows={3} {...form.getInputProps('description')}/>
+      <div className="flex flex-col gap-5">
+        <Mantine.TextInput label="URL" withAsterisk {...form.getInputProps('url')} classNames={{
+          root: '!font-inherit !leading-none flex flex-col gap-1',
+          label: '!text-base !font-normal dark:!text-inherit',
+          required: '!text-inherit',
+          input: '!rounded !font-inherit !text-base dark:!bg-slate-600 !border dark:!border-slate-400 dark:!text-inherit dark:focus:!border-indigo-300 !transition-none',
+        }}/>
+
+        <Mantine.TextInput label="Title" withAsterisk {...form.getInputProps('title')} classNames={{
+          root: '!font-inherit !leading-none flex flex-col gap-1',
+          label: '!text-base !font-normal dark:!text-inherit',
+          required: '!text-inherit',
+          input: '!rounded !font-inherit !text-base dark:!bg-slate-600 !border dark:!border-slate-400 dark:!text-inherit dark:focus:!border-indigo-300 !transition-none',
+        }}/>
+
+        <Mantine.Textarea label="Description" autosize minRows={3} {...form.getInputProps('description')} classNames={{
+          root: '!font-inherit !leading-none flex flex-col gap-1',
+          label: '!text-base !font-normal dark:!text-inherit',
+          required: '!text-inherit',
+          input: '!rounded !font-inherit !text-base dark:!bg-slate-600 !border dark:!border-slate-400 dark:!text-inherit dark:focus:!border-indigo-300 !transition-none',
+        }}/>
 
         <Mantine.MultiSelect label="Tags" data={tags} searchable {...form.getInputProps('tags')}
-          creatable getCreateLabel={q => `+ ${q}`} onCreate={onCreateTag} styles={{
-            value: {
-              borderWidth: '1px',
-              borderColor: '#64748b',
-              backgroundColor: '#475569'
-            }
+          creatable getCreateLabel={q => `+ ${q}`} onCreate={onCreateTag}
+          classNames={{
+            root: '!font-inherit !leading-none flex flex-col gap-1',
+            label: '!text-base !font-normal dark:!text-inherit',
+            input: '!rounded !font-inherit !text-base dark:!bg-slate-600 !border dark:!border-slate-400 dark:!text-inherit dark:focus-within:!border-indigo-300 !transition-none',
+            defaultValue: '!rounded-full !border dark:!border-slate-400 dark:!bg-slate-700 dark:!text-inherit !font-normal',
+            defaultValueLabel: '!font-inherit !text-sm dark:!text-inherit',
+            defaultValueRemove: 'dark:[&_*]:!fill-slate-300 dark:hover:[&_*]:!fill-slate-50',
+            searchInput: '!font-inherit !text-base !text-inherit focus:!outline-none',
+            rightSection: 'dark:[&_*]:!fill-slate-300',
+            dropdown: 'dark:!bg-slate-600 dark:!rounded dark:!border dark:!border-slate-400 dark:hover:[&_.mantine-ScrollArea-scrollbar]:!bg-slate-500 dark:[&_.mantine-ScrollArea-thumb]:!bg-slate-300',
+            item: '!font-inherit !text-inherit dark:data-[hovered=true]:!bg-slate-500',
           }}/>
       </div>
 
       <div className="flex flex-row gap-3 justify-end">
-        <Mantine.Button type="submit" className="dark:text-slate-200" disabled={!form.isValid()}>
-          Save
-        </Mantine.Button>
-
         {
           objectID &&
-          <Mantine.Button type="button" className="dark:text-slate-200" color="red" onClick={onDelete}>
+          <Mantine.Button type="button" onClick={onDelete} className="active:!translate-y-0 !rounded !border-transparent dark:hover:!bg-slate-600 !font-inherit !text-base !font-normal dark:!text-inherit dark:hover:!text-slate-50 dark:focus:!outline-indigo-300">
             Delete
           </Mantine.Button>
         }
 
-        <Mantine.Button type="button" className="dark:text-slate-200" variant="default" onClick={onClose}>
+        <Mantine.Button type="submit" disabled={!form.isValid()} className="active:!translate-y-0 !rounded !border dark:!border-indigo-500 dark:hover:!border-indigo-400 dark:disabled:!border-indigo-500/60 dark:!bg-indigo-600 dark:hover:!bg-indigo-500 dark:disabled:!bg-indigo-600/60 !font-inherit !text-base !font-normal dark:!text-indigo-100 dark:hover:!text-indigo-50 dark:disabled:!text-indigo-100/60 dark:focus:!outline-indigo-300">
+          Save
+        </Mantine.Button>
+
+        <Mantine.Button type="button" onClick={onClose} className="active:!translate-y-0 !rounded !border dark:!border-slate-400 dark:hover:!border-slate-400 dark:hover:!bg-slate-600 !font-inherit !text-base !font-normal dark:!text-inherit dark:hover:!text-slate-50 dark:focus:!outline-indigo-300">
           Cancel
         </Mantine.Button>
       </div>

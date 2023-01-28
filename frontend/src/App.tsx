@@ -1,4 +1,5 @@
-import '@fontsource/lato'
+import '@fontsource/roboto-condensed'
+import '@fontsource/roboto-flex'
 import * as FontAwesomeSolid from '@fortawesome/free-solid-svg-icons'
 import * as FontAwesome from '@fortawesome/react-fontawesome'
 import * as Mantine from '@mantine/core'
@@ -12,51 +13,25 @@ import * as API from './API'
 import { BreakpointReadout } from './BreakpointReadout'
 import { BookmarkForm, BookmarkFormData } from './EditBookmark'
 import { Entry } from './Entry'
+import './index.css'
 
-const queryClient = new ReactQuery.QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false
-    }
-  }
-})
-
-const mantineTheme: Mantine.MantineThemeOverride = {
-  colorScheme: 'dark',
-  fontFamily: 'Lato',
-
-  colors: {
-    dark: [
-      '#e2e8f0',
-      '#ff00ff',
-      '#ff00ff',
-      '#94a3b8',
-      '#94a3b8',
-      '#475569',
-      '#334155',
-      '#334155',
-      '#475569',
-      '#0f172a'
-    ]
-  }
+interface TagCloudEntry {
+  key: string
+  value: string
+  count: number
 }
 
-const emotionCache = Mantine.createEmotionCache({
-  key: 'mantine',
-  prepend: false
-})
+const queryClient = API.createQueryClient()
 
-export const App = (): JSX.Element => (
+export const App = () => (
   <ReactQuery.QueryClientProvider client={queryClient}>
-    <Mantine.MantineProvider theme={mantineTheme} emotionCache={emotionCache}>
-      <MantineNotifications.NotificationsProvider position="bottom-left">
-        <AppContents/>
-      </MantineNotifications.NotificationsProvider>
-    </Mantine.MantineProvider>
+    <MantineNotifications.NotificationsProvider position="bottom-left">
+      <AppContents/>
+    </MantineNotifications.NotificationsProvider>
   </ReactQuery.QueryClientProvider>
 )
 
-const AppContents = (): JSX.Element => {
+const AppContents = () => {
   const [query, setQuery] = useState('')
   const [debouncedQuery] = MantineHooks.useDebouncedValue(query, 350)
 
@@ -76,10 +51,15 @@ const AppContents = (): JSX.Element => {
       id: type === 'save' ? (editingBookmarkID?.id ? 'bookmark.save.' + editingBookmarkID?.id : 'bookmark.create') : 'bookmark.delete.' + editingBookmarkID?.id,
       loading: status === 'working',
       message: type === 'save' ? (status === 'working' ? 'Saving bookmark' : 'Bookmark saved') : (status === 'working' ? 'Deleting bookmark' : 'Bookmark deleted'),
-      color: status === 'working' ? undefined : 'teal',
       icon: status === 'done' && <FontAwesome.FontAwesomeIcon icon={FontAwesomeSolid.faCheck}/>,
       autoClose: status === 'working' ? false : 3000,
-      disallowClose: true
+      disallowClose: true,
+
+      classNames: {
+        root: '!rounded-lg dark:!bg-slate-600 dark:!border-slate-400',
+        description: '!font-inherit !text-base dark:!text-inherit',
+        icon: status === 'done' ? '!bg-green-600 !color-white' : undefined,
+      },
     }
 
     if (status === 'working') {
@@ -139,13 +119,16 @@ const AppContents = (): JSX.Element => {
   return <>
     <main className="flex flex-col mb-20">
       <section className="py-10 bg-slate-800 sticky top-0 z-10">
-        <div className="container xl:max-w-screen-lg mx-auto flex flex-row gap-3">
-          <Mantine.TextInput className="flex-grow" placeholder="Enter search query" radius="md" size="md" autoFocus
+        <div className="container xl:max-w-screen-lg mx-auto grid grid-cols-[1fr_max-content] items-stretch">
+          <Mantine.TextInput placeholder="Enter search query" radius="md" size="md" autoFocus
             value={query} onChange={e => setQuery(e.currentTarget.value)}
-            error={isError || result?.error}/>
+            error={isError || result?.error} classNames={{
+              root: '!font-inherit',
+              input: '!rounded-l-full !rounded-r-none !font-inherit !text-lg dark:!bg-slate-700 !border dark:!border-slate-500 dark:!text-inherit dark:focus:!border-indigo-300 !transition-none',
+            }}/>
 
-          <Mantine.Button className="flex-shrink dark:text-slate-200" radius="md" size="md" variant="default" onClick={onAddClick}>
-            Add
+          <Mantine.Button className="h-full active:!translate-y-0 !rounded-l-none !rounded-r-full !border-l-0 !border-t !border-b !border-r dark:border-slate-500 dark:!bg-slate-700 dark:hover:!bg-slate-600 !pl-3 !pr-4 !font-inherit text-lg !font-normal dark:text-inherit dark:hover:text-slate-50 dark:focus:!outline-indigo-300" onClick={onAddClick}>
+            Create
           </Mantine.Button>
         </div>
       </section>
@@ -168,7 +151,7 @@ const AppContents = (): JSX.Element => {
 
       {
         (!!result && result.hits.length > 0) &&
-        <section className="container xl:max-w-screen-lg mx-auto flex flex-col gap-8">
+        <section className="container xl:max-w-screen-lg mx-auto mt-1 flex flex-col gap-8">
           {
             result.hits.map((h, idx) => (
               <Entry key={idx} hit={h} onEditClick={() => onEditClick(h.id)}/>
@@ -192,54 +175,53 @@ const BookmarkEditor = ({ bookmarkID, onSave, onClose, onDelete }: {
     onSave(values: BookmarkFormData): boolean
     onClose(): void
     onDelete(): void
-  }): JSX.Element => {
+  }) => (
 
-  return (
-    <Mantine.Drawer size="xl" padding="lg"
+  <Mantine.Drawer size="xl" padding="lg"
     title={
-      <h2 className="text-lg font-semibold">
+      <h2 className="text-xl font-semibold">
         {bookmarkID?.id ? 'Edit Bookmark' : 'Add Bookmark'}
       </h2>
     }
-    opened={!!bookmarkID} onClose={onClose}>
+    opened={!!bookmarkID} onClose={onClose}
+    classNames={{
+      drawer: 'dark:!bg-slate-700 dark:!text-inherit flex flex-col gap-5',
+      header: '!mb-0',
+      title: '!font-roboto-condensed',
+      closeButton: 'active:!translate-y-0 dark:hover:!bg-slate-600 dark:[&_*]:!fill-slate-300 dark:[&_*]:hover:!fill-slate-50 dark:focus:!outline-indigo-300',
+    }}>
 
-      {
-        !!bookmarkID && <BookmarkForm objectID={bookmarkID.id} onSave={onSave} onClose={onClose} onDelete={onDelete}/>
-      }
-    </Mantine.Drawer>
-  )
-}
+    {
+      !!bookmarkID && <BookmarkForm objectID={bookmarkID.id} onSave={onSave} onClose={onClose} onDelete={onDelete}/>
+    }
+  </Mantine.Drawer>
+)
 
-interface TagCloudEntry {
-  key: string
-  value: string
-  count: number
-}
-
-const TagCloud = ({ limit }: { limit: number }): JSX.Element | null => {
+const TagCloud = ({ limit }: { limit: number }) => {
   const { data } = API.useAllTagCounts()
-
   if (!data) {
     return null
   }
 
-  const tags: TagCloudEntry[] = Object.keys(data)
+  const tags = Object.keys(data)
     .map(t => ({ key: t, value: t, count: data[t] }))
     .sort((a, b) => b.count - a.count)
     .slice(0, limit)
 
-  return (
-    <ReactTagCloud.TagCloud className="flex flex-row justify-center flex-wrap gap-2"
-      minSize={1} maxSize={5} tags={tags} renderer={tagCloudTag} disableRandomColor/>
-  )
-}
-
-const tagCloudTag = (tag: TagCloudEntry, size: number): JSX.Element => {
-  return (
-    <div key={tag.value} className={classNames('self-center leading-none', size >= 2 ? 'dark:text-slate-400' : 'dark:text-slate-500')}
-      style={{ fontSize: `${size}rem` }}>
+  const render = (tag: TagCloudEntry, size: number) => (
+    <div key={tag.value} className={classNames(
+      'self-center leading-none',
+      size >= 4 ? 'dark:text-slate-300' : (
+        size >= 2 ? 'dark:text-slate-400' : 'dark:text-slate-500'
+      )
+    )} style={{ fontSize: `${size}rem` }}>
 
       {tag.value}
     </div>
+  )
+
+  return (
+    <ReactTagCloud.TagCloud className="flex flex-row justify-center flex-wrap gap-2"
+      minSize={1} maxSize={5} tags={tags} renderer={render} disableRandomColor/>
   )
 }

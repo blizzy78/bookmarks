@@ -1,19 +1,12 @@
-import { ReactNode } from 'react'
 
-export const Tags = ({ tags }: { tags: string[] }): JSX.Element => (
-  <div className="flex flex-row gap-1">
+export const Tags = ({ tags }: { tags: string[] }) => (
+  <div className="flex flex-row gap-2">
     {
-      tags.map(t =>
-        <Tag key={t}>
+      tags.map(t => (
+        <div key={t} className="rounded-full dark:bg-slate-600 border dark:border-slate-500 dark:text-slate-300 px-3 py-0.5 text-sm">
           {t}
-        </Tag>
-      )
+        </div>
+      ))
     }
-  </div>
-)
-
-const Tag = ({ children }: { children: ReactNode }) => (
-  <div className="px-2 py-1 rounded border dark:border-slate-500 dark:bg-slate-600 text-xs">
-    {children}
   </div>
 )
