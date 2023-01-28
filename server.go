@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/zerolog"
 )
 
@@ -17,18 +17,19 @@ type server struct {
 	logger *zerolog.Logger
 }
 
-func newServer(config *configuration, router *mux.Router, logger *zerolog.Logger) *server {
+func newServer(config *configuration, router *chi.Mux, logger *zerolog.Logger) *server {
 	logger = componentLogger(logger, "server")
 
-	var handler http.Handler = router
-	handler = handlers.CompressHandler(handler)
-	handler = handlers.LoggingHandler(logger, handler)
-	handler = handlers.RecoveryHandler()(handler)
+	router.Use(
+		middleware.Logger,
+		middleware.Recoverer,
+		middleware.Compress(5),
+	)
 
 	return &server{
 		s: &http.Server{
 			Addr:              config.Server.Address,
-			Handler:           handler,
+			Handler:           router,
 			ReadHeaderTimeout: 5 * time.Second,
 			ReadTimeout:       10 * time.Second,
 		},

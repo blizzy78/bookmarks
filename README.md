@@ -67,15 +67,7 @@ Development Environment
 
 I'm using my all-in-one [development container] for Visual Studio Code.
 
-After initial checkout of the project inside the development container, run inside the container:
-
-```shell
-mage initDev
-```
-
-to install development dependencies.
-
-Then simply press F5 in Visual Studio Code to launch both frontend and backend applications.
+Simply press F5 in Visual Studio Code to launch both frontend and backend applications.
 
 
 License

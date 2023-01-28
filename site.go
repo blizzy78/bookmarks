@@ -1,16 +1,16 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog"
 )
 
 type site struct {
-	router *mux.Router
+	router *chi.Mux
 	logger *zerolog.Logger
 }
 
-func newSite(router *mux.Router, logger *zerolog.Logger) *site {
+func newSite(router *chi.Mux, logger *zerolog.Logger) *site {
 	return &site{
 		router: router,
 		logger: componentLogger(logger, "site"),

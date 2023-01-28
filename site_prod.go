@@ -20,12 +20,12 @@ func (site *site) start() error {
 func (site *site) registerRoutes() error {
 	site.logger.Info().Msg("register routes")
 
-	t, err := fs.Sub(templates, "frontend/dist")
+	templ, err := fs.Sub(templates, "frontend/dist")
 	if err != nil {
 		return fmt.Errorf("sub frontend/dist: %w", err)
 	}
 
-	hand := staticFilesHandler(t)
+	hand := staticFilesHandler(templ)
 	hand = cacheControlHandler("public, max-age=2592000", hand)
 
 	hand, err = handler.LastModifiedHandlerConstant(time.Now(), hand)
@@ -37,17 +37,23 @@ func (site *site) registerRoutes() error {
 		func(w http.ResponseWriter, r *http.Request) (handler.ETag, bool) {
 			u := r.RequestURI
 			l := w.Header().Get("Last-Modified")
-			t := u + "\n" + l
+
+			tag := u + "\n" + l
+
 			return handler.ETag{
-				Tag:  fmt.Sprintf("%x", sha512.Sum512([]byte(t))),
+				Tag:  fmt.Sprintf("%x", sha512.Sum512([]byte(tag))),
 				Weak: true,
 			}, true
 		},
-		handler.AfterHeaders, hand)
+
+		handler.AfterHeaders, hand,
+	)
 
 	hand = handler.IfNoneMatchIfModifiedSinceHandler(true, hand)
 
-	site.router.PathPrefix("").Handler(http.StripPrefix("/", hand)).Methods(http.MethodGet, http.MethodHead)
+	hand = http.StripPrefix("/", hand)
+
+	site.router.Mount("/", hand)
 
 	return nil
 }

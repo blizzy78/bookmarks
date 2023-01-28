@@ -14,21 +14,13 @@ import (
 
 var Default = Deploy
 
-func InitDev() error {
+// Frontend builds the web frontend.
+func Frontend(ctx context.Context) error {
 	return doDir("./frontend", func() error {
-		if err := sh.Run("npm", "install"); err != nil {
+		if err := sh.Run("npm", "install", "--no-funds"); err != nil {
 			return fmt.Errorf("npm install: %w", err)
 		}
 
-		return nil
-	})
-}
-
-// Frontend builds the web frontend.
-func Frontend(ctx context.Context) error {
-	mg.CtxDeps(ctx, InitDev)
-
-	return doDir("./frontend", func() error {
 		if err := sh.Run("npm", "run", "build"); err != nil {
 			return fmt.Errorf("npm run build: %w", err)
 		}

@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog"
 )
 
@@ -33,7 +33,7 @@ func run(logger *zerolog.Logger) error {
 	}
 
 	bookmarks := newBookmarks(config, logger)
-	router := mux.NewRouter()
+	router := chi.NewRouter()
 	rest := newREST(bookmarks, router, logger)
 	site := newSite(router, logger)
 	server := newServer(config, router, logger)

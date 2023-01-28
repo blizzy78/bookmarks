@@ -5,17 +5,17 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog"
 )
 
 type rest struct {
 	bm     *bookmarks
-	router *mux.Router
+	router *chi.Mux
 	logger *zerolog.Logger
 }
 
-func newREST(bm *bookmarks, router *mux.Router, logger *zerolog.Logger) *rest {
+func newREST(bm *bookmarks, router *chi.Mux, logger *zerolog.Logger) *rest {
 	return &rest{
 		bm:     bm,
 		router: router,
@@ -30,16 +30,28 @@ func (rs *rest) start() {
 func (rs *rest) registerRoutes() {
 	rs.logger.Info().Msg("register routes")
 
-	bmarks := rs.router.PathPrefix("/rest/bookmarks").Subrouter()
-	bmarks.Handle("", handleRESTFunc(rs.search, rs.logger)).Methods(http.MethodGet, http.MethodOptions).Queries("q", "")
-	bmarks.Handle("/tags", handleRESTFunc(rs.getAllTags, rs.logger)).Methods(http.MethodGet, http.MethodOptions)
-	bmarks.Handle("/tagCounts", handleRESTFunc(rs.getAllTagCounts, rs.logger)).Methods(http.MethodGet, http.MethodOptions)
+	rs.router.Route("/rest", func(restRouter chi.Router) {
+		restRouter.Route("/bookmarks", func(bookmarksRouter chi.Router) {
+			bookmarksRouter.Options("/", handleOptions(http.MethodGet))
+			bookmarksRouter.Get("/", handleRESTFunc(rs.search, rs.logger))
 
-	bmark := rs.router.PathPrefix("/rest/bookmark").Subrouter()
-	bmark.Handle("", handleRESTFunc(rs.createBookmark, rs.logger)).Methods(http.MethodPost, http.MethodOptions)
-	bmark.Handle("/{id}", handleRESTFunc(rs.getBookmark, rs.logger)).Methods(http.MethodGet, http.MethodOptions)
-	bmark.Handle("/{id}", handleRESTFunc(rs.deleteBookmark, rs.logger)).Methods(http.MethodDelete, http.MethodOptions)
-	bmark.Handle("/{id}", handleRESTFunc(rs.updateBookmark, rs.logger)).Methods(http.MethodPut, http.MethodOptions)
+			bookmarksRouter.Options("/tags", handleOptions(http.MethodGet))
+			bookmarksRouter.Get("/tags", handleRESTFunc(rs.getAllTags, rs.logger))
+
+			bookmarksRouter.Options("/tagCounts", handleOptions(http.MethodGet))
+			bookmarksRouter.Get("/tagCounts", handleRESTFunc(rs.getAllTagCounts, rs.logger))
+		})
+
+		restRouter.Route("/bookmark", func(bookmarkRouter chi.Router) {
+			bookmarkRouter.Options("/", handleOptions(http.MethodPost))
+			bookmarkRouter.Post("/", handleRESTFunc(rs.createBookmark, rs.logger))
+
+			bookmarkRouter.Options("/{id}", handleOptions(http.MethodGet, http.MethodDelete, http.MethodPut))
+			bookmarkRouter.Get("/{id}", handleRESTFunc(rs.getBookmark, rs.logger))
+			bookmarkRouter.Delete("/{id}", handleRESTFunc(rs.deleteBookmark, rs.logger))
+			bookmarkRouter.Put("/{id}", handleRESTFunc(rs.updateBookmark, rs.logger))
+		})
+	})
 }
 
 func (rs *rest) search(_ context.Context, _ struct{}, hr *http.Request) (*searchResponse, error) {
@@ -60,7 +72,7 @@ func (rs *rest) search(_ context.Context, _ struct{}, hr *http.Request) (*search
 }
 
 func (rs *rest) updateBookmark(_ context.Context, b bookmark, hr *http.Request) (*struct{}, error) {
-	b.ID = mux.Vars(hr)["id"]
+	b.ID = chi.URLParam(hr, "id")
 
 	return nil, rs.bm.saveBookmark(b)
 }
@@ -70,12 +82,12 @@ func (rs *rest) createBookmark(_ context.Context, b bookmark, hr *http.Request) 
 }
 
 func (rs *rest) deleteBookmark(_ context.Context, _ struct{}, hr *http.Request) (*struct{}, error) {
-	id := mux.Vars(hr)["id"]
+	id := chi.URLParam(hr, "id")
 	return nil, rs.bm.deleteBookmark(id)
 }
 
 func (rs *rest) getBookmark(_ context.Context, _ struct{}, hr *http.Request) (*bookmark, error) {
-	id := mux.Vars(hr)["id"]
+	id := chi.URLParam(hr, "id")
 
 	b, err := rs.bm.getBookmark(id)
 	if err != nil {
