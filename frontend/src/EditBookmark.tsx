@@ -106,9 +106,9 @@ export const BookmarkForm = ({ objectID, onSave, onClose, onDelete }: {
             root: '!font-inherit !leading-none flex flex-col gap-1',
             label: '!text-base !font-normal dark:!text-inherit',
             input: '!rounded !font-inherit !text-base dark:!bg-slate-600 !border dark:!border-slate-400 dark:!text-inherit dark:focus-within:!border-indigo-300 !transition-none',
-            defaultValue: '!rounded-full !border dark:!border-slate-400 dark:!bg-slate-700 dark:!text-inherit !font-normal',
-            defaultValueLabel: '!font-inherit !text-sm dark:!text-inherit',
-            defaultValueRemove: 'dark:[&_*]:!fill-slate-300 dark:hover:[&_*]:!fill-slate-50',
+            defaultValue: '!rounded-full !border dark:!border-slate-400 dark:!bg-slate-500 dark:!text-inherit !font-normal',
+            defaultValueLabel: '!font-inherit !text-sm dark:!text-slate-50',
+            defaultValueRemove: 'dark:[&_*]:!fill-slate-50',
             searchInput: '!font-inherit !text-base !text-inherit focus:!outline-none',
             rightSection: 'dark:[&_*]:!fill-slate-300',
             dropdown: 'dark:!bg-slate-600 dark:!rounded dark:!border dark:!border-slate-400 dark:hover:[&_.mantine-ScrollArea-scrollbar]:!bg-slate-500 dark:[&_.mantine-ScrollArea-thumb]:!bg-slate-300',
@@ -124,11 +124,11 @@ export const BookmarkForm = ({ objectID, onSave, onClose, onDelete }: {
           </Mantine.Button>
         }
 
-        <Mantine.Button type="submit" disabled={!form.isValid()} className="active:!translate-y-0 !rounded !border dark:!border-indigo-500 dark:hover:!border-indigo-400 dark:disabled:!border-indigo-500/60 dark:!bg-indigo-600 dark:hover:!bg-indigo-500 dark:disabled:!bg-indigo-600/60 !font-inherit !text-base !font-normal dark:!text-indigo-100 dark:hover:!text-indigo-50 dark:disabled:!text-indigo-100/60 dark:focus:!outline-indigo-300">
+        <Mantine.Button type="submit" disabled={!form.isValid()} className="active:!translate-y-0 !rounded !border dark:!border-indigo-400 dark:hover:!border-indigo-400 dark:disabled:!border-indigo-500/60 dark:!bg-indigo-700 dark:hover:!bg-indigo-600 dark:disabled:!bg-indigo-700/60 !font-inherit !text-base !font-normal dark:!text-indigo-100 dark:hover:!text-indigo-50 dark:disabled:!text-indigo-200/60 dark:focus:!outline-indigo-300">
           Save
         </Mantine.Button>
 
-        <Mantine.Button type="button" onClick={onClose} className="active:!translate-y-0 !rounded !border dark:!border-slate-400 dark:hover:!border-slate-400 dark:hover:!bg-slate-600 !font-inherit !text-base !font-normal dark:!text-inherit dark:hover:!text-slate-50 dark:focus:!outline-indigo-300">
+        <Mantine.Button type="button" onClick={onClose} className="active:!translate-y-0 !rounded !border dark:!border-slate-400 dark:hover:!bg-slate-600 !font-inherit !text-base !font-normal dark:!text-inherit dark:hover:!text-slate-50 dark:focus:!outline-indigo-300">
           Cancel
         </Mantine.Button>
       </div>

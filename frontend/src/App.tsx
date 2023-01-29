@@ -124,10 +124,10 @@ const AppContents = () => {
             value={query} onChange={e => setQuery(e.currentTarget.value)}
             error={isError || result?.error} classNames={{
               root: '!font-inherit',
-              input: '!rounded-l-full !rounded-r-none !font-inherit !text-base md:!text-lg dark:!bg-slate-700 !border dark:!border-slate-500 dark:!text-inherit dark:focus:!border-indigo-300 !transition-none',
+              input: '!rounded-l-full !rounded-r-none !font-inherit !text-base md:!text-lg dark:!bg-slate-700 !border dark:!border-slate-400 dark:!text-inherit dark:focus:!border-indigo-300 !transition-none',
             }}/>
 
-          <Mantine.Button className="h-full active:!translate-y-0 !rounded-l-none !rounded-r-full !border-l-0 !border-t !border-b !border-r dark:border-slate-500 dark:!bg-slate-700 dark:hover:!bg-slate-600 !pl-3 !pr-4 !font-inherit text-base md:text-lg !font-normal dark:text-inherit dark:hover:text-slate-50 dark:focus:!outline-indigo-300" onClick={onAddClick}>
+          <Mantine.Button className="h-full active:!translate-y-0 !rounded-l-none !rounded-r-full !border-l-0 !border-t !border-b !border-r dark:border-slate-400 dark:!bg-slate-700 dark:hover:!bg-slate-600 !pl-3 !pr-4 !font-inherit text-base md:text-lg !font-normal dark:text-inherit dark:hover:text-slate-50 dark:focus:!outline-indigo-300" onClick={onAddClick}>
             Create
           </Mantine.Button>
         </div>
@@ -185,11 +185,13 @@ const BookmarkEditor = ({ bookmarkID, onSave, onClose, onDelete }: {
     }
     opened={!!bookmarkID} onClose={onClose}
     classNames={{
+      overlay: '!bg-slate-900 !opacity-60',
       drawer: 'dark:!bg-slate-700 dark:!text-inherit flex flex-col gap-5',
       header: '!mb-0',
       title: '!font-roboto-condensed',
       closeButton: 'active:!translate-y-0 dark:hover:!bg-slate-600 dark:[&_*]:!fill-slate-300 dark:[&_*]:hover:!fill-slate-50 dark:focus:!outline-indigo-300',
-    }}>
+    }}
+    transitionDuration={0}>
 
     {
       !!bookmarkID && <BookmarkForm objectID={bookmarkID.id} onSave={onSave} onClose={onClose} onDelete={onDelete}/>
