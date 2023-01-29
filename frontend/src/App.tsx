@@ -117,17 +117,17 @@ const AppContents = () => {
   }
 
   return <>
-    <main className="flex flex-col mb-20">
-      <section className="py-10 bg-slate-800 sticky top-0 z-10">
-        <div className="container xl:max-w-screen-lg mx-auto grid grid-cols-[1fr_max-content] items-stretch">
+    <main className="flex flex-col mb-20 px-5">
+      <section className="py-5 sm:py-6 md:py-8 bg-slate-800 sticky top-0 z-10">
+        <div className="lg:max-w-screen-lg mx-auto grid grid-cols-[1fr_max-content] items-stretch">
           <Mantine.TextInput placeholder="Enter search query" radius="md" size="md" autoFocus
             value={query} onChange={e => setQuery(e.currentTarget.value)}
             error={isError || result?.error} classNames={{
               root: '!font-inherit',
-              input: '!rounded-l-full !rounded-r-none !font-inherit !text-lg dark:!bg-slate-700 !border dark:!border-slate-500 dark:!text-inherit dark:focus:!border-indigo-300 !transition-none',
+              input: '!rounded-l-full !rounded-r-none !font-inherit !text-base md:!text-lg dark:!bg-slate-700 !border dark:!border-slate-500 dark:!text-inherit dark:focus:!border-indigo-300 !transition-none',
             }}/>
 
-          <Mantine.Button className="h-full active:!translate-y-0 !rounded-l-none !rounded-r-full !border-l-0 !border-t !border-b !border-r dark:border-slate-500 dark:!bg-slate-700 dark:hover:!bg-slate-600 !pl-3 !pr-4 !font-inherit text-lg !font-normal dark:text-inherit dark:hover:text-slate-50 dark:focus:!outline-indigo-300" onClick={onAddClick}>
+          <Mantine.Button className="h-full active:!translate-y-0 !rounded-l-none !rounded-r-full !border-l-0 !border-t !border-b !border-r dark:border-slate-500 dark:!bg-slate-700 dark:hover:!bg-slate-600 !pl-3 !pr-4 !font-inherit text-base md:text-lg !font-normal dark:text-inherit dark:hover:text-slate-50 dark:focus:!outline-indigo-300" onClick={onAddClick}>
             Create
           </Mantine.Button>
         </div>
@@ -142,7 +142,7 @@ const AppContents = () => {
 
       {
         (!!result && result.hits.length === 0) &&
-        <section className="container xl:max-w-screen-lg mx-auto">
+        <section className="lg:max-w-screen-lg mx-auto">
           <p>
             Nothing found.
           </p>
@@ -151,7 +151,7 @@ const AppContents = () => {
 
       {
         (!!result && result.hits.length > 0) &&
-        <section className="container xl:max-w-screen-lg mx-auto mt-1 flex flex-col gap-8">
+        <section className="lg:max-w-screen-lg mx-auto mt-1 flex flex-col gap-8">
           {
             result.hits.map((h, idx) => (
               <Entry key={idx} hit={h} onEditClick={() => onEditClick(h.id)}/>
