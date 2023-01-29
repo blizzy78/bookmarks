@@ -117,9 +117,9 @@ const AppContents = () => {
   }
 
   return <>
-    <main className="flex flex-col mb-20 px-5">
+    <main className="lg:max-w-screen-lg mx-auto flex flex-col mb-20 px-5 xl:px-0">
       <section className="py-5 sm:py-6 md:py-8 bg-slate-800 sticky top-0 z-10">
-        <div className="lg:max-w-screen-lg mx-auto grid grid-cols-[1fr_max-content] items-stretch">
+        <div className="grid grid-cols-[1fr_max-content] items-stretch">
           <Mantine.TextInput placeholder="Enter search query" radius="md" size="md" autoFocus
             value={query} onChange={e => setQuery(e.currentTarget.value)}
             error={isError || result?.error} classNames={{
@@ -142,7 +142,7 @@ const AppContents = () => {
 
       {
         (!!result && result.hits.length === 0) &&
-        <section className="lg:max-w-screen-lg mx-auto">
+        <section>
           <p>
             Nothing found.
           </p>
@@ -151,7 +151,7 @@ const AppContents = () => {
 
       {
         (!!result && result.hits.length > 0) &&
-        <section className="lg:max-w-screen-lg mx-auto mt-1 flex flex-col gap-8">
+        <section className="mt-1 flex flex-col gap-8">
           {
             result.hits.map((h, idx) => (
               <Entry key={idx} hit={h} onEditClick={() => onEditClick(h.id)}/>
