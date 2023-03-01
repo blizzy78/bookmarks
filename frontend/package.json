@@ -20,7 +20,7 @@
     "@mantine/hooks": "^5.3.3",
     "@mantine/notifications": "^5.10.5",
     "@tanstack/react-query": "^4.24.10",
-    "classnames": "^2.3.2",
+    "clsx": "^1.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-tagcloud": "^2.3.1",

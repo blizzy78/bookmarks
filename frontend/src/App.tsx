@@ -6,7 +6,7 @@ import * as Mantine from '@mantine/core'
 import * as MantineHooks from '@mantine/hooks'
 import * as MantineNotifications from '@mantine/notifications'
 import * as ReactQuery from '@tanstack/react-query'
-import classNames from 'classnames'
+import clsx from 'clsx'
 import { useState } from 'react'
 import * as ReactTagCloud from 'react-tagcloud'
 import * as API from './API'
@@ -235,7 +235,7 @@ const TagCloud = ({ limit }: { limit: number }) => {
   const render = (tag: TagCloudEntry, size: number) => (
     <div
       key={tag.value}
-      className={classNames(
+      className={clsx(
         'self-center leading-none',
         size >= 4 ? 'dark:text-slate-300' : size >= 2 ? 'dark:text-slate-400' : 'dark:text-slate-500'
       )}

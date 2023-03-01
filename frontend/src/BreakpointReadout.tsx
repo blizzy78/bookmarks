@@ -1,7 +1,7 @@
-import classNames from 'classnames'
+import clsx from 'clsx'
 
 export const BreakpointReadout = ({ className }: { className?: string }) => (
-  <div className={classNames('rounded border border-yellow-500 bg-yellow-300 px-3 py-1 text-gray-800', className)}>
+  <div className={clsx('rounded border border-yellow-500 bg-yellow-300 px-3 py-1 text-gray-800', className)}>
     <Text />
   </div>
 )
