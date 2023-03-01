@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npm install --no-audit --no-funds && vite",
+    "dev": "npm install --no-audit --no-fund && vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },

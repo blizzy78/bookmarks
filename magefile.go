@@ -17,7 +17,7 @@ var Default = Deploy
 // Frontend builds the web frontend.
 func Frontend(ctx context.Context) error {
 	return doDir("./frontend", func() error {
-		if err := sh.Run("npm", "install", "--no-funds"); err != nil {
+		if err := sh.Run("npm", "install", "--no-fund"); err != nil {
 			return fmt.Errorf("npm install: %w", err)
 		}
 
