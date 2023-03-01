@@ -20,8 +20,8 @@ const fetchJSON = async <T, D = never>(url: string, method: string, data?: D) =>
     cache: 'no-cache',
 
     headers: {
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   }
 
   if (!!data) {

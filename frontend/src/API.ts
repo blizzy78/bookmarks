@@ -46,53 +46,49 @@ export type TagCountMap = {
   readonly [tag: string]: number
 }
 
-export const createQueryClient = () => new ReactQuery.QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      cacheTime: Infinity,
-      // cannot pass retry here
-    }
-  }
-})
+export const createQueryClient = () =>
+  new ReactQuery.QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        staleTime: Infinity,
+        cacheTime: Infinity,
+        // cannot pass retry here
+      },
+    },
+  })
 
 const retry = (_: number, error: FetchUtil.HTTPError) => error.status != 404 && error.status < 500
 
-export const useSearch = (query: string) => (
+export const useSearch = (query: string) =>
   ReactQuery.useQuery(
     ['search', query],
     () => FetchUtil.getJSON<Result>(`/rest/bookmarks?q=${encodeURIComponent(query)}`),
     {
       enabled: query.trim() !== '',
       staleTime: 15 * 60 * 1000,
-      retry: retry
+      retry: retry,
     }
   )
-)
 
 const useInvalidateSearch = () => {
   const queryClient = ReactQuery.useQueryClient()
 
-  return useCallback(
-    () => {
-      queryClient.cancelQueries(['search'])
-      queryClient.invalidateQueries(['search'])
-    },
-    [queryClient]
-  )
+  return useCallback(() => {
+    queryClient.cancelQueries(['search'])
+    queryClient.invalidateQueries(['search'])
+  }, [queryClient])
 }
 
-export const useBookmark = (objectID?: string) => (
+export const useBookmark = (objectID?: string) =>
   ReactQuery.useQuery(
     objectID ? ['bookmark', objectID] : ['bookmark.new'],
-    () => objectID ? FetchUtil.getJSON<Bookmark>(`/rest/bookmark/${encodeURIComponent(objectID)}`) : emptyBookmark,
+    () => (objectID ? FetchUtil.getJSON<Bookmark>(`/rest/bookmark/${encodeURIComponent(objectID)}`) : emptyBookmark),
     {
       staleTime: 15 * 60 * 1000,
-      retry: retry
+      retry: retry,
     }
   )
-)
 
 const useInvalidateBookmark = () => {
   const queryClient = ReactQuery.useQueryClient()
@@ -112,16 +108,16 @@ export const useCreateBookmark = () => {
   const invalidateAllTagCounts = useInvalidateAllTagCounts()
 
   const mutation = ReactQuery.useMutation<undefined, FetchUtil.HTTPError, SaveBookmarkData>(
-    data => FetchUtil.postJSON('/rest/bookmark', data.bookmark),
+    (data) => FetchUtil.postJSON('/rest/bookmark', data.bookmark),
     {
-      onMutate: variables => variables.onCreating(),
+      onMutate: (variables) => variables.onCreating(),
 
       onSuccess: (_, variables) => {
         variables.onCreated()
         invalidateSearch()
         invalidateAllTags()
         invalidateAllTagCounts()
-      }
+      },
     }
   )
 
@@ -135,9 +131,10 @@ export const useUpdateBookmark = () => {
   const invalidateAllTagCounts = useInvalidateAllTagCounts()
 
   const mutation = ReactQuery.useMutation<undefined, FetchUtil.HTTPError, SaveBookmarkData>(
-    data => FetchUtil.putJSON(`/rest/bookmark/${encodeURIComponent(data.bookmark.objectID as string)}`, data.bookmark),
+    (data) =>
+      FetchUtil.putJSON(`/rest/bookmark/${encodeURIComponent(data.bookmark.objectID as string)}`, data.bookmark),
     {
-      onMutate: variables => variables.onCreating(),
+      onMutate: (variables) => variables.onCreating(),
 
       onSuccess: (_, variables) => {
         variables.onCreated()
@@ -145,7 +142,7 @@ export const useUpdateBookmark = () => {
         invalidateSearch()
         invalidateAllTags()
         invalidateAllTagCounts()
-      }
+      },
     }
   )
 
@@ -159,9 +156,9 @@ export const useDeleteBookmark = () => {
   const invalidateAllTagCounts = useInvalidateAllTagCounts()
 
   const mutation = ReactQuery.useMutation<undefined, FetchUtil.HTTPError, DeleteBookmarkData>(
-    data => FetchUtil.deleteJSON(`/rest/bookmark/${encodeURIComponent(data.objectID)}`),
+    (data) => FetchUtil.deleteJSON(`/rest/bookmark/${encodeURIComponent(data.objectID)}`),
     {
-      onMutate: variables => variables.onDeleting(),
+      onMutate: (variables) => variables.onDeleting(),
 
       onSuccess: (_, variables) => {
         variables.onDeleted()
@@ -169,55 +166,39 @@ export const useDeleteBookmark = () => {
         invalidateSearch()
         invalidateAllTags()
         invalidateAllTagCounts()
-      }
+      },
     }
   )
 
   return mutation.mutateAsync
 }
 
-export const useAllTags = () => (
-  ReactQuery.useQuery(
-    ['bookmarks.tags'],
-    () => FetchUtil.getJSON<string[]>('/rest/bookmarks/tags'),
-    {
-      staleTime: 15 * 60 * 1000,
-      retry: retry
-    }
-  )
-)
+export const useAllTags = () =>
+  ReactQuery.useQuery(['bookmarks.tags'], () => FetchUtil.getJSON<string[]>('/rest/bookmarks/tags'), {
+    staleTime: 15 * 60 * 1000,
+    retry: retry,
+  })
 
 const useInvalidateAllTags = () => {
   const queryClient = ReactQuery.useQueryClient()
 
-  return useCallback(
-    () => {
-      queryClient.cancelQueries(['bookmarks.tags'])
-      queryClient.invalidateQueries(['bookmarks.tags'])
-    },
-    [queryClient]
-  )
+  return useCallback(() => {
+    queryClient.cancelQueries(['bookmarks.tags'])
+    queryClient.invalidateQueries(['bookmarks.tags'])
+  }, [queryClient])
 }
 
-export const useAllTagCounts = () => (
-  ReactQuery.useQuery(
-    ['bookmarks.tagCounts'],
-    () => FetchUtil.getJSON<TagCountMap>('/rest/bookmarks/tagCounts'),
-    {
-      staleTime: 15 * 60 * 1000,
-      retry: retry
-    }
-  )
-)
+export const useAllTagCounts = () =>
+  ReactQuery.useQuery(['bookmarks.tagCounts'], () => FetchUtil.getJSON<TagCountMap>('/rest/bookmarks/tagCounts'), {
+    staleTime: 15 * 60 * 1000,
+    retry: retry,
+  })
 
 const useInvalidateAllTagCounts = () => {
   const queryClient = ReactQuery.useQueryClient()
 
-  return useCallback(
-    () => {
-      queryClient.cancelQueries(['bookmarks.tagCounts'])
-      queryClient.invalidateQueries(['bookmarks.tagCounts'])
-    },
-    [queryClient]
-  )
+  return useCallback(() => {
+    queryClient.cancelQueries(['bookmarks.tagCounts'])
+    queryClient.invalidateQueries(['bookmarks.tagCounts'])
+  }, [queryClient])
 }

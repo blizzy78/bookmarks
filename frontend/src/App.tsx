@@ -26,7 +26,7 @@ const queryClient = API.createQueryClient()
 export const App = () => (
   <ReactQuery.QueryClientProvider client={queryClient}>
     <MantineNotifications.NotificationsProvider position="bottom-left">
-      <AppContents/>
+      <AppContents />
     </MantineNotifications.NotificationsProvider>
   </ReactQuery.QueryClientProvider>
 )
@@ -48,10 +48,22 @@ const AppContents = () => {
 
   const showNotification = (type: 'save' | 'delete', status: 'working' | 'done') => {
     const data: MantineNotifications.NotificationProps & { id: string } = {
-      id: type === 'save' ? (editingBookmarkID?.id ? 'bookmark.save.' + editingBookmarkID?.id : 'bookmark.create') : 'bookmark.delete.' + editingBookmarkID?.id,
+      id:
+        type === 'save'
+          ? editingBookmarkID?.id
+            ? 'bookmark.save.' + editingBookmarkID?.id
+            : 'bookmark.create'
+          : 'bookmark.delete.' + editingBookmarkID?.id,
       loading: status === 'working',
-      message: type === 'save' ? (status === 'working' ? 'Saving bookmark' : 'Bookmark saved') : (status === 'working' ? 'Deleting bookmark' : 'Bookmark deleted'),
-      icon: status === 'done' && <FontAwesome.FontAwesomeIcon icon={FontAwesomeSolid.faCheck}/>,
+      message:
+        type === 'save'
+          ? status === 'working'
+            ? 'Saving bookmark'
+            : 'Bookmark saved'
+          : status === 'working'
+          ? 'Deleting bookmark'
+          : 'Bookmark deleted',
+      icon: status === 'done' && <FontAwesome.FontAwesomeIcon icon={FontAwesomeSolid.faCheck} />,
       autoClose: status === 'working' ? false : 3000,
       disallowClose: true,
 
@@ -75,11 +87,11 @@ const AppContents = () => {
       updateBookmark({
         bookmark: {
           objectID: editingBookmarkID?.id,
-          ...values
+          ...values,
         },
 
         onCreating: () => showNotification('save', 'working'),
-        onCreated: () => showNotification('save', 'done')
+        onCreated: () => showNotification('save', 'done'),
       })
 
       onEditorClose()
@@ -90,11 +102,11 @@ const AppContents = () => {
     createBookmark({
       bookmark: {
         objectID: undefined,
-        ...values
+        ...values,
       },
 
       onCreating: () => showNotification('save', 'working'),
-      onCreated: () => showNotification('save', 'done')
+      onCreated: () => showNotification('save', 'done'),
     })
 
     return true
@@ -110,92 +122,102 @@ const AppContents = () => {
     deleteBookmark({
       objectID: editingBookmarkID?.id as string,
       onDeleting: () => showNotification('delete', 'working'),
-      onDeleted: () => showNotification('delete', 'done')
+      onDeleted: () => showNotification('delete', 'done'),
     })
 
     onEditorClose()
   }
 
-  return <>
-    <main className="lg:max-w-screen-lg mx-auto flex flex-col mb-20 px-5 xl:px-0">
-      <section className="py-5 sm:py-6 md:py-8 bg-slate-800 sticky top-0 z-10">
-        <div className="grid grid-cols-[1fr_max-content] items-stretch">
-          <Mantine.TextInput placeholder="Enter search query" radius="md" size="md" autoFocus
-            value={query} onChange={e => setQuery(e.currentTarget.value)}
-            error={isError || result?.error} classNames={{
-              root: '!font-inherit',
-              input: '!rounded-l-full !rounded-r-none !font-inherit !text-base md:!text-lg dark:!bg-slate-700 !border dark:!border-slate-400 dark:!text-inherit dark:focus:!border-indigo-300 !transition-none',
-            }}/>
+  return (
+    <>
+      <main className="mx-auto mb-20 flex flex-col px-5 lg:max-w-screen-lg xl:px-0">
+        <section className="sticky top-0 z-10 bg-slate-800 py-5 sm:py-6 md:py-8">
+          <div className="grid grid-cols-[1fr_max-content] items-stretch">
+            <Mantine.TextInput
+              placeholder="Enter search query"
+              radius="md"
+              size="md"
+              autoFocus
+              value={query}
+              onChange={(e) => setQuery(e.currentTarget.value)}
+              error={isError || result?.error}
+              classNames={{
+                root: '!font-inherit',
+                input:
+                  '!rounded-l-full !rounded-r-none !font-inherit !text-base md:!text-lg dark:!bg-slate-700 !border dark:!border-slate-400 dark:!text-inherit dark:focus:!border-indigo-300 !transition-none',
+              }}
+            />
 
-          <Mantine.Button className="h-full active:!translate-y-0 !rounded-l-none !rounded-r-full !border-l-0 !border-t !border-b !border-r dark:border-slate-400 dark:!bg-slate-700 dark:hover:!bg-slate-600 !pl-3 !pr-4 !font-inherit text-base md:text-lg !font-normal dark:text-inherit dark:hover:text-slate-50 dark:focus:!outline-indigo-300" onClick={onAddClick}>
-            Create
-          </Mantine.Button>
-        </div>
-      </section>
-
-      {
-        (!result && !isFetching && !isError) &&
-        <section className="max-w-screen-sm mx-auto mt-20">
-          <TagCloud limit={30}/>
+            <Mantine.Button
+              className="h-full !rounded-l-none !rounded-r-full !border-l-0 !border-t !border-b !border-r !pl-3 !pr-4 !font-inherit text-base !font-normal active:!translate-y-0 dark:border-slate-400 dark:!bg-slate-700 dark:text-inherit dark:hover:!bg-slate-600 dark:hover:text-slate-50 dark:focus:!outline-indigo-300 md:text-lg"
+              onClick={onAddClick}
+            >
+              Create
+            </Mantine.Button>
+          </div>
         </section>
-      }
 
-      {
-        (!!result && result.hits.length === 0) &&
-        <section>
-          <p>
-            Nothing found.
-          </p>
-        </section>
-      }
+        {!result && !isFetching && !isError && (
+          <section className="mx-auto mt-20 max-w-screen-sm">
+            <TagCloud limit={30} />
+          </section>
+        )}
 
-      {
-        (!!result && result.hits.length > 0) &&
-        <section className="mt-1 flex flex-col gap-8">
-          {
-            result.hits.map((h, idx) => (
-              <Entry key={idx} hit={h} onEditClick={() => onEditClick(h.id)}/>
-            ))
-          }
-        </section>
-      }
-    </main>
+        {!!result && result.hits.length === 0 && (
+          <section>
+            <p>Nothing found.</p>
+          </section>
+        )}
 
-    <BookmarkEditor bookmarkID={editingBookmarkID} onSave={onEditorSave} onClose={onEditorClose} onDelete={onEditorDelete}/>
+        {!!result && result.hits.length > 0 && (
+          <section className="mt-1 flex flex-col gap-8">
+            {result.hits.map((h, idx) => (
+              <Entry key={idx} hit={h} onEditClick={() => onEditClick(h.id)} />
+            ))}
+          </section>
+        )}
+      </main>
 
-    {
-      import.meta.env.DEV &&
-      <BreakpointReadout className="fixed right-2 top-2 opacity-80 z-50"/>
-    }
-  </>
+      <BookmarkEditor
+        bookmarkID={editingBookmarkID}
+        onSave={onEditorSave}
+        onClose={onEditorClose}
+        onDelete={onEditorDelete}
+      />
+
+      {import.meta.env.DEV && <BreakpointReadout className="fixed right-2 top-2 z-50 opacity-80" />}
+    </>
+  )
 }
 
-const BookmarkEditor = ({ bookmarkID, onSave, onClose, onDelete }: {
-    bookmarkID: { id: string | undefined} | undefined
-    onSave(values: BookmarkFormData): boolean
-    onClose(): void
-    onDelete(): void
-  }) => (
-
-  <Mantine.Drawer size="xl" padding="lg"
-    title={
-      <h2 className="text-xl font-semibold">
-        {bookmarkID?.id ? 'Edit Bookmark' : 'Add Bookmark'}
-      </h2>
-    }
-    opened={!!bookmarkID} onClose={onClose}
+const BookmarkEditor = ({
+  bookmarkID,
+  onSave,
+  onClose,
+  onDelete,
+}: {
+  bookmarkID: { id: string | undefined } | undefined
+  onSave(values: BookmarkFormData): boolean
+  onClose(): void
+  onDelete(): void
+}) => (
+  <Mantine.Drawer
+    size="xl"
+    padding="lg"
+    title={<h2 className="text-xl font-semibold">{bookmarkID?.id ? 'Edit Bookmark' : 'Add Bookmark'}</h2>}
+    opened={!!bookmarkID}
+    onClose={onClose}
     classNames={{
       overlay: '!bg-slate-900 !opacity-60',
       drawer: 'dark:!bg-slate-700 dark:!text-inherit flex flex-col gap-5',
       header: '!mb-0',
       title: '!font-roboto-condensed',
-      closeButton: 'active:!translate-y-0 dark:hover:!bg-slate-600 dark:[&_*]:!fill-slate-300 dark:[&_*]:hover:!fill-slate-50 dark:focus:!outline-indigo-300',
+      closeButton:
+        'active:!translate-y-0 dark:hover:!bg-slate-600 dark:[&_*]:!fill-slate-300 dark:[&_*]:hover:!fill-slate-50 dark:focus:!outline-indigo-300',
     }}
-    transitionDuration={0}>
-
-    {
-      !!bookmarkID && <BookmarkForm objectID={bookmarkID.id} onSave={onSave} onClose={onClose} onDelete={onDelete}/>
-    }
+    transitionDuration={0}
+  >
+    {!!bookmarkID && <BookmarkForm objectID={bookmarkID.id} onSave={onSave} onClose={onClose} onDelete={onDelete} />}
   </Mantine.Drawer>
 )
 
@@ -206,24 +228,31 @@ const TagCloud = ({ limit }: { limit: number }) => {
   }
 
   const tags = Object.keys(data)
-    .map(t => ({ key: t, value: t, count: data[t] }))
+    .map((t) => ({ key: t, value: t, count: data[t] }))
     .sort((a, b) => b.count - a.count)
     .slice(0, limit)
 
   const render = (tag: TagCloudEntry, size: number) => (
-    <div key={tag.value} className={classNames(
-      'self-center leading-none',
-      size >= 4 ? 'dark:text-slate-300' : (
-        size >= 2 ? 'dark:text-slate-400' : 'dark:text-slate-500'
-      )
-    )} style={{ fontSize: `${size}rem` }}>
-
+    <div
+      key={tag.value}
+      className={classNames(
+        'self-center leading-none',
+        size >= 4 ? 'dark:text-slate-300' : size >= 2 ? 'dark:text-slate-400' : 'dark:text-slate-500'
+      )}
+      style={{ fontSize: `${size}rem` }}
+    >
       {tag.value}
     </div>
   )
 
   return (
-    <ReactTagCloud.TagCloud className="flex flex-row justify-center flex-wrap gap-2"
-      minSize={1} maxSize={5} tags={tags} renderer={render} disableRandomColor/>
+    <ReactTagCloud.TagCloud
+      className="flex flex-row flex-wrap justify-center gap-2"
+      minSize={1}
+      maxSize={5}
+      tags={tags}
+      renderer={render}
+      disableRandomColor
+    />
   )
 }
