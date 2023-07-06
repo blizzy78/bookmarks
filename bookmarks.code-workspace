@@ -4,14 +4,17 @@
 			"path": "."
 		},
 		{
-			"path": "frontend"
+			"name": "frontend",
+			"path": "frontend/src"
 		}
 	],
 	"extensions": {
 		"recommendations": [
 			"EditorConfig.EditorConfig",
 			"golang.go",
-			"dbaeumer.vscode-eslint"
+			"dbaeumer.vscode-eslint",
+			"bradlc.vscode-tailwindcss",
+			"esbenp.prettier-vscode",
 		]
 	},
 	"settings": {

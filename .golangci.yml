@@ -69,7 +69,7 @@ linters-settings:
     require-explanation: true
     require-specific: true
   unused:
-    go: 1.19
+    go: 1.20
   varnamelen:
     check-return: true
     ignore-type-assert-ok: true

@@ -2,14 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
-  .color-scheme-dark {
-    color-scheme: dark;
-  }
-}
-
 html.dark {
-  @apply color-scheme-dark;
+  color-scheme: dark;
 }
 
 mark {

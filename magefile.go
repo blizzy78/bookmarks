@@ -17,12 +17,12 @@ var Default = Deploy
 // Frontend builds the web frontend.
 func Frontend(ctx context.Context) error {
 	return doDir("./frontend", func() error {
-		if err := sh.Run("npm", "install", "--no-fund"); err != nil {
-			return fmt.Errorf("npm install: %w", err)
+		if err := sh.Run("pnpm", "install"); err != nil {
+			return fmt.Errorf("pnpm install: %w", err)
 		}
 
-		if err := sh.Run("npm", "run", "build"); err != nil {
-			return fmt.Errorf("npm run build: %w", err)
+		if err := sh.Run("pnpm", "build"); err != nil {
+			return fmt.Errorf("pnpm build: %w", err)
 		}
 
 		return nil

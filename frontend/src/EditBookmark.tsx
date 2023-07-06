@@ -2,6 +2,7 @@ import * as Mantine from '@mantine/core'
 import * as MantineForm from '@mantine/form'
 import { useEffect, useState } from 'react'
 import * as API from './API'
+import tailwindConfig from './tailwindConfig'
 
 export interface BookmarkFormData {
   url: string
@@ -17,7 +18,7 @@ export const BookmarkForm = ({
   onDelete,
 }: {
   objectID?: string
-  onSave(values: BookmarkFormData): boolean
+  onSave(values: BookmarkFormData): void
   onClose(): void
   onDelete(): void
 }) => {
@@ -52,11 +53,15 @@ export const BookmarkForm = ({
 
   useEffect(
     () => {
+      if (!data) {
+        return
+      }
+
       form.setValues({
-        url: data?.url ?? '',
-        title: data?.title ?? '',
-        description: data?.description ?? '',
-        tags: data?.tags ?? [],
+        url: data.url,
+        title: data.title,
+        description: data.description,
+        tags: data.tags,
       })
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -69,15 +74,12 @@ export const BookmarkForm = ({
     return tag
   }
 
-  const onSaveInternal = (values: BookmarkFormData) => {
-    if (onSave(values)) {
-      form.reset()
-    }
-  }
-
   return (
-    <form onSubmit={form.onSubmit(onSaveInternal)} className="relative flex flex-col gap-10">
-      <Mantine.LoadingOverlay visible={allTagsFetching || (!!objectID && isFetching)} overlayColor="#334155" />
+    <form onSubmit={form.onSubmit(onSave)} className="relative flex flex-col gap-10">
+      <Mantine.LoadingOverlay
+        visible={allTagsFetching || (!!objectID && isFetching)}
+        overlayColor={tailwindConfig.colors['slate-700']}
+      />
 
       <div className="flex flex-col gap-5">
         <Mantine.TextInput
@@ -85,11 +87,11 @@ export const BookmarkForm = ({
           withAsterisk
           {...form.getInputProps('url')}
           classNames={{
-            root: '!font-inherit !leading-none flex flex-col gap-1',
+            root: 'flex flex-col gap-1 !font-inherit !leading-none',
             label: '!text-base !font-normal dark:!text-inherit',
             required: '!text-inherit',
             input:
-              '!rounded !font-inherit !text-base dark:!bg-slate-600 !border dark:!border-slate-400 dark:!text-inherit dark:focus:!border-indigo-300 !transition-none',
+              '!rounded !border !font-inherit !text-base !transition-none dark:!border-slate-500 dark:!bg-slate-600 dark:!text-inherit dark:focus:!border-indigo-300',
           }}
         />
 
@@ -98,11 +100,11 @@ export const BookmarkForm = ({
           withAsterisk
           {...form.getInputProps('title')}
           classNames={{
-            root: '!font-inherit !leading-none flex flex-col gap-1',
+            root: 'flex flex-col gap-1 !font-inherit !leading-none',
             label: '!text-base !font-normal dark:!text-inherit',
             required: '!text-inherit',
             input:
-              '!rounded !font-inherit !text-base dark:!bg-slate-600 !border dark:!border-slate-400 dark:!text-inherit dark:focus:!border-indigo-300 !transition-none',
+              '!rounded !border !font-inherit !text-base !transition-none dark:!border-slate-500 dark:!bg-slate-600 dark:!text-inherit dark:focus:!border-indigo-300',
           }}
         />
 
@@ -112,11 +114,11 @@ export const BookmarkForm = ({
           minRows={3}
           {...form.getInputProps('description')}
           classNames={{
-            root: '!font-inherit !leading-none flex flex-col gap-1',
+            root: 'flex flex-col gap-1 !font-inherit !leading-none',
             label: '!text-base !font-normal dark:!text-inherit',
             required: '!text-inherit',
             input:
-              '!rounded !font-inherit !text-base dark:!bg-slate-600 !border dark:!border-slate-400 dark:!text-inherit dark:focus:!border-indigo-300 !transition-none',
+              '!rounded !border !font-inherit !text-base !transition-none dark:!border-slate-500 dark:!bg-slate-600 dark:!text-inherit dark:focus:!border-indigo-300',
           }}
         />
 
@@ -129,18 +131,18 @@ export const BookmarkForm = ({
           getCreateLabel={(q) => `+ ${q}`}
           onCreate={onCreateTag}
           classNames={{
-            root: '!font-inherit !leading-none flex flex-col gap-1',
+            root: 'flex flex-col gap-1 !font-inherit !leading-none',
             label: '!text-base !font-normal dark:!text-inherit',
             input:
-              '!rounded !font-inherit !text-base dark:!bg-slate-600 !border dark:!border-slate-400 dark:!text-inherit dark:focus-within:!border-indigo-300 !transition-none',
+              '!rounded !border !font-inherit !text-base !transition-none dark:!border-slate-500 dark:!bg-slate-600 dark:!text-inherit dark:focus-within:!border-indigo-300',
             defaultValue:
-              '!rounded-full !border dark:!border-slate-400 dark:!bg-slate-500 dark:!text-inherit !font-normal',
+              '!rounded-full !border !font-normal dark:!border-slate-400 dark:!bg-slate-500 dark:!text-inherit',
             defaultValueLabel: '!font-inherit !text-sm dark:!text-slate-50',
             defaultValueRemove: 'dark:[&_*]:!fill-slate-50',
             searchInput: '!font-inherit !text-base !text-inherit focus:!outline-none',
             rightSection: 'dark:[&_*]:!fill-slate-300',
             dropdown:
-              'dark:!bg-slate-600 dark:!rounded dark:!border dark:!border-slate-400 dark:hover:[&_.mantine-ScrollArea-scrollbar]:!bg-slate-500 dark:[&_.mantine-ScrollArea-thumb]:!bg-slate-300',
+              'dark:!rounded dark:!border dark:!border-slate-400 dark:!bg-slate-600 dark:hover:[&_.mantine-ScrollArea-scrollbar]:!bg-slate-500 dark:[&_.mantine-ScrollArea-thumb]:!bg-slate-300',
             item: '!font-inherit !text-inherit dark:data-[hovered=true]:!bg-slate-500',
           }}
         />
@@ -160,7 +162,7 @@ export const BookmarkForm = ({
         <Mantine.Button
           type="submit"
           disabled={!form.isValid()}
-          className="!rounded !border !font-inherit !text-base !font-normal active:!translate-y-0 dark:!border-indigo-400 dark:!bg-indigo-700 dark:!text-indigo-100 dark:hover:!border-indigo-400 dark:hover:!bg-indigo-600 dark:hover:!text-indigo-50 dark:focus:!outline-indigo-300 dark:disabled:!border-indigo-500/60 dark:disabled:!bg-indigo-700/60 dark:disabled:!text-indigo-200/60"
+          className="!rounded !border !font-inherit !text-base !font-normal active:!translate-y-0 dark:!border-indigo-700 dark:!bg-indigo-700 dark:!text-indigo-100 dark:hover:!border-indigo-600 dark:hover:!bg-indigo-600 dark:hover:!text-indigo-50 dark:focus:!outline-indigo-300 dark:disabled:!border-indigo-700 dark:disabled:!bg-indigo-700 dark:disabled:!text-indigo-400"
         >
           Save
         </Mantine.Button>
@@ -168,7 +170,7 @@ export const BookmarkForm = ({
         <Mantine.Button
           type="button"
           onClick={onClose}
-          className="!rounded !border !font-inherit !text-base !font-normal active:!translate-y-0 dark:!border-slate-400 dark:!text-inherit dark:hover:!bg-slate-600 dark:hover:!text-slate-50 dark:focus:!outline-indigo-300"
+          className="!rounded !border !font-inherit !text-base !font-normal active:!translate-y-0 dark:!border-slate-600 dark:!text-inherit dark:hover:!bg-slate-600 dark:hover:!text-slate-50 dark:focus:!outline-indigo-300"
         >
           Cancel
         </Mantine.Button>

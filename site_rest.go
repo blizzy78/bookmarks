@@ -77,7 +77,7 @@ func (rs *rest) updateBookmark(_ context.Context, b bookmark, hr *http.Request) 
 	return nil, rs.bm.saveBookmark(b)
 }
 
-func (rs *rest) createBookmark(_ context.Context, b bookmark, hr *http.Request) (*struct{}, error) {
+func (rs *rest) createBookmark(_ context.Context, b bookmark, _ *http.Request) (*struct{}, error) {
 	return nil, rs.bm.saveBookmark(b)
 }
 
@@ -97,10 +97,10 @@ func (rs *rest) getBookmark(_ context.Context, _ struct{}, hr *http.Request) (*b
 	return &b, nil
 }
 
-func (rs *rest) getAllTags(_ context.Context, _ struct{}, hr *http.Request) ([]string, error) {
+func (rs *rest) getAllTags(_ context.Context, _ struct{}, _ *http.Request) ([]string, error) {
 	return rs.bm.allTags()
 }
 
-func (rs *rest) getAllTagCounts(_ context.Context, _ struct{}, hr *http.Request) (map[string]int, error) {
+func (rs *rest) getAllTagCounts(_ context.Context, _ struct{}, _ *http.Request) (map[string]int, error) {
 	return rs.bm.allTagCounts()
 }
