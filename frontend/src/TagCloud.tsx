@@ -2,20 +2,20 @@ import clsx from 'clsx'
 import * as ReactTagCloud from 'react-tagcloud'
 import * as API from './API'
 
-interface TagCloudEntry {
+type TagCloudEntry = {
   key: string
   value: string
   count: number
 }
 
 export default function TagCloud({ limit }: { limit: number }) {
-  const { data } = API.useAllTagCounts()
-  if (!data) {
+  const { data: tagCounts } = API.useAllTagCounts()
+  if (!tagCounts) {
     return null
   }
 
-  const tags = Object.keys(data)
-    .map((t) => ({ key: t, value: t, count: data[t] }))
+  const tags = Object.keys(tagCounts)
+    .map((t) => ({ key: t, value: t, count: tagCounts[t] } satisfies TagCloudEntry))
     .sort((a, b) => b.count - a.count)
     .slice(0, limit)
 

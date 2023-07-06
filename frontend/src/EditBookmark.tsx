@@ -1,10 +1,10 @@
 import * as Mantine from '@mantine/core'
 import * as MantineForm from '@mantine/form'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as API from './API'
 import tailwindConfig from './tailwindConfig'
 
-export interface BookmarkFormData {
+export type BookmarkFormData = {
   url: string
   title: string
   description: string
@@ -38,35 +38,38 @@ export const BookmarkForm = ({
 
   const [tags, setTags] = useState<Mantine.SelectItem[]>([])
 
-  const { data: allTagsData, isFetching: allTagsFetching } = API.useAllTags()
+  const { data: allTags, isFetching: allTagsFetching } = API.useAllTags()
 
   useEffect(() => {
-    if (!allTagsData) {
+    if (!allTags) {
       setTags([])
       return
     }
 
-    setTags(allTagsData.map((t) => ({ value: t, label: t })))
-  }, [allTagsData])
+    setTags(allTags.map((t) => ({ value: t, label: t })))
+  }, [allTags])
 
-  const { data, isFetching } = API.useBookmark(objectID)
+  const { data: bookmark, isFetching } = API.useBookmark(objectID)
+  const bookmarkLoaded = useRef(false)
 
-  useEffect(
-    () => {
-      if (!data) {
-        return
-      }
+  useEffect(() => {
+    if (bookmarkLoaded.current) {
+      return
+    }
 
-      form.setValues({
-        url: data.url,
-        title: data.title,
-        description: data.description,
-        tags: data.tags,
-      })
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data]
-  )
+    if (!bookmark) {
+      return
+    }
+
+    form.setValues({
+      url: bookmark.url,
+      title: bookmark.title,
+      description: bookmark.description,
+      tags: bookmark.tags,
+    })
+
+    bookmarkLoaded.current = true
+  }, [bookmark, form])
 
   const onCreateTag = (t: string) => {
     const tag = { value: t, label: t }

@@ -31,7 +31,7 @@ const AppContents = () => {
   const [query, setQuery] = useState('')
   const [debouncedQuery] = MantineHooks.useDebouncedValue(query, 350)
 
-  const { data: result, isFetching, isError } = API.useSearch(debouncedQuery)
+  const { data: searchResult, isFetching, isError } = API.useSearch(debouncedQuery)
 
   const [editingBookmarkID, setEditingBookmarkID] = useState<{ id?: string } | undefined>(undefined)
 
@@ -134,7 +134,7 @@ const AppContents = () => {
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.currentTarget.value)}
-              error={isError || result?.error}
+              error={isError || searchResult?.error}
               classNames={{
                 root: '!font-inherit',
                 input:
@@ -152,21 +152,21 @@ const AppContents = () => {
         </section>
 
         <Suspense>
-          {!result && !isFetching && !isError && (
+          {!searchResult && !isFetching && !isError && (
             <section className="mx-auto mt-20 max-w-screen-sm">
               <TagCloud limit={30} />
             </section>
           )}
 
-          {!!result && result.hits.length === 0 && (
+          {!!searchResult && searchResult.hits.length === 0 && (
             <section>
               <p>Nothing found.</p>
             </section>
           )}
 
-          {!!result && result.hits.length > 0 && (
+          {!!searchResult && searchResult.hits.length > 0 && (
             <section className="mt-1 flex flex-col gap-8">
-              {result.hits.map((h, idx) => (
+              {searchResult.hits.map((h, idx) => (
                 <Entry key={idx} hit={h} onEditClick={() => onEditClick(h.id)} />
               ))}
             </section>

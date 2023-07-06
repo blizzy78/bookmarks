@@ -1,28 +1,36 @@
+import { parse as parseJson } from '@hapi/bourne'
 import * as ReactQuery from '@tanstack/react-query'
+import ky from 'ky'
 import { useCallback } from 'react'
-import * as FetchUtil from './FetchUtil'
+import { z } from 'zod'
 
-export interface Result {
-  error: boolean
-  hits: Hit[]
-}
+const hitSchema = z.object({
+  id: z.string().nonempty(),
+  url: z.string().nonempty(),
+  urlHTML: z.string().nonempty(),
+  titleHTML: z.string().nonempty(),
+  descriptionHTML: z.string(),
+  tags: z.array(z.string().nonempty()).optional(),
+})
 
-export interface Hit {
-  id: string
-  url: string
-  urlHTML: string
-  titleHTML: string
-  descriptionHTML: string
-  tags?: string[]
-}
+export type Hit = z.infer<typeof hitSchema>
 
-export interface Bookmark {
-  objectID?: string
-  url: string
-  title: string
-  description: string
-  tags?: string[]
-}
+const resultSchema = z.object({
+  error: z.boolean(),
+  hits: z.array(hitSchema),
+})
+
+export type Result = z.infer<typeof resultSchema>
+
+const bookmarkSchema = z.object({
+  objectID: z.string().nonempty().optional(),
+  url: z.string().nonempty(),
+  title: z.string().nonempty(),
+  description: z.string(),
+  tags: z.array(z.string().nonempty()).optional(),
+})
+
+export type Bookmark = z.infer<typeof bookmarkSchema>
 
 const emptyBookmark: Bookmark = {
   url: '',
@@ -30,21 +38,25 @@ const emptyBookmark: Bookmark = {
   description: '',
 }
 
-export interface SaveBookmarkData {
+export type SaveBookmarkData = {
   bookmark: Bookmark
   onCreating(): void
   onCreated(): void
 }
 
-export interface DeleteBookmarkData {
+export type DeleteBookmarkData = {
   objectID: string
   onDeleting(): void
   onDeleted(): void
 }
 
-export type TagCountMap = {
-  readonly [tag: string]: number
-}
+const tagCountsSchema = z.record(z.string().nonempty(), z.number().min(1))
+
+export type TagCounts = z.infer<typeof tagCountsSchema>
+
+const tagsListSchema = z.array(z.string().nonempty())
+
+export type TagsList = z.infer<typeof tagsListSchema>
 
 export const createQueryClient = () =>
   new ReactQuery.QueryClient({
@@ -53,21 +65,19 @@ export const createQueryClient = () =>
         refetchOnWindowFocus: false,
         staleTime: Infinity,
         cacheTime: Infinity,
-        // cannot pass retry here
+        retry: false,
       },
     },
   })
 
-const retry = (_: number, error: FetchUtil.HTTPError) => error.status != 404 && error.status < 500
-
 export const useSearch = (query: string) =>
   ReactQuery.useQuery(
     ['search', query],
-    () => FetchUtil.getJSON<Result>(`/rest/bookmarks?q=${encodeURIComponent(query)}`),
+    async () =>
+      resultSchema.parse(await ky.get(`/rest/bookmarks?q=${encodeURIComponent(query)}`, { parseJson }).json()),
     {
       enabled: query.trim() !== '',
       staleTime: 15 * 60 * 1000,
-      retry: retry,
     }
   )
 
@@ -82,11 +92,13 @@ const useInvalidateSearch = () => {
 
 export const useBookmark = (objectID?: string) =>
   ReactQuery.useQuery(
-    objectID ? ['bookmark', objectID] : ['bookmark.new'],
-    () => (objectID ? FetchUtil.getJSON<Bookmark>(`/rest/bookmark/${encodeURIComponent(objectID)}`) : emptyBookmark),
+    !!objectID ? ['bookmark', objectID] : ['bookmark.new'],
+    async () =>
+      !!objectID
+        ? bookmarkSchema.parse(await ky.get(`/rest/bookmark/${encodeURIComponent(objectID)}`, { parseJson }).json())
+        : emptyBookmark,
     {
       staleTime: 15 * 60 * 1000,
-      retry: retry,
     }
   )
 
@@ -107,8 +119,8 @@ export const useCreateBookmark = () => {
   const invalidateAllTags = useInvalidateAllTags()
   const invalidateAllTagCounts = useInvalidateAllTagCounts()
 
-  const mutation = ReactQuery.useMutation<undefined, FetchUtil.HTTPError, SaveBookmarkData>(
-    (data) => FetchUtil.postJSON('/rest/bookmark', data.bookmark),
+  const mutation = ReactQuery.useMutation<unknown, Error, SaveBookmarkData>(
+    (data) => ky.post('/rest/bookmark', { json: data.bookmark }),
     {
       onMutate: (variables) => variables.onCreating(),
 
@@ -130,9 +142,8 @@ export const useUpdateBookmark = () => {
   const invalidateAllTags = useInvalidateAllTags()
   const invalidateAllTagCounts = useInvalidateAllTagCounts()
 
-  const mutation = ReactQuery.useMutation<undefined, FetchUtil.HTTPError, SaveBookmarkData>(
-    (data) =>
-      FetchUtil.putJSON(`/rest/bookmark/${encodeURIComponent(data.bookmark.objectID as string)}`, data.bookmark),
+  const mutation = ReactQuery.useMutation<unknown, Error, SaveBookmarkData>(
+    (data) => ky.put(`/rest/bookmark/${encodeURIComponent(data.bookmark.objectID as string)}`, { json: data.bookmark }),
     {
       onMutate: (variables) => variables.onCreating(),
 
@@ -155,14 +166,14 @@ export const useDeleteBookmark = () => {
   const invalidateAllTags = useInvalidateAllTags()
   const invalidateAllTagCounts = useInvalidateAllTagCounts()
 
-  const mutation = ReactQuery.useMutation<undefined, FetchUtil.HTTPError, DeleteBookmarkData>(
-    (data) => FetchUtil.deleteJSON(`/rest/bookmark/${encodeURIComponent(data.objectID)}`),
+  const mutation = ReactQuery.useMutation<unknown, Error, DeleteBookmarkData>(
+    (data) => ky.delete(`/rest/bookmark/${encodeURIComponent(data.objectID)}`),
     {
       onMutate: (variables) => variables.onDeleting(),
 
       onSuccess: (_, variables) => {
         variables.onDeleted()
-        invalidateBookmark(variables.objectID as string)
+        invalidateBookmark(variables.objectID)
         invalidateSearch()
         invalidateAllTags()
         invalidateAllTagCounts()
@@ -174,10 +185,13 @@ export const useDeleteBookmark = () => {
 }
 
 export const useAllTags = () =>
-  ReactQuery.useQuery(['bookmarks.tags'], () => FetchUtil.getJSON<string[]>('/rest/bookmarks/tags'), {
-    staleTime: 15 * 60 * 1000,
-    retry: retry,
-  })
+  ReactQuery.useQuery(
+    ['bookmarks.tags'],
+    async () => tagsListSchema.parse(await ky.get('/rest/bookmarks/tags', { parseJson }).json()),
+    {
+      staleTime: 15 * 60 * 1000,
+    }
+  )
 
 const useInvalidateAllTags = () => {
   const queryClient = ReactQuery.useQueryClient()
@@ -189,10 +203,13 @@ const useInvalidateAllTags = () => {
 }
 
 export const useAllTagCounts = () =>
-  ReactQuery.useQuery(['bookmarks.tagCounts'], () => FetchUtil.getJSON<TagCountMap>('/rest/bookmarks/tagCounts'), {
-    staleTime: 15 * 60 * 1000,
-    retry: retry,
-  })
+  ReactQuery.useQuery(
+    ['bookmarks.tagCounts'],
+    async () => tagCountsSchema.parse(await ky.get('/rest/bookmarks/tagCounts', { parseJson }).json()),
+    {
+      staleTime: 15 * 60 * 1000,
+    }
+  )
 
 const useInvalidateAllTagCounts = () => {
   const queryClient = ReactQuery.useQueryClient()
