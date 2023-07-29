@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/algolia/algoliasearch-client-go/v3 v3.30.1
 	github.com/blizzy78/conditional-http v0.2.0
-	github.com/go-chi/chi/v5 v5.0.8
+	github.com/go-chi/chi/v5 v5.0.10
 	github.com/magefile/mage v1.15.0
 	github.com/rs/zerolog v1.29.1
 	gopkg.in/yaml.v3 v3.0.1
