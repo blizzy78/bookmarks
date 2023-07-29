@@ -120,7 +120,7 @@ export const useCreateBookmark = () => {
   const invalidateAllTagCounts = useInvalidateAllTagCounts()
 
   const mutation = ReactQuery.useMutation<unknown, Error, SaveBookmarkData>(
-    (data) => ky.post('/rest/bookmark', { json: data.bookmark }),
+    (data) => ky.post('/rest/bookmark', { json: data.bookmark, timeout: 30000 }),
     {
       onMutate: (variables) => variables.onCreating(),
 
@@ -143,7 +143,11 @@ export const useUpdateBookmark = () => {
   const invalidateAllTagCounts = useInvalidateAllTagCounts()
 
   const mutation = ReactQuery.useMutation<unknown, Error, SaveBookmarkData>(
-    (data) => ky.put(`/rest/bookmark/${encodeURIComponent(data.bookmark.objectID as string)}`, { json: data.bookmark }),
+    (data) =>
+      ky.put(`/rest/bookmark/${encodeURIComponent(data.bookmark.objectID as string)}`, {
+        json: data.bookmark,
+        timeout: 30000,
+      }),
     {
       onMutate: (variables) => variables.onCreating(),
 
@@ -167,7 +171,7 @@ export const useDeleteBookmark = () => {
   const invalidateAllTagCounts = useInvalidateAllTagCounts()
 
   const mutation = ReactQuery.useMutation<unknown, Error, DeleteBookmarkData>(
-    (data) => ky.delete(`/rest/bookmark/${encodeURIComponent(data.objectID)}`),
+    (data) => ky.delete(`/rest/bookmark/${encodeURIComponent(data.objectID)}`, { timeout: 30000 }),
     {
       onMutate: (variables) => variables.onDeleting(),
 
