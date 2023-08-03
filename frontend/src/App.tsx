@@ -79,29 +79,30 @@ const AppContents = () => {
   }
 
   const onEditorSave = (values: BookmarkFormData) => {
+    const onCreating = () => showNotification('save', 'working')
+    const onCreated = () => showNotification('save', 'done')
+
     if (!!editingBookmarkID?.id) {
       updateBookmark({
         bookmark: {
-          objectID: editingBookmarkID?.id,
           ...values,
+          objectID: editingBookmarkID?.id,
         },
 
-        onCreating: () => showNotification('save', 'working'),
-        onCreated: () => showNotification('save', 'done'),
+        onCreating,
+        onCreated,
       })
+    } else {
+      createBookmark({
+        bookmark: {
+          ...values,
+          objectID: undefined,
+        },
 
-      onEditorClose()
+        onCreating,
+        onCreated,
+      })
     }
-
-    createBookmark({
-      bookmark: {
-        objectID: undefined,
-        ...values,
-      },
-
-      onCreating: () => showNotification('save', 'working'),
-      onCreated: () => showNotification('save', 'done'),
-    })
 
     onEditorClose()
   }
