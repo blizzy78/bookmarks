@@ -3,16 +3,15 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"reflect"
 	"strings"
-
-	"github.com/rs/zerolog"
 )
 
 type restHandlerFunc[Req any, Res any] func(ctx context.Context, req Req, httpReq *http.Request) (Res, error)
 
-func handleRESTFunc[Req any, Res any](fun restHandlerFunc[Req, Res], logger *zerolog.Logger) http.HandlerFunc {
+func handleRESTFunc[Req any, Res any](fun restHandlerFunc[Req, Res], logger *slog.Logger) http.HandlerFunc {
 	var reqCheck Req
 	if reflect.TypeOf(reqCheck).Kind() == reflect.Ptr {
 		panic("request type must not be pointer")
@@ -34,7 +33,7 @@ func handleRESTFunc[Req any, Res any](fun restHandlerFunc[Req, Res], logger *zer
 			}()
 
 			if err := json.NewDecoder(httpReq.Body).Decode(&req); err != nil {
-				logger.Err(err).Str("requestType", reflect.TypeOf(req).Name()).Msg("unmarshal request")
+				logger.Error("unmarshal request", slog.String("requestType", reflect.TypeOf(req).Name()))
 				internalServerError(writer)
 
 				return
@@ -43,7 +42,7 @@ func handleRESTFunc[Req any, Res any](fun restHandlerFunc[Req, Res], logger *zer
 
 		res, err := fun(httpReq.Context(), req, httpReq)
 		if err != nil {
-			logger.Err(err).Msg("serve REST request")
+			logger.Error("serve REST request", slog.Any("err", err))
 			internalServerError(writer)
 
 			return
@@ -60,7 +59,7 @@ func handleRESTFunc[Req any, Res any](fun restHandlerFunc[Req, Res], logger *zer
 		writer.Header().Add("Content-Type", "application/json")
 
 		if err := json.NewEncoder(writer).Encode(res); err != nil {
-			logger.Err(err).Msg("send REST response")
+			logger.Error("send REST response", slog.Any("err", err))
 			internalServerError(writer)
 		}
 	}

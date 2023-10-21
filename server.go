@@ -3,21 +3,21 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/rs/zerolog"
 )
 
 type server struct {
 	s      *http.Server
-	logger *zerolog.Logger
+	logger *slog.Logger
 }
 
-func newServer(config *configuration, router *chi.Mux, logger *zerolog.Logger) *server {
+func newServer(config *configuration, router *chi.Mux, logger *slog.Logger) *server {
 	logger = componentLogger(logger, "server")
 
 	router.Use(
@@ -49,10 +49,10 @@ func (server *server) start() (func(ctx context.Context) error, error) {
 		_ = server.s.Serve(listener)
 	}()
 
-	server.logger.Info().Str("address", server.s.Addr).Msg("server running")
+	server.logger.Info("server running", slog.String("address", server.s.Addr))
 
 	return func(ctx context.Context) error {
-		server.logger.Info().Msg("shutdown server")
+		server.logger.Info("shutdown server")
 
 		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()

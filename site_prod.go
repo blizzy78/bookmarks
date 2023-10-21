@@ -18,7 +18,7 @@ func (site *site) start() error {
 }
 
 func (site *site) registerRoutes() error {
-	site.logger.Info().Msg("register routes")
+	site.logger.Info("register routes")
 
 	templ, err := fs.Sub(templates, "frontend/dist")
 	if err != nil {

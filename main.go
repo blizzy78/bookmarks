@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/rs/zerolog"
 )
 
 func main() {
@@ -16,17 +16,17 @@ func main() {
 	code := 0
 
 	if err := run(logger); err != nil {
-		logger.Fatal().Err(err).Msg("run")
+		logger.Error("run", slog.Any("err", err))
 
 		code = 1
 	}
 
-	logger.Info().Msg("exit")
+	logger.Info("exit")
 
 	os.Exit(code)
 }
 
-func run(logger *zerolog.Logger) error {
+func run(logger *slog.Logger) error {
 	config, err := loadConfig()
 	if err != nil {
 		return err
@@ -51,7 +51,7 @@ func run(logger *zerolog.Logger) error {
 
 	defer func() {
 		if err := stopServer(context.Background()); err != nil {
-			logger.Err(err).Msg("stop server")
+			logger.Error("stop server", slog.Any("err", err))
 		}
 	}()
 
@@ -60,11 +60,11 @@ func run(logger *zerolog.Logger) error {
 	return nil
 }
 
-func waitForSignal(logger *zerolog.Logger) {
+func waitForSignal(logger *slog.Logger) {
 	ch := make(chan os.Signal, 1)
 
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 
 	<-ch
-	logger.Info().Msg("received exit signal")
+	logger.Info("received exit signal")
 }

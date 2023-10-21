@@ -3,12 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"sort"
 	"strings"
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
-	"github.com/rs/zerolog"
 )
 
 type bookmarks struct {
@@ -39,10 +39,10 @@ type hit struct {
 
 var errStringSliceConversion = errors.New("convert to string slice")
 
-func newBookmarks(config *configuration, logger *zerolog.Logger) *bookmarks {
+func newBookmarks(config *configuration, logger *slog.Logger) *bookmarks {
 	logger = componentLogger(logger, "bookmarks")
 
-	logger.Info().Str("appID", config.Algolia.AppID).Str("index", config.Algolia.IndexName).Msg("use Algolia")
+	logger.Info("use Algolia", slog.String("appID", config.Algolia.AppID), slog.String("index", config.Algolia.IndexName))
 
 	client := search.NewClient(config.Algolia.AppID, config.Algolia.APIKey)
 	index := client.InitIndex(config.Algolia.IndexName)

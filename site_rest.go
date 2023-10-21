@@ -2,20 +2,20 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/rs/zerolog"
 )
 
 type rest struct {
 	bm     *bookmarks
 	router *chi.Mux
-	logger *zerolog.Logger
+	logger *slog.Logger
 }
 
-func newREST(bm *bookmarks, router *chi.Mux, logger *zerolog.Logger) *rest {
+func newREST(bm *bookmarks, router *chi.Mux, logger *slog.Logger) *rest {
 	return &rest{
 		bm:     bm,
 		router: router,
@@ -28,7 +28,7 @@ func (rs *rest) start() {
 }
 
 func (rs *rest) registerRoutes() {
-	rs.logger.Info().Msg("register routes")
+	rs.logger.Info("register routes")
 
 	rs.router.Route("/rest", func(restRouter chi.Router) {
 		restRouter.Route("/bookmarks", func(bookmarksRouter chi.Router) {
@@ -60,7 +60,7 @@ func (rs *rest) search(_ context.Context, _ struct{}, hr *http.Request) (*search
 
 	res, err := rs.bm.search(query)
 	if err != nil {
-		rs.logger.Err(err).Msg("search")
+		rs.logger.Error("search", slog.Any("err", err))
 
 		return &searchResponse{
 			Error: true,

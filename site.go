@@ -1,16 +1,17 @@
 package main
 
 import (
+	"log/slog"
+
 	"github.com/go-chi/chi/v5"
-	"github.com/rs/zerolog"
 )
 
 type site struct {
 	router *chi.Mux
-	logger *zerolog.Logger
+	logger *slog.Logger
 }
 
-func newSite(router *chi.Mux, logger *zerolog.Logger) *site {
+func newSite(router *chi.Mux, logger *slog.Logger) *site {
 	return &site{
 		router: router,
 		logger: componentLogger(logger, "site"),

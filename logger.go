@@ -1,36 +1,28 @@
 package main
 
 import (
-	"io"
+	"log/slog"
 	"os"
 
-	"github.com/rs/zerolog"
+	"github.com/lmittmann/tint"
 )
 
-func newLogger() *zerolog.Logger {
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
-
-	logWriter := io.Writer(os.Stdout)
+func newLogger() *slog.Logger {
+	var handler slog.Handler = slog.NewJSONHandler(os.Stdout, nil)
 
 	pretty, _ := os.LookupEnv("LOG_PRETTY")
-	if pretty != "" {
-		consWriter := zerolog.NewConsoleWriter()
-		consWriter.TimeFormat = "2006-01-02 15:04:05.000"
-
+	if pretty == "true" {
 		color, _ := os.LookupEnv("LOG_COLOR")
-		if color == "" {
-			consWriter.NoColor = true
-		}
 
-		logWriter = consWriter
+		handler = tint.NewHandler(os.Stdout, &tint.Options{
+			TimeFormat: "2006-01-02 15:04:05.000",
+			NoColor:    color != "true",
+		})
 	}
 
-	l := zerolog.New(logWriter).With().Timestamp().Logger()
-
-	return &l
+	return slog.New(handler)
 }
 
-func componentLogger(logger *zerolog.Logger, name string) *zerolog.Logger {
-	log := logger.With().Str("component", name).Logger()
-	return &log
+func componentLogger(logger *slog.Logger, name string) *slog.Logger {
+	return logger.With(slog.String("component", name))
 }
