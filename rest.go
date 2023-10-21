@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
 	"reflect"
@@ -41,7 +42,14 @@ func handleRESTFunc[Req any, Res any](fun restHandlerFunc[Req, Res], logger *slo
 		}
 
 		res, err := fun(httpReq.Context(), req, httpReq)
+
 		if err != nil {
+			var httpErr *httpError
+			if errors.As(err, &httpErr) {
+				http.Error(writer, httpErr.message, httpErr.code)
+				return
+			}
+
 			logger.Error("serve REST request", slog.Any("err", err))
 			internalServerError(writer)
 

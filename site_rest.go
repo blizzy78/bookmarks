@@ -73,17 +73,16 @@ func (rs *rest) search(_ context.Context, _ struct{}, hr *http.Request) (*search
 
 func (rs *rest) updateBookmark(_ context.Context, b bookmark, hr *http.Request) (*struct{}, error) {
 	b.ID = chi.URLParam(hr, "id")
-
-	return nil, rs.bm.saveBookmark(b)
+	return nil, httpErrFrom(rs.bm.saveBookmark(b))
 }
 
 func (rs *rest) createBookmark(_ context.Context, b bookmark, _ *http.Request) (*struct{}, error) {
-	return nil, rs.bm.saveBookmark(b)
+	return nil, httpErrFrom(rs.bm.saveBookmark(b))
 }
 
 func (rs *rest) deleteBookmark(_ context.Context, _ struct{}, hr *http.Request) (*struct{}, error) {
 	id := chi.URLParam(hr, "id")
-	return nil, rs.bm.deleteBookmark(id)
+	return nil, httpErrFrom(rs.bm.deleteBookmark(id))
 }
 
 func (rs *rest) getBookmark(_ context.Context, _ struct{}, hr *http.Request) (*bookmark, error) {
@@ -91,16 +90,18 @@ func (rs *rest) getBookmark(_ context.Context, _ struct{}, hr *http.Request) (*b
 
 	b, err := rs.bm.getBookmark(id)
 	if err != nil {
-		return nil, err
+		return nil, httpErrFrom(err)
 	}
 
 	return &b, nil
 }
 
 func (rs *rest) getAllTags(_ context.Context, _ struct{}, _ *http.Request) ([]string, error) {
-	return rs.bm.allTags()
+	tags, err := rs.bm.allTags()
+	return tags, httpErrFrom(err)
 }
 
 func (rs *rest) getAllTagCounts(_ context.Context, _ struct{}, _ *http.Request) (map[string]int, error) {
-	return rs.bm.allTagCounts()
+	counts, err := rs.bm.allTagCounts()
+	return counts, httpErrFrom(err)
 }
