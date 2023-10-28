@@ -5,6 +5,11 @@ import * as API from './API'
 import { Tags } from './Tags'
 
 export default function Entry({ hit, onEditClick }: { hit: API.Hit; onEditClick(): void }) {
+  const prefetchBookmark = API.usePrefetchBookmark()
+
+  // prefetch bookmark so that the editor opens faster
+  const onEditMouseEnter = () => prefetchBookmark(hit.id)
+
   return (
     <div className="flex flex-col items-start gap-2">
       <a
@@ -27,6 +32,7 @@ export default function Entry({ hit, onEditClick }: { hit: API.Hit; onEditClick(
             className="!font-inherit !text-lg active:!translate-y-0 dark:text-slate-500 dark:hover:bg-slate-600 dark:hover:text-slate-50 dark:focus:!outline-indigo-300"
             title="Edit"
             onClick={onEditClick}
+            onMouseEnter={onEditMouseEnter}
           >
             <FontAwesome.FontAwesomeIcon icon={FontAwesomeSolid.faEdit} />
           </Mantine.ActionIcon>

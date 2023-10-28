@@ -105,7 +105,7 @@ export const useBookmark = (objectID?: string) =>
     staleTime: 15 * 60 * 1000,
   })
 
-const usePrefetchBookmark = () => {
+export const usePrefetchBookmark = () => {
   const queryClient = ReactQuery.useQueryClient()
 
   return useCallback(
