@@ -5,9 +5,6 @@ import * as API from './API'
 import { Tags } from './Tags'
 
 export default function Entry({ hit, onEditClick }: { hit: API.Hit; onEditClick(): void }) {
-  // trigger reload of corresponding bookmark after saving so that the edit dialog never uses stale data
-  API.useBookmark(hit.id)
-
   return (
     <div className="flex flex-col items-start gap-2">
       <a

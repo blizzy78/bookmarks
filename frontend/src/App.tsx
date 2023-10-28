@@ -123,9 +123,6 @@ const AppContents = () => {
     onEditorClose()
   }
 
-  // trigger reload of all tags so that the edit dialog opens faster
-  API.useAllTags()
-
   return (
     <>
       <main className="isolate mx-auto mb-20 flex flex-col px-5 lg:max-w-screen-lg xl:px-0">

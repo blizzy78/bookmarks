@@ -91,18 +91,38 @@ const useInvalidateSearch = () => {
   }, [queryClient])
 }
 
+const fetchBookmark = async (objectID: string) =>
+  bookmarkSchema.parse(await ky.get(`/rest/bookmark/${encodeURIComponent(objectID)}`, { parseJson }).json())
+
 export const useBookmark = (objectID?: string) =>
   ReactQuery.useQuery({
     queryKey: !!objectID ? ['bookmark', objectID] : ['bookmark.new'],
 
-    async queryFn() {
-      return !!objectID
-        ? bookmarkSchema.parse(await ky.get(`/rest/bookmark/${encodeURIComponent(objectID)}`, { parseJson }).json())
-        : emptyBookmark
+    queryFn() {
+      return !!objectID ? fetchBookmark(objectID) : emptyBookmark
     },
 
     staleTime: 15 * 60 * 1000,
   })
+
+const usePrefetchBookmark = () => {
+  const queryClient = ReactQuery.useQueryClient()
+
+  return useCallback(
+    (objectID: string) => {
+      queryClient.prefetchQuery({
+        queryKey: ['bookmark', objectID],
+
+        queryFn() {
+          return fetchBookmark(objectID)
+        },
+
+        staleTime: 15 * 60 * 1000,
+      })
+    },
+    [queryClient],
+  )
+}
 
 const useInvalidateBookmark = () => {
   const queryClient = ReactQuery.useQueryClient()
@@ -147,6 +167,8 @@ export const useUpdateBookmark = () => {
   const invalidateAllTags = useInvalidateAllTags()
   const invalidateAllTagCounts = useInvalidateAllTagCounts()
 
+  const prefetchBookmark = usePrefetchBookmark()
+
   const mutation = ReactQuery.useMutation({
     mutationFn(data: SaveBookmarkData) {
       return ky.put(`/rest/bookmark/${encodeURIComponent(data.bookmark.objectID as string)}`, {
@@ -160,11 +182,15 @@ export const useUpdateBookmark = () => {
     },
 
     onSettled(data: unknown, error: Error | null, variables: SaveBookmarkData) {
+      const objectID = variables.bookmark.objectID as string
+
       variables.onCreated()
-      invalidateBookmark(variables.bookmark.objectID as string)
+      invalidateBookmark(objectID)
       invalidateSearch()
       invalidateAllTags()
       invalidateAllTagCounts()
+
+      prefetchBookmark(objectID)
     },
   })
 
@@ -198,16 +224,26 @@ export const useDeleteBookmark = () => {
   return mutation.mutateAsync
 }
 
+const fetchAllTags = async () => tagsListSchema.parse(await ky.get('/rest/bookmarks/tags', { parseJson }).json())
+
 export const useAllTags = () =>
   ReactQuery.useQuery({
     queryKey: ['bookmarks.tags'],
-
-    async queryFn() {
-      return tagsListSchema.parse(await ky.get('/rest/bookmarks/tags', { parseJson }).json())
-    },
-
+    queryFn: fetchAllTags,
     staleTime: 15 * 60 * 1000,
   })
+
+export const usePrefetchAllTags = () => {
+  const queryClient = ReactQuery.useQueryClient()
+
+  return useCallback(() => {
+    queryClient.prefetchQuery({
+      queryKey: ['bookmarks.tags'],
+      queryFn: fetchAllTags,
+      staleTime: 15 * 60 * 1000,
+    })
+  }, [queryClient])
+}
 
 const useInvalidateAllTags = () => {
   const queryClient = ReactQuery.useQueryClient()

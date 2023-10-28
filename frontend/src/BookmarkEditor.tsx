@@ -1,4 +1,5 @@
 import * as Mantine from '@mantine/core'
+import * as API from './API'
 import { BookmarkForm, BookmarkFormData } from './EditBookmark'
 
 export default function BookmarkEditor({
@@ -12,6 +13,9 @@ export default function BookmarkEditor({
   onClose(): void
   onDelete(): void
 }) {
+  // prefetch all tags so that the editor opens faster
+  API.usePrefetchAllTags()()
+
   return (
     <Mantine.Drawer
       size="xl"
