@@ -130,7 +130,7 @@ export const useCreateBookmark = () => {
       variables.onCreating()
     },
 
-    onSuccess(_, variables: SaveBookmarkData) {
+    onSettled(data: unknown, error: Error | null, variables: SaveBookmarkData) {
       variables.onCreated()
       invalidateSearch()
       invalidateAllTags()
@@ -159,7 +159,7 @@ export const useUpdateBookmark = () => {
       variables.onCreating()
     },
 
-    onSuccess(_, variables: SaveBookmarkData) {
+    onSettled(data: unknown, error: Error | null, variables: SaveBookmarkData) {
       variables.onCreated()
       invalidateBookmark(variables.bookmark.objectID as string)
       invalidateSearch()
