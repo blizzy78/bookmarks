@@ -45,7 +45,7 @@ async function Search({ query }: { query?: string }) {
       )}
     >
       {searchResult.hits.map((h) => (
-        <Entry key={h.id} hit={h} /*onEditClick={() => onEditClick(h.id)}*/ />
+        <Entry key={h.id} hit={h} />
       ))}
     </section>
   )

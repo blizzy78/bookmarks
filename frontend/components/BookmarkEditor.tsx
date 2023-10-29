@@ -19,9 +19,6 @@ export default function BookmarkEditor({
   onDelete?(): void
   keepOpenAndClearAfterSave?: boolean
 }) {
-  // // prefetch all tags so that the editor opens faster
-  // API.usePrefetchAllTags()()
-
   const [formKey, setFormKey] = useState(0)
   const [formBookmark, setFormBookmark] = useState(bookmark)
 

@@ -2,12 +2,7 @@ import * as APISchema from './APISchema'
 import EntryEditButton_Client from './EntryEditButton'
 import Tags from './Tags'
 
-export default function Entry({ hit /*onEditClick*/ }: { hit: APISchema.Hit /*onEditClick(): void*/ }) {
-  // const prefetchBookmark = API.usePrefetchBookmark()
-
-  // // prefetch bookmark so that the editor opens faster
-  // const onEditMouseEnter = () => prefetchBookmark(hit.id)
-
+export default function Entry({ hit }: { hit: APISchema.Hit }) {
   return (
     <div className="flex flex-col items-start gap-2">
       <a
