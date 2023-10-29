@@ -1,0 +1,25 @@
+version: '3.5'
+
+services:
+  backend:
+    container_name: bookmarks-backend
+    image: bookmarks-backend:latest
+    volumes:
+      - ./config.yaml:/config.yaml
+    networks:
+      - bookmarks
+
+  frontend:
+    container_name: bookmarks-frontend
+    image: bookmarks-frontend:latest
+    environment:
+      - BACKEND_BASE_URI=http://backend:8080
+    networks:
+      - bookmarks
+    depends_on:
+      - backend
+    ports:
+      - 3000:3000
+
+networks:
+  bookmarks:

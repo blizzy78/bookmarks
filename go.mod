@@ -6,7 +6,6 @@ toolchain go1.21.3
 
 require (
 	github.com/algolia/algoliasearch-client-go/v3 v3.31.0
-	github.com/blizzy78/conditional-http v0.2.0
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/lmittmann/tint v1.0.2
 	github.com/magefile/mage v1.15.0

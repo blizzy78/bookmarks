@@ -6,12 +6,15 @@
     "configurations": [
 		{
 			"name": "Frontend",
-			"command": "npm run dev",
+			"command": "pnpm dev",
 			"request": "launch",
 			"type": "node-terminal",
 			"cwd": "${workspaceFolder}/frontend",
 			"presentation": {
 				"hidden": true
+			},
+			"env": {
+				"BACKEND_BASE_URI": "http://localhost:3000",
 			}
 		},
         {

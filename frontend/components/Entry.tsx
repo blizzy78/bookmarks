@@ -1,14 +1,12 @@
-import * as FontAwesomeSolid from '@fortawesome/free-solid-svg-icons'
-import * as FontAwesome from '@fortawesome/react-fontawesome'
-import * as Mantine from '@mantine/core'
-import * as API from './API'
-import { Tags } from './Tags'
+import * as APISchema from './APISchema'
+import EntryEditButton_Client from './EntryEditButton'
+import Tags from './Tags'
 
-export default function Entry({ hit, onEditClick }: { hit: API.Hit; onEditClick(): void }) {
-  const prefetchBookmark = API.usePrefetchBookmark()
+export default function Entry({ hit /*onEditClick*/ }: { hit: APISchema.Hit /*onEditClick(): void*/ }) {
+  // const prefetchBookmark = API.usePrefetchBookmark()
 
-  // prefetch bookmark so that the editor opens faster
-  const onEditMouseEnter = () => prefetchBookmark(hit.id)
+  // // prefetch bookmark so that the editor opens faster
+  // const onEditMouseEnter = () => prefetchBookmark(hit.id)
 
   return (
     <div className="flex flex-col items-start gap-2">
@@ -28,14 +26,7 @@ export default function Entry({ hit, onEditClick }: { hit: API.Hit; onEditClick(
             dangerouslySetInnerHTML={{ __html: hit.titleHTML }}
           />
 
-          <Mantine.ActionIcon
-            className="!font-inherit !text-lg active:!translate-y-0 dark:text-slate-500 dark:hover:bg-slate-600 dark:hover:text-slate-50 dark:focus:!outline-indigo-300"
-            title="Edit"
-            onClick={onEditClick}
-            onMouseEnter={onEditMouseEnter}
-          >
-            <FontAwesome.FontAwesomeIcon icon={FontAwesomeSolid.faEdit} />
-          </Mantine.ActionIcon>
+          <EntryEditButton_Client objectID={hit.id} />
         </h3>
 
         {hit.descriptionHTML !== '' && <p dangerouslySetInnerHTML={{ __html: hit.descriptionHTML }} />}

@@ -1,8 +1,7 @@
 import * as Mantine from '@mantine/core'
 import * as MantineForm from '@mantine/form'
-import { useEffect, useRef, useState } from 'react'
-import * as API from './API'
-import tailwindConfig from './tailwindConfig'
+import { useState } from 'react'
+import * as APISchema from './APISchema'
 
 export type BookmarkFormData = {
   url: string
@@ -11,23 +10,25 @@ export type BookmarkFormData = {
   tags: string[]
 }
 
-export const BookmarkForm = ({
-  objectID,
+export default function BookmarkForm_Client({
+  bookmark,
+  allTags,
+  onDelete,
   onSave,
   onClose,
-  onDelete,
 }: {
-  objectID?: string
-  onSave(values: BookmarkFormData): void
+  bookmark?: APISchema.Bookmark
+  allTags: APISchema.TagsList
+  onDelete?(): Promise<void>
+  onSave(values: BookmarkFormData): Promise<void>
   onClose(): void
-  onDelete(): void
-}) => {
+}) {
   const form = MantineForm.useForm<BookmarkFormData>({
     initialValues: {
-      url: '',
-      title: '',
-      description: '',
-      tags: [],
+      url: bookmark?.url ?? '',
+      title: bookmark?.title ?? '',
+      description: bookmark?.description ?? '',
+      tags: bookmark?.tags ?? [],
     },
 
     validate: {
@@ -36,40 +37,9 @@ export const BookmarkForm = ({
     },
   })
 
-  const [tags, setTags] = useState<Mantine.SelectItem[]>([])
+  const [pending, setPending] = useState(false)
 
-  const { data: allTags, isFetching: allTagsFetching } = API.useAllTags()
-
-  useEffect(() => {
-    if (!allTags) {
-      setTags([])
-      return
-    }
-
-    setTags(allTags.map((t) => ({ value: t, label: t })))
-  }, [allTags])
-
-  const { data: bookmark, isFetching } = API.useBookmark(objectID)
-  const bookmarkLoaded = useRef(false)
-
-  useEffect(() => {
-    if (bookmarkLoaded.current) {
-      return
-    }
-
-    if (!bookmark) {
-      return
-    }
-
-    form.setValues({
-      url: bookmark.url,
-      title: bookmark.title,
-      description: bookmark.description,
-      tags: bookmark.tags,
-    })
-
-    bookmarkLoaded.current = true
-  }, [bookmark, form])
+  const [tags, setTags] = useState(allTags.map((t) => ({ value: t, label: t })))
 
   const onCreateTag = (t: string) => {
     const tag = { value: t, label: t }
@@ -77,13 +47,20 @@ export const BookmarkForm = ({
     return tag
   }
 
-  return (
-    <form onSubmit={form.onSubmit(onSave)} className="relative flex flex-col gap-10">
-      <Mantine.LoadingOverlay
-        visible={allTagsFetching || (!!objectID && isFetching)}
-        overlayColor={tailwindConfig.colors['slate-700']}
-      />
+  const onDeleteInternal = !!onDelete
+    ? async () => {
+        setPending(true)
+        await onDelete()
+      }
+    : undefined
 
+  const onSaveInternal = async (values: BookmarkFormData) => {
+    setPending(true)
+    await onSave(values)
+  }
+
+  return (
+    <form onSubmit={form.onSubmit(onSaveInternal)} className="relative flex flex-col gap-10">
       <div className="flex flex-col gap-5">
         <Mantine.TextInput
           label="URL"
@@ -152,11 +129,12 @@ export const BookmarkForm = ({
       </div>
 
       <div className="flex flex-row justify-end gap-3">
-        {objectID && (
+        {!!bookmark && !!onDeleteInternal && (
           <Mantine.Button
             type="button"
-            onClick={onDelete}
-            className="!rounded !border-transparent !font-inherit !text-base !font-normal active:!translate-y-0 dark:!text-inherit dark:hover:!bg-slate-600 dark:hover:!text-slate-50 dark:focus:!outline-indigo-300"
+            disabled={pending}
+            onClick={onDeleteInternal}
+            className="!rounded !border-transparent !font-inherit !text-base !font-normal active:!translate-y-0 dark:!text-inherit dark:hover:!bg-slate-600 dark:hover:!text-slate-50 dark:focus:!outline-indigo-300 dark:disabled:bg-transparent dark:disabled:!text-slate-400"
           >
             Delete
           </Mantine.Button>
@@ -164,7 +142,7 @@ export const BookmarkForm = ({
 
         <Mantine.Button
           type="submit"
-          disabled={!form.isValid()}
+          disabled={!form.isValid() || pending}
           className="!rounded !border !font-inherit !text-base !font-normal active:!translate-y-0 dark:!border-indigo-700 dark:!bg-indigo-700 dark:!text-indigo-100 dark:hover:!border-indigo-600 dark:hover:!bg-indigo-600 dark:hover:!text-indigo-50 dark:focus:!outline-indigo-300 dark:disabled:!border-indigo-700 dark:disabled:!bg-indigo-700 dark:disabled:!text-indigo-400"
         >
           Save
@@ -172,8 +150,9 @@ export const BookmarkForm = ({
 
         <Mantine.Button
           type="button"
+          disabled={pending}
           onClick={onClose}
-          className="!rounded !border !font-inherit !text-base !font-normal active:!translate-y-0 dark:!border-slate-600 dark:!text-inherit dark:hover:!bg-slate-600 dark:hover:!text-slate-50 dark:focus:!outline-indigo-300"
+          className="!rounded !border !font-inherit !text-base !font-normal active:!translate-y-0 dark:!border-slate-500 dark:!text-inherit dark:hover:!bg-slate-600 dark:hover:!text-slate-50 dark:focus:!outline-indigo-300 dark:disabled:bg-transparent dark:disabled:!text-slate-400"
         >
           Cancel
         </Mantine.Button>

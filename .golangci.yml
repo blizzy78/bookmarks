@@ -1,7 +1,3 @@
-run:
-  build-tags:
-    - prod
-
 # https://github.com/golangci/golangci-lint/issues/456#issuecomment-617470264
 issues:
   exclude-use-default: false
@@ -69,7 +65,7 @@ linters-settings:
     require-explanation: true
     require-specific: true
   unused:
-    go: 1.20
+    go: '1.21'
   varnamelen:
     check-return: true
     ignore-type-assert-ok: true

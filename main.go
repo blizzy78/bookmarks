@@ -35,14 +35,9 @@ func run(logger *slog.Logger) error {
 	bookmarks := newBookmarks(config, logger)
 	router := chi.NewRouter()
 	rest := newREST(bookmarks, router, logger)
-	site := newSite(router, logger)
 	server := newServer(config, router, logger)
 
 	rest.start()
-
-	if err = site.start(); err != nil {
-		return err
-	}
 
 	stopServer, err := server.start()
 	if err != nil {
