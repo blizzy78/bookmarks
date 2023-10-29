@@ -10,7 +10,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 EXPOSE 3000
 
 LABEL autoheal true
-HEALTHCHECK --start-period=30s --interval=10s CMD curl -f "http://localhost:${PORT}" || exit 1
+HEALTHCHECK --start-period=30s --interval=10s CMD curl -f "http://localhost:${PORT}/health" || exit 1
 
 RUN apt update && apt install -y curl
 
