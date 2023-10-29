@@ -13,6 +13,7 @@ export default function QueryInput({ value, error }: { value: string; error: boo
   const router = useRouter()
 
   const onCreateClick = () => router.push('/create')
+  const onCreateMouseEnter = () => router.prefetch('/create')
 
   useEffect(() => {
     if (debouncedQueryTrimmed === '') {
@@ -43,6 +44,7 @@ export default function QueryInput({ value, error }: { value: string; error: boo
       <Mantine.Button
         className="h-full !rounded-l-none !rounded-r-full !border-b !border-l-0 !border-r !border-t !pl-3 !pr-4 !font-inherit text-base !font-normal active:!translate-y-0 dark:border-slate-400 dark:!bg-slate-700 dark:text-inherit dark:hover:!bg-slate-600 dark:hover:text-slate-50 dark:focus:!outline-indigo-300 md:text-lg"
         onClick={onCreateClick}
+        onMouseEnter={onCreateMouseEnter}
       >
         Create
       </Mantine.Button>
