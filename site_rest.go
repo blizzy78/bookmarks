@@ -15,6 +15,10 @@ type rest struct {
 	logger *slog.Logger
 }
 
+type healthResponse struct {
+	Status string `json:"status"`
+}
+
 func newREST(bm *bookmarks, router *chi.Mux, logger *slog.Logger) *rest {
 	return &rest{
 		bm:     bm,
@@ -31,6 +35,9 @@ func (rs *rest) registerRoutes() {
 	rs.logger.Info("register routes")
 
 	rs.router.Route("/rest", func(restRouter chi.Router) {
+		restRouter.Options("/health", handleOptions(http.MethodGet))
+		restRouter.Get("/health", handleRESTFunc(rs.health, rs.logger))
+
 		restRouter.Route("/bookmarks", func(bookmarksRouter chi.Router) {
 			bookmarksRouter.Options("/", handleOptions(http.MethodGet))
 			bookmarksRouter.Get("/", handleRESTFunc(rs.search, rs.logger))
@@ -52,6 +59,12 @@ func (rs *rest) registerRoutes() {
 			bookmarkRouter.Put("/{id}", handleRESTFunc(rs.updateBookmark, rs.logger))
 		})
 	})
+}
+
+func (rs *rest) health(_ context.Context, _ struct{}, _ *http.Request) (*healthResponse, error) {
+	return &healthResponse{
+		Status: "UP",
+	}, nil
 }
 
 func (rs *rest) search(_ context.Context, _ struct{}, hr *http.Request) (*searchResponse, error) {
